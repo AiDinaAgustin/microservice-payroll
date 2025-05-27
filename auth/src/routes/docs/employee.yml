@@ -1,0 +1,932 @@
+paths:
+   /v1/employees/list:
+      get:
+         summary: Get employees
+         tags:
+          - Employee
+         parameters:
+          - in: header
+            name: TENANT-ID
+            description: Unique identifier for the tenant
+            required: true
+            schema:
+               type: string
+          - in: query
+            name: page
+            description: Page number
+            required: true
+            schema:
+               type: integer
+          - in: query
+            name: limit
+            description: Number of items per page
+            required: true
+            schema:
+               type: integer
+          - in: query
+            name: keyword
+            description: search keyword by name & nik
+            required: false
+            schema:
+               type: string
+          - in: query
+            name: position
+            description: Filter by position
+            required: false
+            schema:
+               type: string
+          - in: query
+            name: department
+            description: Filter by department
+            required: false
+            schema:
+               type: string
+          - in: query
+            name: contractType
+            description: Filter by contract type
+            required: false
+            schema:
+               type: string
+          - in: query
+            name: status
+            description: Filter by status
+            required: false
+            schema:
+               type: string
+          - in: query
+            name: sortBy
+            description: Sorting by name
+            required: false
+            schema:
+               type: string
+          - in: query
+            name: sortOrder
+            description: Sorting order
+            required: false
+            schema:
+               type: string
+         security:
+          - BearerAuth: []
+         responses:
+            '200':
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: '#/components/schemas/EmployeeTableResponse'
+            '400':
+               $ref: '#/components/responses/400'
+            '500':
+               $ref: '#/components/responses/500'
+   /v1/employees/detail/{id}:
+      get:
+         summary: Get employee by ID
+         tags:
+          - Employee
+         parameters:
+          - in: header
+            name: TENANT-ID
+            description: Unique identifier for the tenant
+            required: true
+            schema:
+               type: string
+          - $ref: '#/components/parameters/IdParam'
+         security:
+          - BearerAuth: []
+         responses:
+            '200':
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        type: object
+                        properties:
+                           status:
+                              type: integer
+                           message:
+                              type: string
+                           data:
+                              type: object
+                              properties:
+                                 id:
+                                    type: string
+                                 employee_id:
+                                    type: string
+                                 name:
+                                    type: string
+                                 status:
+                                    type: string
+                                 nik:
+                                    type: string
+                                 email:
+                                    type: string
+                                 phone_number:
+                                    type: string
+                                 address:
+                                    type: string
+                                 birth_date:
+                                    type: string
+                                    format: date-time
+                                 gender:
+                                    type: string
+                                 marital_status_id:
+                                    type: string
+                                 npwp:
+                                    type: string
+                                 emergency_contact:
+                                    type: string
+                                 position_id:
+                                    type: string
+                                 department_id:
+                                    type: string
+                                 manager_id:
+                                    type: string
+                                 supervisor_id:
+                                    type: string
+                                 team_lead_id:
+                                    type: string
+                                 mentor_id:
+                                    type: string
+                                 tenant_id:
+                                    type: string
+                                 image_url:
+                                    type: string
+                                 medical_condition:
+                                    type: string
+                                 deleted:
+                                    type: integer
+                                 created_by:
+                                    type: string
+                                 updated_by:
+                                    type: string
+                                 created_at:
+                                    type: string
+                                    format: date-time
+                                 updated_at:
+                                    type: string
+                                    format: date-time
+                                 position:
+                                    type: object
+                                    properties:
+                                       id:
+                                          type: string
+                                       tenant_id:
+                                          type: string
+                                       department_id:
+                                          type: string
+                                       name:
+                                          type: string
+                                       deleted:
+                                          type: integer
+                                       created_by:
+                                          type: string
+                                       updated_by:
+                                          type: string
+                                       created_at:
+                                          type: string
+                                          format: date-time
+                                       updated_at:
+                                          type: string
+                                          format: date-time
+                                 department:
+                                    type: object
+                                    properties:
+                                       id:
+                                          type: string
+                                       tenant_id:
+                                          type: string
+                                       name:
+                                          type: string
+                                       deleted:
+                                          type: integer
+                                       created_by:
+                                          type: string
+                                       updated_by:
+                                          type: string
+                                       created_at:
+                                          type: string
+                                          format: date-time
+                                       updated_at:
+                                          type: string
+                                          format: date-time
+                                 maritalStatus:
+                                    type: object
+                                    properties:
+                                       id:
+                                          type: string
+                                       status:
+                                          type: string
+                                       deleted:
+                                          type: integer
+                                       created_by:
+                                          type: string
+                                       updated_by:
+                                          type: string
+                                       created_at:
+                                          type: string
+                                          format: date-time
+                                       updated_at:
+                                          type: string
+                                          format: date-time
+                                 tenant:
+                                    type: object
+                                    properties:
+                                       id:
+                                          type: string
+                                       name:
+                                          type: string
+                                       status:
+                                          type: integer
+                                       deleted:
+                                          type: integer
+                                       created_by:
+                                          type: string
+                                       updated_by:
+                                          type: string
+                                       created_at:
+                                          type: string
+                                          format: date-time
+                                       updated_at:
+                                          type: string
+                                          format: date-time
+                                 contracts:
+                                    type: array
+                                    items:
+                                       type: object
+                                       properties:
+                                          id:
+                                             type: string
+                                          start_date:
+                                             type: string
+                                             format: date-time
+                                          end_date:
+                                             type: string
+                                             format: date-time
+                                          contractType:
+                                             type: object
+                                             properties:
+                                                id:
+                                                   type: string
+                                                name:
+                                                   type: string
+                                                tenant_id:
+                                                   type: string
+                                                is_permanent:
+                                                   type: boolean
+                                                deleted:
+                                                   type: integer
+                                                created_by:
+                                                   type: string
+                                                updated_by:
+                                                   type: string
+                                                created_at:
+                                                   type: string
+                                                   format: date-time
+                                                updated_at:
+                                                   type: string
+                                                   format: date-time
+                                 manager_name:
+                                    type: string
+                                 supervisor_name:
+                                    type: string
+                                 team_lead_name:
+                                    type: string
+                                 mentor_name:
+                                    type: string
+            '400':
+               $ref: '#/components/responses/400'
+            '404':
+               $ref: '#/components/responses/404'
+            '500':
+               $ref: '#/components/responses/500'
+
+   /v1/employees/edit/{id}:
+      put:
+         summary: Update employee information
+         tags:
+          - Employee
+         security:
+          - BearerAuth: []
+         responses:
+            '200':
+               description: Employee updated successfully
+               content:
+                  application/json:
+                     schema:
+                        type: object
+                        properties:
+                           status:
+                              type: integer
+                              example: 200
+                           message:
+                              type: string
+                              example: "Employee updated successfully"
+                           data:
+                              type: object
+                              properties:
+                                 employee_id:
+                                    type: string
+                                    example: "233332323232323"
+                                 name:
+                                    type: string
+                                    example: "Jiad Dzikri Test"
+                                 status:
+                                    type: string
+                                    example: "Active"
+                                 nik:
+                                    type: string
+                                    example: "3211111111111111"
+                                 email:
+                                    type: string
+                                    example: "jiad@email.kece.com"
+                                 phone_number:
+                                    type: string
+                                    example: "08434343434343"
+                                 address:
+                                    type: string
+                                    example: "Puskopad lalala"
+                                 birth_date:
+                                    type: string
+                                    format: date-time
+                                    example: "2003-10-31T17:00:00.000Z"
+                                 gender:
+                                    type: string
+                                    example: "male"
+                                 npwp:
+                                    type: string
+                                    example: "djsfjdisfjdsfds"
+                                 emergency_contact:
+                                    type: string
+                                    example: "084305834058343"
+                                 position_id:
+                                    type: string
+                                    example: "1"
+                                 department_id:
+                                    type: string
+                                    example: "2"
+                                 manager_id:
+                                    type: string
+                                    example: "2"
+                                 supervisor_id:
+                                    type: string
+                                    example: "3"
+                                 team_lead_id:
+                                    type: string
+                                    example: "4"
+                                 mentor_id:
+                                    type: string
+                                    example: "5"
+                                 tenant_id:
+                                    type: string
+                                    example: "1"
+                                 image_url:
+                                    type: string
+                                    example: "lala-test.jpg"
+                                 medical_condition:
+                                    type: string
+                                    example: "sakit hati kronis 2"
+                                 marital_status_id:
+                                    type: string
+                                    example: "1"
+                                 contract_id:
+                                    type: string
+                                    example: "1"
+                                 contract_type_id:
+                                    type: string
+                                    example: "1"
+                                 start_date:
+                                    type: string
+                                    format: date-time
+                                    example: "2023-01-11T00:00:00.000Z"
+                                 end_date:
+                                    type: string
+                                    nullable: true
+                                    example: null
+            '400':
+               $ref: '#/components/responses/400'
+            '500':
+               $ref: '#/components/responses/500'
+   /v1/employees/patch/{id}:
+      patch:
+         summary: Patch status employee
+         tags:
+          - Employee
+         parameters:
+          - $ref: '#/components/parameters/IdParam'
+         requestBody:
+            required: true
+            content:
+               application/json:
+                  schema:
+                     $ref: '#/components/schemas/EmployeePatchPayload'
+         security:
+          - BearerAuth: []
+         responses:
+            '200':
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: '#/components/schemas/EmployeeBaseResponse'
+            '400':
+               $ref: '#/components/responses/400'
+            '404':
+               $ref: '#/components/responses/404'
+            '500':
+               $ref: '#/components/responses/500'
+   /v1/employees/delete/{id}:
+      delete:
+         summary: Delete employee
+         tags:
+          - Employee
+         parameters:
+          - $ref: '#/components/parameters/IdParam'
+         security:
+          - BearerAuth: []
+         responses:
+            '200':
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: '#/components/schemas/BaseResponse'
+            '400':
+               $ref: '#/components/responses/400'
+            '404':
+               $ref: '#/components/responses/404'
+            '500':
+               $ref: '#/components/responses/500'
+   /v1/employees/options:
+      get:
+         summary: Get employee options
+         tags:
+          - Employee
+         parameters:
+          - in: header
+            name: TENANT-ID
+            description: Unique identifier for the tenant
+            required: true
+            schema:
+               type: string
+          - in: query
+            name: limit
+            description: Number of items per page
+            required: true
+            schema:
+               type: integer
+          - in: query
+            name: keyword
+            description: search keyword by name
+            required: false
+            schema:
+               type: string
+          - in: query
+            name: employeeId
+            description: Filter by employeeId
+            required: false
+            schema:
+               type: string
+          - in: query
+            name: managerId
+            description: Filter by managerId
+            required: false
+            schema:
+               type: string
+          - in: query
+            name: supervisorId
+            description: Filter by supervisorId
+            required: false
+            schema:
+               type: string
+          - in: query
+            name: leadId
+            description: Filter by leadId
+            required: false
+            schema:
+               type: string
+          - in: query
+            name: mentorId
+            description: Filter by mentorId
+            required: false
+            schema:
+               type: string
+         security:
+          - BearerAuth: []
+          - BearerAuth: []
+         responses:
+            '200':
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: '#/components/schemas/EmployeeOptionBaseResponse'
+            '400':
+               $ref: '#/components/responses/400'
+            '500':
+               $ref: '#/components/responses/500'
+   /v1/employees/upload:
+      post:
+         summary: Upload employee data from Excel file
+         tags:
+          - Employee
+          - Employee
+         requestBody:
+            required: true
+            content:
+               multipart/form-data:
+                  schema:
+                     type: object
+                     properties:
+                        file:
+                           type: string
+                           format: binary
+         security:
+          - BearerAuth: []
+          - BearerAuth: []
+         responses:
+            '200':
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        type: object
+                        properties:
+                           status:
+                              type: string
+                              example: '200'
+                           message:
+                              type: string
+                              example: 'OK'
+                           data:
+                              type: object
+                              properties:
+                                 totalRowsError:
+                                    type: integer
+                                    example: 0
+                                 content:
+                                    type: array
+                                    items:
+                                       type: object
+                                       properties:
+                                          id:
+                                             type: string
+                                             example: '1'
+                                          name:
+                                             type: string
+                                             example: 'John Doe'
+                                          nik:
+                                             type: string
+                                             example: '1234567890123456'
+                                          employee_id:
+                                             type: string
+                                             example: 'EMP001'
+                                          status:
+                                             type: string
+                                             example: 'success'
+            '400':
+               $ref: '#/components/responses/400'
+            '500':
+               $ref: '#/components/responses/500'
+   /v1/employees/download:
+      get:
+         summary: Download employee data as Excel file
+         tags:
+          - Employee
+          - Employee
+         security:
+          - BearerAuth: []
+          - BearerAuth: []
+         responses:
+            '200':
+               description: OK
+               content:
+                  application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+                     schema:
+                        type: string
+                        format: binary
+            '400':
+               $ref: '#/components/responses/400'
+            '500':
+               $ref: '#/components/responses/500'
+
+components:
+   schemas:
+      EmployeeResponse:
+         type: object
+         properties:
+            id:
+               type: string
+            employee_id:
+               type: string
+            name:
+               type: string
+            status:
+               type: string
+            nik:
+               type: string
+            email:
+               type: string
+            phone_number:
+               type: string
+            address:
+               type: string
+            birth_date:
+               type: string
+               format: date-time
+            gender:
+               type: string
+            marital_status_id:
+               type: string
+            npwp:
+               type: string
+            emergency_contact:
+               type: string
+            position_id:
+               type: string
+            department_id:
+               type: string
+            manager_id:
+               type: string
+               nullable: true
+            supervisor_id:
+               type: string
+               nullable: true
+            team_lead_id:
+               type: string
+               nullable: true
+            mentor_id:
+               type: string
+               nullable: true
+            tenant_id:
+               type: string
+            image_url:
+               type: string
+            medical_condition:
+               type: text
+            deleted:
+               type: integer
+            created_by:
+               type: string
+            updated_by:
+               type: string
+            created_at:
+               type: string
+               format: date-time
+            updated_at:
+               type: string
+               format: date-time
+            position:
+               type: object
+               properties:
+                  id:
+                     type: string
+                  tenant_id:
+                     type: string
+                  department_id:
+                     type: string
+                  name:
+                     type: string
+                  deleted:
+                     type: integer
+                  created_by:
+                     type: string
+                  updated_by:
+                     type: string
+                  created_at:
+                     type: string
+                     format: date-time
+                  updated_at:
+                     type: string
+                     format: date-time
+            department:
+               type: object
+               properties:
+                  id:
+                     type: string
+                  tenant_id:
+                     type: string
+                  name:
+                     type: string
+                  deleted:
+                     type: integer
+                  created_by:
+                     type: string
+                  updated_by:
+                     type: string
+                  created_at:
+                     type: string
+                     format: date-time
+                  updated_at:
+                     type: string
+                     format: date-time
+            maritalStatus:
+               type: object
+               properties:
+                  id:
+                     type: string
+                  status:
+                     type: string
+                  deleted:
+                     type: integer
+                  created_by:
+                     type: string
+                  updated_by:
+                     type: string
+                  created_at:
+                     type: string
+                     format: date-time
+                  updated_at:
+                     type: string
+                     format: date-time
+            tenant:
+               type: object
+               properties:
+                  id:
+                     type: string
+                  tenant_id:
+                     type: string
+                  department_id:
+                     type: string
+                  name:
+                     type: string
+                  deleted:
+                     type: integer
+                  created_by:
+                     type: string
+                  updated_by:
+                     type: string
+                  created_at:
+                     type: string
+                     format: date-time
+                  updated_at:
+                     type: string
+                     format: date-time
+            contracts:
+               type: array
+               items:
+                  type: object
+                  properties:
+                     id:
+                        type: string
+                     start_date:
+                        type: string
+                        format: date-time
+                     end_date:
+                        type: string
+                        format: date-time
+                     contractType:
+                        type: object
+                        properties:
+                           id:
+                              type: string
+                           name:
+                              type: string
+                           tenant_id:
+                              type: string
+                           is_permanent:
+                              type: boolean
+                           deleted:
+                              type: integer
+                           created_by:
+                              type: string
+                           updated_by:
+                              type: string
+                           created_at:
+                              type: string
+                              format: date-time
+                           updated_at:
+                              type: string
+                              format: date-time
+      EmployeeOptionResponse:
+         type: object
+         properties:
+            id:
+               type: string
+            name:
+               type: string
+      EmployeeBaseResponse:
+         type: object
+         properties:
+            status:
+               type: integer
+            message:
+               type: string
+            data:
+               $ref: '#/components/schemas/EmployeeResponse'
+      EmployeeTableResponse:
+         type: object
+         properties:
+            status:
+               type: integer
+            message:
+               type: string
+            data:
+               type: object
+               properties:
+                  content:
+                     type: array
+                     items:
+                        $ref: '#/components/schemas/EmployeeResponse'
+                  currentPage:
+                     type: integer
+                  hasPreviousPage:
+                     type: boolean
+                  hasNextPage:
+                     type: boolean
+                  totalPages:
+                     type: integer
+                  totalRows:
+                     type: integer
+      EmployeeOptionBaseResponse:
+         type: object
+         properties:
+            status:
+               type: integer
+            message:
+               type: string
+            data:
+               type: array
+               items:
+                  $ref: '#/components/schemas/EmployeeOptionResponse'
+      EmployeeCreatePayload:
+         type: object
+         required:
+          - nik
+          - name
+          - employee_id
+          - email
+          - npwp
+          - phone_number
+          - address
+          - birth_date
+          - gender
+          - marital_status_id
+          - medical_condition
+          - emergency_contact
+          - position_id
+          - department_id
+          - manager_id
+          - supervisor_id
+          - team_lead_id
+          - mentor_id
+          - contract_type_id
+          - image_url
+          - start_date
+          - end_date
+         properties:
+            nik:
+               type: string
+            name:
+               type: string
+            employee__id:
+               type: string
+            email:
+               type: string
+            npwp:
+               type: string
+            phone_number:
+               type: string
+            address:
+               type: string
+            birth_date:
+               type: string
+            gender:
+               type: string
+            marital_status_id:
+               type: string
+            medical_condition:
+               type: string
+            emergency_contact:
+               type: string
+            position_id:
+               type: string
+            department_id:
+               type: string
+            manager_id:
+               type: string
+            sepervisor_id:
+               type: string
+            team_lead_id:
+               type: string
+            mentor_id:
+               type: string
+            contract_type_id:
+               type: string
+            image_url:
+               type: string
+            start_date:
+               type: string
+            end_date:
+               type: string
+      EmployeeUpdatePayload:
+         type: object
+         properties:
+            name:
+               type: string
+            address:
+               type: string
+      EmployeePatchPayload:
+         type: object
+         properties:
+            status:
+               type: string

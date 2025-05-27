@@ -1,0 +1,28 @@
+services:
+  hrpayrol360-api:
+    build: .
+    ports:
+      - "8000:5000"
+    restart: 'no'
+    container_name: api_payroll_dina
+    deploy:
+      resources:
+        limits:
+          cpus: '0.60'
+          memory: 1024M
+        reservations:
+          cpus: '0.35'
+          memory: 1024M
+    logging:
+      driver: "json-file"
+      options:
+        max-file: '5'
+        max-size: '10m'
+      environment:
+        - NODE_ENV=${NODE_ENV}
+        - DB_HOST=${DB_HOST}
+        - DB_PORT=${DB_PORT}
+        - DB_USERNAME=${DB_USER}
+        - DB_PASSWORD=${DB_PASSWORD}
+        - DB_NAME=${DB_NAME}
+

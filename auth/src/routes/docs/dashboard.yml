@@ -1,0 +1,317 @@
+paths:
+   /v1/dashboards/insight:
+      get:
+         summary: Get Insight Dashboards
+         tags:
+            - Dashboard
+         parameters:
+            - in: header
+              name: TENANT-ID
+              description: Number of tenant
+              required: true
+              schema:
+                 type: string
+            - in: query
+              name: byDate
+              description: Filter by date
+              required: false
+              schema:
+                 type: string
+                 example: '25-12-2024' # Example for dd-MM-YYYY format
+            - in: query
+              name: byMonth
+              description: Filter by month
+              required: false
+              schema:
+                 type: string
+                 example: '12-2024' # Example for MM-YYYY format
+            - in: query
+              name: byYear
+              description: Filter by year
+              required: false
+              schema:
+                 type: string
+                 example: '2024' # Example for YYYY format
+            - in: query
+              name: byQuarter
+              description: Filter by quarter
+              required: false
+              schema:
+                 type: string
+                 example: 'Q1-2024' # Example for UPERCASE_QAURTER-YYYY format
+            - in: query
+              name: startDate
+              description: Filter by custom date range
+              required: false
+              schema:
+                 type: string
+                 example: '01-12-2024' # Example for dd-MM-YYYY format
+            - in: query
+              name: endDate
+              description: Filter by custom date range
+              required: false
+              schema:
+                 type: string
+                 example: '31-12-2024' # Example for dd-MM-YYYY format
+         security:
+            - BearerAuth: []
+         responses:
+            '200':
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: '#/components/schemas/DasboardInsightBaseResponse'
+            '400':
+               $ref: '#/components/responses/400'
+            '500':
+               $ref: '#/components/responses/500'
+   /v1/dashboards/end-contract:
+      get:
+         summary: GET list of Employees whose contracts will end
+         tags:
+            - Dashboard
+         parameters:
+            - in: query
+              name: limit
+              description: Number of items per page
+              required: true
+              schema:
+                 type: integer
+            - in: query
+              name: page
+              description: Page number
+              required: true
+              schema:
+                 type: integer
+         responses:
+            '200':
+               description: A list of employees whose contracts are about to end
+               content:
+                  application/json:
+                     schema:
+                        type: object
+                        properties:
+                           data:
+                              type: object
+                              properties:
+                                 content:
+                                    type: array
+                                    items:
+                                       type: object
+                                       properties:
+                                          id:
+                                             type: string
+                                             format: uuid
+                                             example: '9111e994-a1ee-434c-80dd-0258304fea8d'
+                                          name:
+                                             type: string
+                                             example: 'Cupiditate labore ma'
+                                          status:
+                                             type: string
+                                             enum:
+                                                - active
+                                                - on leave
+                                                - inactive
+                                          job_title:
+                                             type: string
+                                             example: 'HR Manager'
+                                          ending_date:
+                                             type: string
+                                             format: date-time
+                                             example: '2024-12-22T00:00:00.000Z'
+                                          contract_type:
+                                             type: string
+                                             example: 'Part-Time'
+                                 currentPage:
+                                    type: integer
+                                    example: 1
+                                 hasPreviousPage:
+                                    type: boolean
+                                    example: false
+                                 hasNextPage:
+                                    type: boolean
+                                    example: false
+            '400':
+               description: Error from client
+               content:
+                  application/json:
+                     schema:
+                        type: object
+                        properties:
+                           message:
+                              type: string
+                              description: error message
+                              example: limit is required
+                           status:
+                              type: integer
+                              description: status
+                              example: 400
+            '500':
+               description: Error from client
+               content:
+                  application/json:
+                     schema:
+                        type: object
+                        properties:
+                           message:
+                              type: string
+                              description: error message
+                              example: an internal server error
+                           status:
+                              type: integer
+                              description: status
+                              example: 500
+   /v1/dashboards/whatsontoday:
+    get:
+      summary: Get list of employees on leave or with a birthday today
+      tags:
+        - Dashboard
+      parameters:
+        - in: query
+          name: limit
+          description: Number of items per page
+          required: true
+          schema:
+            type: integer
+            example: 10
+        - in: query
+          name: page
+          description: Page number
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - in: query
+          name: position
+          description: Filter by position (comma-separated IDs)
+          required: false
+          schema:
+            type: string
+            example: '1,2,3'
+        - in: query
+          name: isOnleave
+          description: Filter employees who are on leave
+          required: false
+          schema:
+            type: boolean
+            example: true
+        - in: query
+          name: isBirthDate
+          description: Filter employees who have a birthday today
+          required: false
+          schema:
+            type: boolean
+            example: true
+      responses:
+        '200':
+          description: Filtered data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                              example: '1234e994-a1ee-434c-80dd-0258304fea8d'
+                            name:
+                              type: string
+                              example: 'John Doe'
+                            position:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  example: '1'
+                                name:
+                                  type: string
+                                  example: 'Manager'
+                            status:
+                              type: string
+                              example: 'on leave'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: Only one filter can be applied at a time
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 500
+                  message:
+                    type: string
+                    example: Internal server error
+
+components:
+   schemas:
+      DashboardInsightResponse:
+         type: object
+         properties:
+            totalEmployees:
+               type: integer
+            totalOnleaveEmployees:
+               type: integer
+            totalNewHireEmployees:
+               type: integer
+            totalContractEndingEmployees:
+               type: integer
+      DasboardInsightBaseResponse:
+         type: object
+         properties:
+            status:
+               type: integer
+            message:
+               type: string
+            data:
+               type: object
+               properties:
+                  data:
+                     $ref: '#/components/schemas/DashboardInsightResponse'
+      Employee:
+         type: object
+         properties:
+            id:
+               type: string
+               format: uuid
+            name:
+               type: string
+            status:
+               type: string
+               enum:
+                  - active
+                  - on leave
+                  - inactive
+            job_title:
+               type: string
+            ending_date:
+               type: string
+               format: date-time
+            contract_type:
+               type: string
