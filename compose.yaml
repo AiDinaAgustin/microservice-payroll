@@ -1,52 +1,48 @@
-# Comments are provided throughout this file to help you get started.
-# If you need more help, visit the Docker Compose reference guide at
-# https://docs.docker.com/go/compose-spec-reference/
-
-# Here the instructions define your application as a service called "app".
-# This service is built from the Dockerfile in the current directory.
-# You can add other services your application may depend on here, such as a
-# database or a cache. For examples, see the Awesome Compose repository:
-# https://github.com/docker/awesome-compose
 services:
-  app:
+  auth:
     build:
-      context: .
-      target: final
-    # If your application exposes a port, uncomment the following lines and change
-    # the port numbers as needed. The first number is the host port and the second
-    # is the port inside the container.
-    # ports:
-    #   - 8080:8080
+      context: ./auth
+    environment:
+      - PORT=${PORT:-5000}
+      - DB_HOST=${DB_HOST:-43.133.145.125}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-4P89G57qHVsuMoQXxaK32h1eOUm6iC0I}
+      - DB_NAME=${DB_NAME:-hr_payroll_local_dev}
+      - DB_PORT=${DB_PORT:-32468}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - JWT_TOKEN=${JWT_TOKEN:-private.pem}
+      - JWT_EXPIRATION_TIME=${JWT_EXPIRATION_TIME:-8}
+      - LOG_INFO_FILE_PATH=${LOG_INFO_FILE_PATH:-logs/%DATE%.log}
+      - LOG_INFO_MAX_FILE_SIZE=${LOG_INFO_MAX_FILE_SIZE:-20m}
+      - LOG_INFO_MAX_FILE_DAY=${LOG_INFO_MAX_FILE_DAY:-1d}
+      - LOG_ERROR_FILE_PATH=${LOG_ERROR_FILE_PATH:-logs/app-error-%DATE%.log}
+      - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
+      - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
 
-    # The commented out section below is an example of how to define a PostgreSQL
-    # database that your application can use. `depends_on` tells Docker Compose to
-    # start the database before your application. The `db-data` volume persists the
-    # database data between container restarts. The `db-password` secret is used
-    # to set the database password. You must create `db/password.txt` and add
-    # a password of your choosing to it before running `docker compose up`.
-    #     depends_on:
-    #       db:
-    #         condition: service_healthy
-    #   db:
-    #     image: postgres
-    #     restart: always
-    #     user: postgres
-    #     secrets:
-    #       - db-password
-    #     volumes:
-    #       - db-data:/var/lib/postgresql/data
-    #     environment:
-    #       - POSTGRES_DB=example
-    #       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-    #     expose:
-    #       - 5432
-    #     healthcheck:
-    #       test: [ "CMD", "pg_isready" ]
-    #       interval: 10s
-    #       timeout: 5s
-    #       retries: 5
-    # volumes:
-    #   db-data:
-    # secrets:
-    #   db-password:
-    #     file: db/password.txt
+    volumes:
+      - ./auth:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - microservice-network
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: ./gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - AUTH_SERVICE_URL=http://auth:5000
+    volumes:
+      - ./gateway:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - auth
+    networks:
+      - microservice-network
+    restart: unless-stopped
+
+networks:
+  microservice-network:
+    driver: bridge
