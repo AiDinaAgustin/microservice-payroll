@@ -1,0 +1,296 @@
+paths:
+  /v1/positions/list:
+    get:
+      summary: Get Position
+      tags:
+        - Positions
+      parameters:
+        - in: header
+          name: TENANT-ID
+          description: Number of tenant
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: departmentId
+          description: Department ID
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: page
+          description: Page number
+          required: true
+          schema:
+            type: integer
+        - in: query 
+          name: limit
+          description: Number of items per page
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: keyword
+          description: search keyword by name & nik
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: sortBy
+          description: Sorting by name
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: sortOrder
+          description: Sorting order
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: status
+          description: Filter By status
+          required: false
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionTableResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+  /v1/positions/add:
+    post:
+      summary: Create Positions
+      tags:
+        - Positions
+      parameters:
+        - in: header
+          name: TENANT-ID
+          description: Number of tenant
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Position data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PositionCreatePayload'
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+  /v1/positions/edit/{id}:
+    put:
+      summary: Update Position
+      tags:
+        - Positions
+      parameters:
+        - in: header
+          name: TENANT-ID
+          description: Number of tenant
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Position ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Position data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PositionUpdatePayload'
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+  /v1/positions/delete/{id}:
+    delete:
+      summary: Delete Position
+      tags:
+        - Positions
+      parameters:
+        - in: header
+          name: TENANT-ID
+          description: Number of tenant
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Position ID
+          required: true
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+  /v1/positions/options:
+    get:
+      summary: Get Option Position
+      tags:
+        - Positions
+      parameters:
+        - in: header
+          name: TENANT-ID
+          description: Number of tenant
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: page
+          description: Page number
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: Number of items per page
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: keyword
+          description: search keyword by name
+          required: false
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionOptionBaseResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+components:
+  schemas:
+    PositionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenant_id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        department_id:
+          type: string
+        department:
+          type: object
+          properties:
+            name:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    PositionTableResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/PositionResponse'
+            currentPage:
+              type: integer
+            hasPreviousPage:
+              type: boolean
+            hasNextPage:
+              type: boolean
+            totalPages:
+              type: integer
+            totalRows:
+              type: integer
+    PositionOptionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    PositionOptionBaseResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PositionOptionResponse'
+    PositionCreatePayload:
+      type: object
+      properties:
+        name:
+          type: string
+        departmentId:
+          type: string
+    PositionUpdatePayload:
+      type: object
+      properties:
+        name:
+          type: string
+        departmentId:
+          type: string
+        status:
+          type: string

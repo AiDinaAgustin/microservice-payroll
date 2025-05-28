@@ -1,0 +1,25 @@
+export interface UpdateEmployeeRequest {
+  nik: string;
+  name: string;
+  employee_id: string;
+  status: string;
+  email: string;
+  npwp: string;
+  phone_number: string;
+  address: string;
+  birth_date: string;
+  gender: string;
+  marital_status_id: string;
+  medical_condition: Text;
+  emergency_contact: string;
+  position_id: string;
+  department_id?: string;
+  manager_id?: string
+  supervisor_id?: string;
+  team_lead_id?: string;
+  mentor_id?: string
+  contract_type_id?: string;
+  start_date: string;
+  end_date?: string;
+  image_url?: string;
+}

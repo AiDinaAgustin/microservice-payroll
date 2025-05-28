@@ -1,0 +1,279 @@
+paths:
+  /v1/departments/list:
+    get:
+      summary: Get Department
+      tags:
+        - Departments
+      parameters:
+        - in: header
+          name: TENANT-ID
+          description: Number of tenant
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: page
+          description: Page number
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: Number of items per page
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: keyword
+          description: search keyword by name & nik
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: sortBy
+          description: Sorting by name
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: sortOrder
+          description: Sorting order
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: status
+          description: Filter By status
+          required: false
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentTableResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+  /v1/departments/add:
+    post:
+      summary: Create Departments
+      tags:
+        - Departments
+      parameters:
+        - in: header
+          name: TENANT-ID
+          description: Number of tenant
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Department data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentCreatePayload'
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+  /v1/departments/edit/{id}:
+    put:
+      summary: Update Department
+      tags:
+        - Departments
+      parameters:
+        - in: header
+          name: TENANT-ID
+          description: Number of tenant
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Department ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Department data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentUpdatePayload'
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+  /v1/departments/delete/{id}:
+    delete:
+      summary: Delete Department
+      tags:
+        - Departments
+      parameters:
+        - in: header
+          name: TENANT-ID
+          description: Number of tenant
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Department ID
+          required: true
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+  /v1/departments/options:
+    get:
+      summary: Get Option Department
+      tags:
+        - Departments
+      parameters:
+        - in: header
+          name: TENANT-ID
+          description: Number of tenant
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: page
+          description: Page number
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: Number of items per page
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: keyword
+          description: search keyword by name
+          required: false
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentOptionBaseResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+components:
+  schemas:
+    DepartmentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenant_id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    DepartmentTableResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/DepartmentResponse'
+            currentPage:
+              type: integer
+            hasPreviousPage:
+              type: boolean
+            hasNextPage:
+              type: boolean
+            totalPages:
+              type: integer
+            totalRows:
+              type: integer
+    DepartmentOptionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    DepartmentOptionBaseResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartmentOptionResponse'
+    DepartmentCreatePayload:
+      type: object
+      properties:
+        name:
+          type: string
+    DepartmentUpdatePayload:
+      type: object
+      properties:
+        name:
+          type: string
+        status: 
+          type: string

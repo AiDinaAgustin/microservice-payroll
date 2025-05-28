@@ -1,0 +1,37 @@
+# Global components
+components:
+   parameters:
+      IdParam:
+         in: path
+         name: id
+         description: Identification number
+         required: true
+         schema:
+            type: string
+   responses:
+      '400':
+         description: Bad request
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/BaseResponse'
+      '404':
+         description: Not found
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/BaseResponse'
+      '500':
+         description: Internal server error
+         content:
+            application/json:
+               schema:
+                  $ref: '#/components/schemas/BaseResponse'
+   schemas:
+      BaseResponse:
+         type: object
+         properties:
+            status:
+               type: integer
+            message:
+               type: string

@@ -1,0 +1,29 @@
+{
+   "compilerOptions": {
+      "baseUrl": "./src",
+      "paths": {
+         "@config/*": ["config/*"],
+         "@controllers/*": ["controllers/*"],
+         "@interfaces/*": ["plugins/interfaces/*"],
+         "@constants/*": ["plugins/constants/*"],
+         "@enums/*": ["plugins/enums/*"],
+         "@middlewares/*": ["middlewares/*"],
+         "@routes/*": ["routes/*"],
+         "@models/*": ["schemas/models/*"],
+         "@responses/*": ["schemas/responses/*"],
+         "@validators/*": ["schemas/validators/*"],
+         "@services/*": ["services/*"],
+         "@utils/*": ["utils/*"]
+      },
+      "outDir": "dist",
+      "sourceMap": true,
+      "target": "esnext",
+      "module": "commonjs",
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
+      "noImplicitAny": true,
+      "strict": true,
+      "skipLibCheck": true
+   },
+   "include": ["./*.js", "src/**/*.ts", "test/**/*.ts"]
+}

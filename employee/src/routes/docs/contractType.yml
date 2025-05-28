@@ -1,0 +1,380 @@
+paths:
+   /v1/contract-types/add:
+      post:
+         summary: POST Contract Type
+         tags:
+          - Contract Type
+         parameters:
+          - in: header
+            name: tenant-id
+            description: Id of tenant
+            required: true
+            schema:
+               type: string
+         requestBody:
+            content:
+               application/json:
+                  schema:
+                     type: object
+                     properties:
+                        name:
+                           type: string
+                           description: The name of the contract type
+                        is_required:
+                           type: boolean
+                           description: >-
+                              A flag indicating whether the contract type is required (true/false)
+         responses:
+            '201':
+               description: Contract Type created
+               content:
+                  application/json:
+                     schema:
+                        type: object
+                        properties:
+                           status:
+                              type: integer
+                              example: 201
+                           message:
+                              type: string
+                              example: Contract Type created
+                           data:
+                              type: object
+                              properties:
+                                 id:
+                                    type: string
+                                    example: f74e6d8c-660a-4e71-b5f4-4c2842c85d9e
+                                 status:
+                                    type: string
+                                    example: active
+                                 deleted:
+                                    type: integer
+                                    example: 0
+                                 name:
+                                    type: string
+                                    example: Freelance + Part Time
+                                 tenant_id:
+                                    type: string
+                                    example: '1'
+                                 is_permanent:
+                                    type: boolean
+                                    example: true
+                                 updated_at:
+                                    type: string
+                                    format: date-time
+                                    example: '2024-12-09T09:04:20.971Z'
+                                 created_at:
+                                    type: string
+                                    format: date-time
+                                    example: '2024-12-09T09:04:20.971Z'
+                                 created_by:
+                                    type: string
+                                    nullable: true
+                                    example: null
+                                 updated_by:
+                                    type: string
+                                    nullable: true
+                                    example: null
+            '400':
+               $ref: '#/components/responses/400'
+            '500':
+               $ref: '#/components/responses/500'
+   /v1/contract-types/edit/{id}:
+      put:
+         summary: POST Contract Type
+         tags:
+          - Contract Type
+         parameters:
+          - in: header
+            name: tenant-id
+            description: Id of tenant
+            required: true
+            schema:
+               type: string
+          - in: path
+            name: id
+            description: id of contract - type
+            required: true
+            schema:
+               type: string
+         requestBody:
+            content:
+               application/json:
+                  schema:
+                     type: object
+                     properties:
+                        name:
+                           type: string
+                           description: The name of the contract type
+                        is_required:
+                           type: boolean
+                           description: >-
+                              A flag indicating whether the contract type is required (true/false)
+                        status:
+                           required: false
+                           type: string
+                           enum: [ "active", "inactive" ]
+                           description: >-
+                              A flag indicating whether the contract type is required (true/false)
+         responses:
+            '200':
+               description: Contract Type updated
+               content:
+                  application/json:
+                     schema:
+                        type: object
+                        properties:
+                           status:
+                              type: integer
+                              example: 201
+                           message:
+                              type: string
+                              example: Contract Type Updated
+                           data:
+                              type: object
+                              properties:
+                                 id:
+                                    type: string
+                                    example: f74e6d8c-660a-4e71-b5f4-4c2842c85d9e
+                                 status:
+                                    type: string
+                                    example: active
+                                 deleted:
+                                    type: integer
+                                    example: 0
+                                 name:
+                                    type: string
+                                    example: Freelance + Part Time
+                                 tenant_id:
+                                    type: string
+                                    example: '1'
+                                 is_permanent:
+                                    type: boolean
+                                    example: true
+                                 updated_at:
+                                    type: string
+                                    format: date-time
+                                    example: '2024-12-09T09:04:20.971Z'
+                                 created_at:
+                                    type: string
+                                    format: date-time
+                                    example: '2024-12-09T09:04:20.971Z'
+                                 created_by:
+                                    type: string
+                                    nullable: true
+                                    example: null
+                                 updated_by:
+                                    type: string
+                                    nullable: true
+                                    example: null
+            '400':
+               $ref: '#/components/responses/400'
+            '500':
+               $ref: '#/components/responses/500'
+
+   /v1/contract-types/list:
+      get:
+         summary: Get Contract Type
+         tags:
+          - Contract Type
+         parameters:
+          - in: header
+            name: TENANT-ID
+            description: Number of tenant
+            required: true
+            schema:
+               type: string
+          - in: query
+            name: page
+            description: Page number
+            required: true
+            schema:
+               type: integer
+          - in: query
+            name: limit
+            description: Number of items per page
+            required: true
+            schema:
+               type: integer
+          - in: query
+            name: keyword
+            description: search keyword by name
+            required: false
+            schema:
+               type: string
+          - in: query
+            name: sortBy
+            description: Sorting By Name
+            required: true
+            schema:
+               type: string
+          - in: query
+            name: sortOrder
+            description: Sorting order
+            required: true
+            schema:
+               type: string
+          - in: query
+            name: status
+            description: Filter By status
+            required: false
+            schema:
+               type: string
+          - in: query
+            name: isPermanent
+            description: Filter by is_permanent
+            required: false
+            schema:
+               type: boolean
+         security:
+          - BearerAuth: []
+         responses:
+            '200':
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: '#/components/schemas/ContractTypeTableResponse'
+            '400':
+               $ref: '#/components/responses/400'
+            '500':
+               $ref: '#/components/responses/500'
+   /v1/contract-types/options:
+      get:
+         summary: Get Contract Type Options
+         tags:
+          - Contract Type
+         parameters:
+          - in: header
+            name: TENANT-ID
+            description: Number of tenant
+            required: true
+            schema:
+               type: string
+          - in: query
+            name: page
+            description: Page number
+            required: true
+            schema:
+               type: integer
+          - in: query
+            name: limit
+            description: Number of items per page
+            required: true
+            schema:
+               type: integer
+          - in: query
+            name: keyword
+            description: search keyword by name
+            required: false
+            schema:
+               type: string
+         security:
+          - BearerAuth: []
+         responses:
+            '200':
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: '#/components/schemas/ContractTypeOptionBaseResponse'
+            '400':
+               $ref: '#/components/responses/400'
+            '500':
+               $ref: '#/components/responses/500'
+   /v1/contract-types/delete/{id}:
+    delete:
+      summary: Delete Contract Type
+      tags:
+        - Contract Type
+      parameters:
+        - in: header
+          name: TENANT-ID
+          description: Number of tenant
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: Contract Type ID
+          required: true
+          schema:
+            type: string
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractTypeResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+components:
+   schemas:
+      ContractTypeResponse:
+         type: object
+         properties:
+            id:
+               type: integer
+            tenant_id:
+               type: string
+            name:
+               type: string
+            is_permanent:
+               type: boolean
+            status:
+               type: string
+            created_at:
+               type: string
+               format: date-time
+            updated_at:
+               type: string
+               format: date-time
+      ContractTypeTableResponse:
+         type: object
+         properties:
+            status:
+               type: integer
+            message:
+               type: string
+            data:
+               type: object
+               properties:
+                  content:
+                     type: array
+                     items:
+                        $ref: '#/components/schemas/ContractTypeResponse'
+                  currentPage:
+                     type: integer
+                  hasPreviousPage:
+                     type: boolean
+                  hasNextPage:
+                     type: boolean
+                  totalPages:
+                     type: integer
+                  totalRows:
+                     type: integer
+      ContractTypeOptionResponse:
+         type: object
+         properties:
+            id:
+               type: integer
+            name:
+               type: string
+            is_permanent:
+               type: boolean
+      ContractTypeOptionBaseResponse:
+         type: object
+         properties:
+            status:
+               type: integer
+            message:
+               type: string
+            data:
+               type: array
+               items:
+                  $ref: '#/components/schemas/ContractTypeOptionResponse'

@@ -1,0 +1,130 @@
+paths:
+  /v1/payroll/payslip:
+    post:
+      summary: Create new payslip
+      tags:
+        - Payroll Payslip
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayslipInput'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayslipResponse'
+
+  /v1/payroll/payslip/list:
+    get:
+      summary: Get payslip list
+      tags:
+        - Payroll Payslip
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: employee_id
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: period
+          schema:
+            type: string
+            format: date
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayslipListResponse'
+
+components:
+  schemas:
+    PayslipInput:
+      type: object
+      required:
+        - employee_id
+        - period
+        - base_salary
+        - net_salary
+      properties:
+        employee_id:
+          type: string
+          format: uuid
+        period:
+          type: string
+          format: date
+        base_salary:
+          type: number
+        total_deductions:
+          type: number
+        net_salary:
+          type: number
+
+    PayslipListResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payslip'
+        total:
+          type: integer
+
+    Payslip:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        employee_id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        period:
+          type: string
+          format: date
+        base_salary:
+          type: number
+        total_deductions:
+          type: number
+        net_salary:
+          type: number
+        employee:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            employee_id:
+              type: string

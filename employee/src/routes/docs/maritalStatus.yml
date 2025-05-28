@@ -1,0 +1,64 @@
+paths:
+   /v1/marital-status/options:
+      get:
+         summary: Get Marital Status
+         tags:
+            - Marital Status
+         parameters:
+            - in: header
+              name: TENANT-ID
+              description: Number of tenant
+              required: true
+              schema:
+                 type: string
+            - in: query
+              name: page
+              description: Page number
+              required: true
+              schema:
+                 type: integer
+            - in: query
+              name: limit
+              description: Number of items per page
+              required: true
+              schema:
+                 type: integer
+            - in: query
+              name: keyword
+              description: search keyword by name
+              required: false
+              schema:
+                 type: string
+         security:
+            - BearerAuth: []
+         responses:
+            '200':
+               description: OK
+               content:
+                  application/json:
+                     schema:
+                        $ref: '#/components/schemas/MaritalStatusOptionBaseResponse'
+            '400':
+               $ref: '#/components/responses/400'
+            '500':
+               $ref: '#/components/responses/500'
+components:
+   schemas:
+      MaritalStatusOptionResponse:
+         type: object
+         properties:
+            id:
+               type: integer
+            name:
+               type: string
+      MaritalStatusOptionBaseResponse:
+         type: object
+         properties:
+            status:
+               type: integer
+            message:
+               type: string
+            data:
+               type: array
+               items:
+                  $ref: '#/components/schemas/MaritalStatusOptionResponse'

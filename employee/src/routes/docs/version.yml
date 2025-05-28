@@ -1,0 +1,22 @@
+paths:
+   /v1/version:
+      get:
+         summary: Get current API version
+         tags:
+            - Version
+         security:
+            - BearerAuth: []
+         responses:
+            '200':
+               description: API version
+               content:
+                  application/json:
+                     schema:
+                        $ref: '#/components/schemas/VersionResponse'
+components:
+   schemas:
+      VersionResponse:
+         type: object
+         properties:
+            version:
+               type: string

@@ -1,0 +1,136 @@
+paths:
+  /v1/auth/login:
+    post:
+      summary: Post Login
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Nama pengguna untuk login
+                  example: "admin@example.com"
+                password:
+                  type: string
+                  description: Kata sandi pengguna
+                  example: "password"
+      responses:
+        "200":
+          description: Login Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP response status
+                    example: 200
+                  token:
+                    type: string
+                    description: Token yang digunakan untuk autentikasi dan pengecekan otorisasi
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2NjI3NzkzNzgsImV4cCI6MTY2Mjc4MjU3OH0.ZF4lL1PiXHXYjOqnxg2REv8gU3xcnItp5zmJ5Vk_d_o"
+                  data:
+                    type: object
+                    description: Berisi data dari user yang telah berhasil login
+                    properties:
+                      id:
+                        type: string
+                        example: "20"
+                      tenant_id:
+                        type: string
+                        example: "2"
+                      username:
+                        type: string
+                        example: "admin@example.com"
+                      last_login:
+                        type: string
+                        example: "2024-11-13T23:42:25.064Z"
+                      employee_id:
+                        type: string
+                        example: "300021232"
+                      role_id:
+                        type: string
+                        example: "3"
+                      role_name:
+                        type: string
+                        example: "admin"
+                  expire_token:
+                    type: integer
+                    description: Waktu token akan expire (timestamp)
+                    example: 177773343322
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  message:
+                     type: string
+                     example: "password is required"
+        "401":
+            description: unauthorized
+            content:
+               application/json:
+                  schema:
+                     type: object
+                     properties:
+                        status:
+                           type: integer
+                           example: 401
+                        message:
+                           type: string
+                           example: "invalid username or password"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                     type: integer
+                     example: 500
+                  message:
+                    type: string
+                    example: "Unexpected error occurred"
+
+components:
+  schemas:
+    LoginOptionResponse:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    LoginOptionBaseResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+            tenant_id:
+              type: integer
+            username:
+              type: string
+            last_login:
+              type: integer
+            employee_id:
+              type: i

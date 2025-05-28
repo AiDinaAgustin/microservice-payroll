@@ -1,0 +1,56 @@
+{
+   "root": true,
+   "env": {
+    "jest": true
+   },
+   "parser": "@typescript-eslint/parser",
+   "parserOptions": {
+    "project": ["./tsconfig.json"]
+   },
+   "extends": "airbnb-typescript/base",
+   "plugins": ["import", "@typescript-eslint"],
+   "rules": {
+    "comma-dangle": 0,
+    "no-underscore-dangle": 0,
+    "no-param-reassign": 0,
+    "no-return-assign": 0,
+    "camelcase": 0,
+    "import/extensions": 0,
+    "@typescript-eslint/no-redeclare": 0,
+    "@typescript-eslint/indent": "off",
+    "@typescript-eslint/semi": "off",
+    "@typescript-eslint/quotes": "off",
+    "@typescript-eslint/comma-dangle": "off",
+    "@typescript-eslint/dot-notation": "off",
+    "@typescript-eslint/no-throw-literal": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/naming-convention": [
+      "off",
+      {
+        "selector": "variable",
+        "format": ["camelCase", "PascalCase", "UPPER_CASE"],
+        "leadingUnderscore": "allow",
+        "filter": {
+          "regex": "^[a-z]+(_[a-z]+)+$",
+          "match": false
+        }
+      }
+    ],
+    "@typescript-eslint/object-curly-spacing": "off",
+    "@typescript-eslint/keyword-spacing": "off",
+    "@typescript-eslint/space-infix-ops": "off",
+    "@typescript-eslint/lines-between-class-members": "off",
+    "@typescript-eslint/space-before-blocks": "off",
+    "@typescript-eslint/return-await": "off",
+    "@typescript-eslint/comma-spacing": "off",
+    "@typescript-eslint/no-shadow": "off"
+   },
+   "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      "typescript": {}
+    }
+   }
+}
