@@ -20,9 +20,11 @@ app.use(express.urlencoded({ extended: true }));
 // Service configurations
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:5001';
 const EMPLOYEE_SERVICE_URL = process.env.EMPLOYEE_SERVICE_URL || 'http://localhost:5002';
+const PAYROLL_SERVICE_URL = process.env.PAYROLL_SERVICE_URL || 'http://localhost:5003]';
 
 console.log('Using AUTH_SERVICE_URL:', AUTH_SERVICE_URL);
 console.log('Using EMPLOYEE_SERVICE_URL:', EMPLOYEE_SERVICE_URL);
+console.log('Using PAYROLL_SERVICE_URL:', PAYROLL_SERVICE_URL);
 
 // Auth login with direct axios approach
 app.post('/v1/auth/login', async (req, res) => {
@@ -61,12 +63,188 @@ const employeeProxy = createProxyMiddleware({
   }
 });
 
+const payrollProxy = createProxyMiddleware({
+  target: PAYROLL_SERVICE_URL,
+  changeOrigin: true,
+  pathRewrite: null,
+  logLevel: 'debug',
+  onError: (err, req, res) => {
+    console.error('Payroll proxy error:', err);
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: err.message
+    });
+  }
+});
+
+
 // Apply proxy to auth routes
 app.use('/v1/auth', (req, res, next) => {
   if (req.path === '/login' && req.method === 'POST') {
     return next('route'); // Skip proxy for login POST
   }
   return authProxy(req, res, next);
+});
+
+// Add new contract type
+app.post('/v1/contract-types/add', async (req, res) => {
+  console.log('Add contract type request received, forwarding to employee service');
+  try {
+    const response = await axios.post(`${EMPLOYEE_SERVICE_URL}/v1/contract-types/add`, req.body, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding contract type add request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with employee service',
+      details: error.message
+    });
+  }
+});
+
+// Update contract type
+app.put('/v1/contract-types/edit/:id', async (req, res) => {
+  console.log('Edit contract type request received, forwarding to employee service');
+  try {
+    const response = await axios.put(
+      `${EMPLOYEE_SERVICE_URL}/v1/contract-types/edit/${req.params.id}`, 
+      req.body,
+      { headers: req.headers }
+    );
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding contract type edit request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with employee service',
+      details: error.message
+    });
+  }
+});
+
+
+// Add new department
+app.post('/v1/departments/add', async (req, res) => {
+  console.log('Add department request received, forwarding to employee service');
+  try {
+    const response = await axios.post(`${EMPLOYEE_SERVICE_URL}/v1/departments/add`, req.body, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding department add request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with employee service',
+      details: error.message
+    });
+  }
+});
+
+// Update department
+app.put('/v1/departments/edit/:id', async (req, res) => {
+  console.log('Edit department request received, forwarding to employee service');
+  try {
+    const response = await axios.put(
+      `${EMPLOYEE_SERVICE_URL}/v1/departments/edit/${req.params.id}`, 
+      req.body,
+      { headers: req.headers }
+    );
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding department edit request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with employee service',
+      details: error.message
+    });
+  }
+});
+
+
+// Add new position
+app.post('/v1/positions/add', async (req, res) => {
+  console.log('Add position request received, forwarding to employee service');
+  try {
+    const response = await axios.post(`${EMPLOYEE_SERVICE_URL}/v1/positions/add`, req.body, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding position add request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with employee service',
+      details: error.message
+    });
+  }
+});
+
+// Update position
+app.put('/v1/positions/edit/:id', async (req, res) => {
+  console.log('Edit position request received, forwarding to employee service');
+  try {
+    const response = await axios.put(
+      `${EMPLOYEE_SERVICE_URL}/v1/positions/edit/${req.params.id}`, 
+      req.body,
+      { headers: req.headers }
+    );
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding position edit request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with employee service',
+      details: error.message
+    });
+  }
+});
+
+// Patch employee status
+app.patch('/v1/employees/patch/:id', async (req, res) => {
+  try {
+    const response = await axios.patch(
+      `${EMPLOYEE_SERVICE_URL}/v1/employees/patch/${req.params.id}`,
+      req.body,
+      { headers: req.headers }
+    );
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error communicating with employee service',
+      details: error.message
+    });
+  }
+});
+
+// Add new employee
+app.post('/v1/employees/add', async (req, res) => {
+  console.log('Add employee request received, forwarding to employee service');
+  try {
+    const response = await axios.post(`${EMPLOYEE_SERVICE_URL}/v1/employees/add`, req.body, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding add request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with employee service',
+      details: error.message
+    });
+  }
+});
+
+// Edit employee
+app.put('/v1/employees/edit/:id', async (req, res) => {
+  try {
+    const response = await axios.put(
+      `${EMPLOYEE_SERVICE_URL}/v1/employees/edit/${req.params.id}`,
+      req.body,
+      { headers: req.headers }
+    );
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error communicating with employee service',
+      details: error.message
+    });
+  }
 });
 
 // Apply proxy to all employee service routes
@@ -241,6 +419,12 @@ app.delete('/v1/employees/delete/:id', async (req, res) => {
     });
   }
 });
+
+
+
+// Apply proxy to all payroll service routes
+app.use('/v1/payroll', payrollProxy);
+
 
 // Health check endpoint
 app.get('/health', (req, res) => {

@@ -6,7 +6,7 @@ info:
 servers:
    - url: 'https://api.hr.inovasi360.id'
      description: 'Development server'
-   - url: 'http://localhost:5001'
+   - url: 'http://localhost:5003'
      description: 'Local server'
 components:
    securitySchemes:
