@@ -146,7 +146,8 @@ components:
           type: number
         period:
           type: string
-          format: date
+          description: Salary period in MM-YYYY format
+          example: "06-2023"
         effective_date:
           type: string
           format: date

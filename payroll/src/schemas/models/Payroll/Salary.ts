@@ -8,7 +8,7 @@ class PayrollSalary extends Model<InferAttributes<PayrollSalary>, InferCreationA
    declare tenant_id: string
    declare base_salary: number
    declare allowances: CreationOptional<number>
-   declare period: Date
+   declare period: string
    declare effective_date: Date
    declare status: CreationOptional<string>
    declare deleted: CreationOptional<boolean>
@@ -42,7 +42,7 @@ PayrollSalary.init(
       defaultValue: 0
     },
     period: {
-      type: DataTypes.DATE,
+      type: DataTypes.STRING,
       allowNull: false
     },
     effective_date: {

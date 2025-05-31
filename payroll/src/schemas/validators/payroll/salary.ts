@@ -15,7 +15,7 @@ export const SalarySchema = object().shape({
       .optional(),
     period: string()
       .required('Period is required')
-      .matches(/^\d{2}-\d{2}-\d{4}$/, 'Period must be in DD-MM-YYYY format'),
+      .matches(/^\d{2}-\d{4}$/, 'Period must be in MM-YYYY format'),
     effective_date: string()
       .required('Effective date is required')
       .matches(/^\d{2}-\d{2}-\d{4}$/, 'Effective date must be in DD-MM-YYYY format')

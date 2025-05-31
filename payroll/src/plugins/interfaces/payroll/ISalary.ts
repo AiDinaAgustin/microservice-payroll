@@ -4,7 +4,7 @@ export interface ISalary {
   tenant_id: string;
   base_salary: number;
   allowances: number;
-  period: Date;
+  period: string;
   effective_date: Date;
   status: string;
   deleted?: boolean;

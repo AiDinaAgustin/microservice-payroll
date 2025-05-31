@@ -1,10 +1,11 @@
 {
    "development": {
-      "username": "xxxxxx",
-      "password": "xxxxxx",
-      "database": "xxxxxx",
-      "host": "xxxxxx",
-      "dialect": "xxxxxx"
+      "username": "root",
+      "password": "4P89G57qHVsuMoQXxaK32h1eOUm6iC0I",
+      "database": "hr_payroll_prod",
+      "host": "43.133.145.125",
+      "dialect": "postgres",
+      "port": "32468"
    },
    "test": {
       "username": "xxxxxx",
