@@ -1,18 +1,14 @@
-FROM node:alpine
+FROM node:lts-alpine
 
-# Create app directory
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Install app dependencies
 COPY package*.json ./
 
-RUN npm install
+RUN npm cache clean --force
+RUN npm i
+RUN npm rebuild bcrypt
 
-# Bundle app source
 COPY . .
 
-# Expose the required port
-EXPOSE 5000
-
-# Use npm run dev instead of npm start
-CMD ["npm", "run", "dev"]
+EXPOSE 5001
+CMD [ "npm", "start" ]

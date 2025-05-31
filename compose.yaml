@@ -1,10 +1,7 @@
 services:
   auth:
     build:
-      dockerfile: Dockerfile
       context: ./auth
-    container_name: auth
-    restart: always
     environment:
       - PORT=5001
       - DB_HOST=${DB_HOST:-43.133.145.125}
@@ -21,18 +18,18 @@ services:
       - LOG_ERROR_FILE_PATH=${LOG_ERROR_FILE_PATH:-logs/app-error-%DATE%.log}
       - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
       - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
+    ports:
+      - "5001:5001"
     volumes:
-      - .:/app
-      - /app/auth/node_modules
+      - ./auth:/usr/src/app
+      - /usr/src/app/node_modules
     networks:
       - microservice-network
+    restart: unless-stopped
 
   employee:
     build:
-      dockerfile: Dockerfile
       context: ./employee
-    container_name: employee
-    restart: always
     environment:
       - PORT=5002
       - DB_HOST=${DB_HOST:-43.133.145.125}
@@ -49,20 +46,20 @@ services:
       - LOG_ERROR_FILE_PATH=${LOG_ERROR_FILE_PATH:-logs/app-error-%DATE%.log}
       - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
       - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
+    ports:
+      - "5002:5002"
     volumes:
-      - .:/app
-      - /app/employee/node_modules
+      - ./employee:/usr/src/app
+      - /usr/src/app/node_modules
     depends_on:
       - auth
     networks:
       - microservice-network
+    restart: unless-stopped
 
   payroll:
     build:
-      dockerfile: Dockerfile
       context: ./payroll
-    container_name: payroll
-    restart: always
     environment:
       - PORT=5003
       - DB_HOST=${DB_HOST:-43.133.145.125}
@@ -79,48 +76,49 @@ services:
       - LOG_ERROR_FILE_PATH=${LOG_ERROR_FILE_PATH:-logs/app-error-%DATE%.log}
       - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
       - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
+    ports:
+      - "5003:5003"
     volumes:
-      - .:/app
-      - /app/payroll/node_modules
+      - ./payroll:/usr/src/app
+      - /usr/src/app/node_modules
     networks:
       - microservice-network
+    restart: unless-stopped
 
   gateway:
     build:
-      dockerfile: Dockerfile
       context: ./gateway
-    container_name: gateway
     ports:
       - "5000:5000"
-    restart: always
     environment:
       - PORT=5000
-      - AUTH_SERVICE_URL=http://auth:5001
-      - EMPLOYEE_SERVICE_URL=http://employee:5002
+      - AUTH_SERVICE_URL=http://auth:5000
+      - EMPLOYEE_SERVICE_URL=http://employee:5000
+      - PAYROLL_SERVICE_URL=http://payroll:5000
     volumes:
-      - .:/app
-      - /app/gateway/node_modules
+      - ./gateway:/usr/src/app
+      - /usr/src/app/node_modules
     depends_on:
       - auth
       - employee
       - payroll
     networks:
       - microservice-network
+    restart: unless-stopped
 
-  nginx-proxy:
+  proxy:
     build:
-      dockerfile: Dockerfile
       context: ./proxy
-    container_name: nginx-proxy
     ports:
       - "80:80"
+      - "5000:5000"
     depends_on:
-      - gateway
       - auth
       - employee
       - payroll
     networks:
       - microservice-network
+    restart: unless-stopped
 
 networks:
   microservice-network:
