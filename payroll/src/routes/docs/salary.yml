@@ -1,30 +1,5 @@
 paths:
-  /v1/payroll/salary:
-    post:
-      summary: Create new salary
-      tags:
-        - Payroll Salary
-      parameters:
-        - in: header
-          name: TENANT-ID
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SalaryInput'
-      responses:
-        201:
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SalaryResponse'
-
-  /v1/payroll/salary/list:
+  /v1/salaries/list:
     get:
       summary: Get salary list
       tags:
@@ -67,6 +42,91 @@ paths:
                   total:
                     type: integer
 
+  /v1/salaries/add:
+    post:
+      summary: Create new salary
+      tags:
+        - Payroll Salary
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryInput'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryResponse'
+
+  /v1/salaries/edit/{id}:
+    put:
+      summary: Update salary
+      tags:
+        - Payroll Salary
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalaryInput'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalaryResponse'
+
+  /v1/salaries/delete/{id}:
+    delete:
+      summary: Delete salary
+      tags:
+        - Payroll Salary
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                  message:
+                    type: string
 components:
   schemas:
     SalaryInput:

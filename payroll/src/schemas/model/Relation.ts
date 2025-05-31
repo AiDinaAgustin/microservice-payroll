@@ -9,6 +9,7 @@ import User from "../models/User"
 import MaritalStatus from "../models/MaritalStatus"
 import RolePermission from "../models/RolePermission"
 import Permission from "../models/Permission"
+import PayrollSalary from '../models/Payroll/Salary'
 
 // Define associations
 Contract.belongsTo(ContractType, { foreignKey: 'contract_type_id', as: 'contractType' })
@@ -30,6 +31,11 @@ Employee.belongsTo(Employee, { as: 'supervisor', foreignKey: 'supervisor_id' });
 Employee.belongsTo(Employee, { as: 'teamLead', foreignKey: 'team_lead_id' });
 Employee.belongsTo(Employee, { as: 'mentor', foreignKey: 'mentor_id' });
 User.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
+
+PayrollSalary.belongsTo(Employee, {
+    foreignKey: 'employee_id',
+    as: 'employee'
+  });
 
 RolePermission.belongsTo(Permission, { foreignKey: 'permission_id' });
 

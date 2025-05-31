@@ -6,7 +6,6 @@ export const SalarySchema = object().shape({
   }),
   body: object().shape({
     employee_id: string()
-      .uuid('Employee ID must be a valid UUID')
       .required('Employee ID is required'),
     base_salary: number()
       .positive('Base salary must be positive')

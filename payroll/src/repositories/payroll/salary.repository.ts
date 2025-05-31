@@ -13,7 +13,7 @@ class SalaryRepository {
     async create(data: ISalary) {
         return await PayrollSalary.create(data)
     }
-
+    
     async findAll({ 
         tenantId, 
         page = 1, 
@@ -25,21 +25,16 @@ class SalaryRepository {
             deleted: false,
             tenant_id: tenantId
         }
-
+    
         if (employeeId) {
-            whereClause.employee_id = employeeId
+            whereClause.employee_id = employeeId;
         }
-
+    
         return await PayrollSalary.findAndCountAll({
             where: whereClause,
-            include: [{
-                model: Employee,
-                as: 'employee',
-                attributes: ['id', 'name', 'employee_id']
-            }],
             limit,
             offset,
-            order: [['created_at', 'DESC']]
+            order: [['created_at', 'DESC']] // Make sure this matches your DB column name
         })
     }
 
@@ -73,6 +68,39 @@ class SalaryRepository {
             order: [['effective_date', 'DESC']]
         })
     }
+    
+    async update(id: string, tenantId: string, data: Partial<ISalary>) {
+        const salary = await PayrollSalary.findOne({
+            where: {
+                id,
+                tenant_id: tenantId,
+                deleted: false
+            }
+        });
+    
+        if (!salary) {
+            throw new Error('Salary not found');
+        }
+    
+        return await salary.update(data);
+    }
+    
+    async delete(id: string, tenantId: string) {
+        const salary = await PayrollSalary.findOne({
+            where: {
+                id,
+                tenant_id: tenantId,
+                deleted: false
+            }
+        });
+    
+        if (!salary) {
+            throw new Error('Salary not found');
+        }
+    
+        return await salary.update({ deleted: true });
+    }
 }
+
 
 export default new SalaryRepository()

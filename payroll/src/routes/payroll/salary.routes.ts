@@ -1,12 +1,21 @@
 import { Router } from 'express'
-import { createSalaryController, findAllSalaryController, findSalaryByIdController } from '@controllers/payroll/salary.controller'
+import { 
+  createSalaryController, 
+  findAllSalaryController, 
+  findSalaryByIdController,
+  updateSalaryController,
+  deleteSalaryController
+} from '@controllers/payroll/salary.controller'
 import validateRequestHandler from '@middlewares/validateRequestHandler'
 import { SalarySchema } from '@validators/payroll/salary'
 
 const router = Router()
 
-router.post('/', validateRequestHandler(SalarySchema), createSalaryController)
+// Use the new endpoint structure
+router.post('/add', validateRequestHandler(SalarySchema), createSalaryController)
 router.get('/list', findAllSalaryController)
 router.get('/:id', findSalaryByIdController)
+router.put('/edit/:id', validateRequestHandler(SalarySchema), updateSalaryController)
+router.delete('/delete/:id', deleteSalaryController)
 
 export default router

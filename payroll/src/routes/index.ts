@@ -20,7 +20,7 @@ const router = Router()
 
 
 // router.use('/v1/version', versionRouter)
-// router.use('/v1/auth', authController)
+router.use('/v1/auth', authController)
 // router.use('/v1/employees', AuthorizationCheck, PermissionCheck, employeeRouter)
 // router.use('/v1/marital-status', AuthorizationCheck, PermissionCheck, maritalStatusController)
 // router.use('/v1/departments', AuthorizationCheck, PermissionCheck, departmentController)
@@ -30,7 +30,7 @@ const router = Router()
 // router.use('/v1/image', imageRouter)
 // router.use('/v1/dashboards', AuthorizationCheck, PermissionCheck, dashboardRouter)
 router.use('/v1/attendance', AuthorizationCheck, PermissionCheck, attendanceRouter)
-router.use('/v1/salaries', AuthorizationCheck, PermissionCheck, salaryRouter)
+router.use('/v1/salaries',  salaryRouter)
 router.use('/v1/payslips', AuthorizationCheck, PermissionCheck, payslipRouter)
 
 export default router

@@ -35,3 +35,19 @@ export const findSalaryByEmployeeId = async (employeeId: string, tenantId: strin
     throw errorThrower(err)
   }
 }
+
+export const updateSalary = async (id: string, tenantId: string, data: Partial<ISalary>) => {
+  try {
+    return await salaryRepository.update(id, tenantId, data);
+  } catch (err: any) {
+    throw errorThrower(err);
+  }
+}
+
+export const deleteSalary = async (id: string, tenantId: string) => {
+  try {
+    return await salaryRepository.delete(id, tenantId);
+  } catch (err: any) {
+    throw errorThrower(err);
+  }
+}
