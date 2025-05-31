@@ -1,0 +1,185 @@
+paths:
+  /v1/attendance-deductions/calculate:
+    post:
+      summary: Calculate attendance deduction
+      tags:
+        - Payroll Attendance Deduction
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalculateDeductionInput'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeductionResponse'
+
+  /v1/attendance-deductions/list:
+    get:
+      summary: Get attendance deductions list
+      tags:
+        - Payroll Attendance Deduction
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: employee_id
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: period
+          schema:
+            type: string
+          description: Filter by period (MM-YYYY format, e.g., 05-2025). Defaults to current month.
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AttendanceDeduction'
+                  total:
+                    type: integer
+
+  /v1/attendance-deductions/{id}:
+    get:
+      summary: Get attendance deduction by ID
+      tags:
+        - Payroll Attendance Deduction
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeductionResponse'
+
+  /v1/attendance-deductions/delete/{id}:
+    delete:
+      summary: Delete attendance deduction
+      tags:
+        - Payroll Attendance Deduction
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                  message:
+                    type: string
+
+components:
+  schemas:
+    CalculateDeductionInput:
+      type: object
+      required:
+        - employee_id
+        - period
+      properties:
+        employee_id:
+          type: string
+          format: uuid
+        period:
+          type: string
+          description: Deduction period in MM-YYYY format
+          example: "06-2023"
+
+    AttendanceDeduction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        employee_id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        period:
+          type: string
+          description: Period in MM-YYYY format
+          example: "06-2023"
+        total_late_minutes:
+          type: integer
+        deduction_amount:
+          type: number
+          format: decimal
+        employee:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            employee_id:
+              type: string
+
+    DeductionResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/AttendanceDeduction'

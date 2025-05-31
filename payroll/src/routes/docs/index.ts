@@ -6,6 +6,7 @@ export default [
    'attendance.yml',
    'salary.yml',
    'payslip.yml',
+   'attendanceDeduction.yml',
    // 'maritalStatus.yml',
    // 'department.yml',
    // 'position.yml',

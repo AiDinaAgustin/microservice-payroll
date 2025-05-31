@@ -14,6 +14,7 @@ import PermissionCheck from '@middlewares/permissionCheck'
 import attendanceRouter from './payroll/attendance.routes'
 import salaryRouter from './payroll/salary.routes'
 import payslipRouter from './payroll/payslip.routes'
+import attendanceDeductionRouter from './payroll/attendanceDeduction.routes'
 
 
 const router = Router()
@@ -30,6 +31,7 @@ router.use('/v1/auth', authController)
 // router.use('/v1/image', imageRouter)
 // router.use('/v1/dashboards', AuthorizationCheck, PermissionCheck, dashboardRouter)
 router.use('/v1/attendances', attendanceRouter)
+router.use('/v1/attendance-deductions', attendanceDeductionRouter)
 router.use('/v1/salaries',  salaryRouter)
 router.use('/v1/payslips', AuthorizationCheck, PermissionCheck, payslipRouter)
 
