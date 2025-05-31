@@ -18,12 +18,10 @@ export const createSalaryController = async (req: Request, res: Response, next: 
   }
 }
 
-// Update the findAllSalaryController function
-
 export const findAllSalaryController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenantId = req.headers['tenant-id'] as string
-    const { page, limit, employee_id } = req.query
+    const { page, limit, employee_id, period } = req.query
 
     // Set default values and ensure they're valid numbers
     const pageNumber = page ? parseInt(page as string) : 1;
@@ -44,23 +42,36 @@ export const findAllSalaryController = async (req: Request, res: Response, next:
       });
     }
 
+    // Get period parameter or default to current month-year
+    let periodValue: string | undefined = period as string;
+    
+    if (!periodValue || !/^\d{2}-\d{4}$/.test(periodValue)) {
+      // Default to current month-year if not provided or invalid
+      const now = new Date();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      periodValue = `${month}-${year}`;
+    }
+
     const data = await findAllSalary({ 
       tenantId,
       page: pageNumber,
       limit: limitNumber,
-      employeeId: employee_id as string | undefined
-    })
+      employeeId: employee_id as string | undefined,
+      period: periodValue
+    });
     
     res.status(StatusCodes.OK).json({
       status: StatusCodes.OK,
       message: 'Salary list retrieved successfully',
       data: data.rows,
       total: data.count
-    })
+    });
   } catch (err) {
-    next(err)
+    next(err);
   }
 }
+
 export const findSalaryByIdController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenantId = req.headers['tenant-id'] as string

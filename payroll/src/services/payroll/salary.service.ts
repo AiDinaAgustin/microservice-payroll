@@ -10,11 +10,17 @@ export const createSalary = async (payload: ISalary) => {
   }
 }
 
-export const findAllSalary = async (params: any) => {
+export const findAllSalary = async ({ tenantId, page, limit, employeeId, period }: any) => {
   try {
-    return await salaryRepository.findAll(params)
+    return await salaryRepository.findAll({
+      tenantId,
+      page,
+      limit,
+      employeeId,
+      period
+    });
   } catch (err: any) {
-    throw errorThrower(err)
+    throw errorThrower(err);
   }
 }
 

@@ -25,7 +25,7 @@ export const createAttendanceController = async (
 export const findAllAttendanceController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenantId = req.headers['tenant-id'] as string
-    const { page, limit, employee_id, start_date, end_date } = req.query
+    const { page, limit, employee_id, month_year } = req.query
 
     // Set default values and ensure they're valid numbers
     const pageNumber = page ? parseInt(page as string) : 1;
@@ -46,29 +46,44 @@ export const findAllAttendanceController = async (req: Request, res: Response, n
       });
     }
 
-    // Convert date strings to Date objects if provided
-    const startDateObj = start_date ? new Date(start_date as string) : undefined;
-    const endDateObj = end_date ? new Date(end_date as string) : undefined;
+    // Calculate date range for filtering
+    let startDate: Date, endDate: Date;
+    
+    if (month_year && typeof month_year === 'string' && /^\d{2}-\d{4}$/.test(month_year)) {
+      // If month_year is provided in MM-YYYY format
+      const [month, year] = month_year.split('-').map(Number);
+      
+      // Create start date (1st day of month)
+      startDate = new Date(year, month - 1, 1);
+      
+      // Create end date (last day of month)
+      endDate = new Date(year, month, 0);
+    } else {
+      // Default to current month if no valid month_year is provided
+      const now = new Date();
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    }
 
     const data = await findAllAttendance({ 
       tenantId,
       page: pageNumber,
       limit: limitNumber,
       employeeId: employee_id as string | undefined,
-      startDate: startDateObj,
-      endDate: endDateObj
-    })
+      startDate,
+      endDate
+    });
     
     res.status(StatusCodes.OK).json({
       status: StatusCodes.OK,
       message: 'Attendance list retrieved successfully',
       data: data.rows,
       total: data.count
-    })
+    });
   } catch (err) {
-    next(err)
+    next(err);
   }
-}
+};
 
 export const findAttendanceByIdController = async (req: Request, res: Response, next: NextFunction) => {
   try {

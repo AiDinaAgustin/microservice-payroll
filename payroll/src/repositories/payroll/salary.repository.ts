@@ -7,6 +7,7 @@ interface FindAllParams {
   page?: number;
   limit?: number;
   employeeId?: string;
+  period?: string
 }
 
 class SalaryRepository {
@@ -18,7 +19,8 @@ class SalaryRepository {
         tenantId, 
         page = 1, 
         limit = 10,
-        employeeId
+        employeeId,
+        period
     }: FindAllParams) {
         const offset = (page - 1) * limit
         const whereClause: any = { 
@@ -29,13 +31,22 @@ class SalaryRepository {
         if (employeeId) {
             whereClause.employee_id = employeeId;
         }
+
+        if (period) {
+            whereClause.period = period;
+        }
     
         return await PayrollSalary.findAndCountAll({
             where: whereClause,
             limit,
             offset,
-            order: [['created_at', 'DESC']] // Make sure this matches your DB column name
-        })
+            order: [['created_at', 'DESC']],
+            include: [{
+                model: Employee,
+                as: 'employee',
+                attributes: ['id', 'name', 'employee_id']
+            }]
+        });
     }
 
     async findById(id: string, tenantId: string) {
