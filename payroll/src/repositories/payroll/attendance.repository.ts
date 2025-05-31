@@ -96,6 +96,39 @@ class AttendanceRepository {
             order: [['date', 'DESC']]
         })
     }
+        
+    async update(id: string, tenantId: string, data: Partial<IAttendance>) {
+        const attendance = await PayrollAttendance.findOne({
+            where: {
+                id,
+                tenant_id: tenantId,
+                deleted: false
+            }
+        })
+    
+        if (!attendance) {
+            throw new Error('Attendance not found')
+        }
+    
+        return await attendance.update(data)
+    }
+    
+    async delete(id: string, tenantId: string) {
+        const attendance = await PayrollAttendance.findOne({
+            where: {
+                id,
+                tenant_id: tenantId,
+                deleted: false
+            }
+        })
+    
+        if (!attendance) {
+            throw new Error('Attendance not found')
+        }
+    
+        // Soft delete by setting deleted flag to true
+        return await attendance.update({ deleted: true })
+    }
 }
 
 export default new AttendanceRepository()

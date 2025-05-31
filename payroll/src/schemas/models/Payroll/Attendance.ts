@@ -73,7 +73,8 @@ PayrollAttendance.init(
   {
     sequelize: db,
     tableName: 'payroll_attendances',
-    timestamps: true
+    timestamps: true,
+    underscored: true  // Add this line
   }
 )
 

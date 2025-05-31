@@ -1,5 +1,5 @@
 paths:
-  /v1/payroll/attendance/list:
+  /v1/attendances/list:
     get:
       summary: Get attendance list
       tags:
@@ -57,7 +57,7 @@ paths:
                   total:
                     type: integer
 
-  /v1/payroll/attendance/{id}:
+  /v1/attendances/{id}:
     get:
       summary: Get attendance by ID
       tags:
@@ -88,7 +88,91 @@ paths:
                     type: string
                   data:
                     $ref: '#/components/schemas/Attendance'
+  /v1/attendances/add:
+    post:
+      summary: Create new attendance
+      tags:
+        - Payroll Attendance
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttendanceInput'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceResponse'
 
+  /v1/attendances/edit/{id}:
+    put:
+      summary: Update attendance
+      tags:
+        - Payroll Attendance
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AttendanceInput'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendanceResponse'
+
+  /v1/attendances/delete/{id}:
+    delete:
+      summary: Delete attendance
+      tags:
+        - Payroll Attendance
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                  message:
+                    type: string  
 components:
   schemas:
     Attendance:
@@ -126,3 +210,47 @@ components:
               type: string
             employee_id:
               type: string
+    AttendanceInput:
+      type: object
+      required:
+        - employee_id
+        - date
+        - status
+      properties:
+        employee_id:
+          type: string
+          format: uuid
+          description: Employee ID
+        date:
+          type: string
+          description: Attendance date in DD-MM-YYYY format
+          example: "01-06-2023"
+        status:
+          type: string
+          enum: [present, absent, late, leave]
+          description: Attendance status
+        check_in:
+          type: string
+          description: Check-in time in DD-MM-YYYY HH:mm:ss format
+          example: "01-06-2023 08:00:00"
+          nullable: true
+        check_out:
+          type: string
+          description: Check-out time in DD-MM-YYYY HH:mm:ss format
+          example: "01-06-2023 17:00:00"
+          nullable: true
+        late_minutes:
+          type: integer
+          description: Minutes late (if status is 'late')
+          minimum: 0
+          nullable: true
+
+    AttendanceResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Attendance'

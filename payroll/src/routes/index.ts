@@ -11,7 +11,7 @@ import statusController from './status/statusRoutes'
 import AuthorizationCheck from '@middlewares/Auth'
 import dashboardRouter from './dashboard/dashboard'
 import PermissionCheck from '@middlewares/permissionCheck'
-import attendanceRouter from './payroll/payroll.routes'
+import attendanceRouter from './payroll/attendance.routes'
 import salaryRouter from './payroll/salary.routes'
 import payslipRouter from './payroll/payslip.routes'
 
@@ -29,7 +29,7 @@ router.use('/v1/auth', authController)
 // router.use('/v1/statuses', AuthorizationCheck, PermissionCheck, statusController)
 // router.use('/v1/image', imageRouter)
 // router.use('/v1/dashboards', AuthorizationCheck, PermissionCheck, dashboardRouter)
-router.use('/v1/attendance', AuthorizationCheck, PermissionCheck, attendanceRouter)
+router.use('/v1/attendances', attendanceRouter)
 router.use('/v1/salaries',  salaryRouter)
 router.use('/v1/payslips', AuthorizationCheck, PermissionCheck, payslipRouter)
 

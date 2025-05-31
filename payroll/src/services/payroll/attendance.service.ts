@@ -35,3 +35,25 @@ export const findAllAttendance = async (params: any) => {
       throw errorThrower(err)
     }
   }
+  
+  export const updateAttendance = async (id: string, tenantId: string, data: Partial<IAttendance>) => {
+    try {
+      const attendance = await attendanceRepository.findById(id, tenantId)
+      if (!attendance) throw new Error('Attendance not found')
+      
+      return await attendanceRepository.update(id, tenantId, data)
+    } catch (err: any) {
+      throw errorThrower(err)
+    }
+  }
+  
+  export const deleteAttendance = async (id: string, tenantId: string) => {
+    try {
+      const attendance = await attendanceRepository.findById(id, tenantId)
+      if (!attendance) throw new Error('Attendance not found')
+      
+      return await attendanceRepository.delete(id, tenantId)
+    } catch (err: any) {
+      throw errorThrower(err)
+    }
+  }

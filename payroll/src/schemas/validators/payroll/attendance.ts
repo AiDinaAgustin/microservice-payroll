@@ -6,7 +6,6 @@ export const AttendanceSchema = object().shape({
   }),
   body: object().shape({
     employee_id: string()
-      .uuid('Employee ID must be a valid UUID')
       .required('Employee ID is required'),
     date: string()
       .required('Date is required')
