@@ -302,5 +302,170 @@ export const permissionDummyData = [
       parent_id: null,
       type: 'action',
       endpoint: '/marital-status/options'
-   }
+   },
+   {
+      id: '83cf04a2-3de1-429c-a0be-8fca4bdbff8f',
+      code: 'payroll_management',
+      name: 'Payroll Management',
+      parent_id: null,
+      type: 'menu',
+      submenus: [
+        {
+          id: '6dc53c4d-3b87-421f-9c7c-8cfb493df6ec',
+          code: 'salary',
+          name: 'Salary',
+          parent_id: '83cf04a2-3de1-429c-a0be-8fca4bdbff8f',
+          type: 'menu',
+          submenus: [
+            {
+              id: '278d27e1-7d25-40e2-a844-9836bbf2943d',
+              code: 'salary.add',
+              name: 'Salary Add',
+              parent_id: '6dc53c4d-3b87-421f-9c7c-8cfb493df6ec',
+              type: 'action',
+              endpoint: '/salaries/add'
+            },
+            {
+              id: '8ee6efbc-7a94-4a3f-b37f-fdc15d593ac9',
+              code: 'salary.list',
+              name: 'Salary List',
+              parent_id: '6dc53c4d-3b87-421f-9c7c-8cfb493df6ec',
+              type: 'action',
+              endpoint: '/salaries/list'
+            },
+            {
+              id: '6d2edebf-6c76-4a17-b08f-d56b8db61dc9',
+              code: 'salary.edit',
+              name: 'Salary Edit',
+              parent_id: '6dc53c4d-3b87-421f-9c7c-8cfb493df6ec',
+              type: 'action',
+              endpoint: '/salaries/edit/:id'
+            },
+            {
+              id: '2f15723e-2f2d-4384-8f9c-4d63fdc2b420',
+              code: 'salary.delete',
+              name: 'Salary Delete',
+              parent_id: '6dc53c4d-3b87-421f-9c7c-8cfb493df6ec',
+              type: 'action',
+              endpoint: '/salaries/delete/:id'
+            }
+          ]
+        },
+        {
+          id: '54e7b22f-f210-4a3e-bb93-b0d69d254c59',
+          code: 'attendance',
+          name: 'Attendance',
+          parent_id: '83cf04a2-3de1-429c-a0be-8fca4bdbff8f',
+          type: 'menu',
+          submenus: [
+            {
+              id: '3d75d5be-4a2b-40ee-902c-d9ee07e2a134',
+              code: 'attendance.add',
+              name: 'Attendance Add',
+              parent_id: '54e7b22f-f210-4a3e-bb93-b0d69d254c59',
+              type: 'action',
+              endpoint: '/attendances/add'
+            },
+            {
+              id: '6941f1b7-1f86-4a0a-80fc-e743c9f4ffcd',
+              code: 'attendance.list',
+              name: 'Attendance List',
+              parent_id: '54e7b22f-f210-4a3e-bb93-b0d69d254c59',
+              type: 'action',
+              endpoint: '/attendances/list'
+            },
+            {
+              id: 'de76d5ff-f03f-4e75-bd8a-c4dbf99c3cbf',
+              code: 'attendance.edit',
+              name: 'Attendance Edit',
+              parent_id: '54e7b22f-f210-4a3e-bb93-b0d69d254c59',
+              type: 'action',
+              endpoint: '/attendances/edit/:id'
+            },
+            {
+              id: '14fc3079-34de-4d77-9448-4cd110ae0b9e',
+              code: 'attendance.delete',
+              name: 'Attendance Delete',
+              parent_id: '54e7b22f-f210-4a3e-bb93-b0d69d254c59',
+              type: 'action',
+              endpoint: '/attendances/delete/:id'
+            }
+          ]
+        },
+        {
+          id: 'a7865534-fb57-45d0-9c8a-41c51e59c2c3',
+          code: 'attendance_deduction',
+          name: 'Attendance Deduction',
+          parent_id: '83cf04a2-3de1-429c-a0be-8fca4bdbff8f',
+          type: 'menu',
+          submenus: [
+            {
+              id: '95f6744e-8b4e-4ab9-a4bb-13b90cf8df84',
+              code: 'attendance_deduction.calculate',
+              name: 'Attendance Deduction Calculate',
+              parent_id: 'a7865534-fb57-45d0-9c8a-41c51e59c2c3',
+              type: 'action',
+              endpoint: '/attendance-deductions/calculate'
+            },
+            {
+              id: 'ebc57748-1340-4eb6-85d1-13fa51c58a48',
+              code: 'attendance_deduction.list',
+              name: 'Attendance Deduction List',
+              parent_id: 'a7865534-fb57-45d0-9c8a-41c51e59c2c3',
+              type: 'action',
+              endpoint: '/attendance-deductions/list'
+            },
+            {
+              id: '004bc79d-fc14-4453-a510-0cba52025056',
+              code: 'attendance_deduction.delete',
+              name: 'Attendance Deduction Delete',
+              parent_id: 'a7865534-fb57-45d0-9c8a-41c51e59c2c3',
+              type: 'action',
+              endpoint: '/attendance-deductions/delete/:id'
+            },
+            {
+              id: '2a5c1913-1b6d-4db1-9eec-eac3702d6c95',
+              code: 'attendance_deduction.detail',
+              name: 'Attendance Deduction Detail',
+              parent_id: 'a7865534-fb57-45d0-9c8a-41c51e59c2c3',
+              type: 'action',
+              endpoint: '/attendance-deductions/detail/:id'
+            }
+          ]
+        },
+        {
+          id: 'e83ea5dc-1045-49c3-993c-f46b958bfb34',
+          code: 'payslip',
+          name: 'Payslip',
+          parent_id: '83cf04a2-3de1-429c-a0be-8fca4bdbff8f',
+          type: 'menu',
+          submenus: [
+            {
+              id: 'f4c7b176-3c4e-453c-858f-b81d15713d15',
+              code: 'payslip.add',
+              name: 'Payslip Add',
+              parent_id: 'e83ea5dc-1045-49c3-993c-f46b958bfb34',
+              type: 'action',
+              endpoint: '/payslips/add'
+            },
+            {
+              id: 'ea29a8d7-e87f-43a6-baa0-d1c342b3b7eb',
+              code: 'payslip.list',
+              name: 'Payslip List',
+              parent_id: 'e83ea5dc-1045-49c3-993c-f46b958bfb34',
+              type: 'action',
+              endpoint: '/payslips/list'
+            },
+            {
+              id: 'cbfc0582-5cf9-41ae-b39f-4042f24500d0',
+              code: 'payslip.detail',
+              name: 'Payslip Detail',
+              parent_id: 'e83ea5dc-1045-49c3-993c-f46b958bfb34',
+              type: 'action',
+              endpoint: '/payslips/detail/:id'
+            }
+          ]
+        }
+      ]
+   }    
 ]

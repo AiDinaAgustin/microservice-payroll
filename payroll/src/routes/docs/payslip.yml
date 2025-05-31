@@ -61,7 +61,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PayslipListResponse'
 
-  /v1/payslips/{id}:
+  /v1/payslips/detail/{id}:
     get:
       summary: Get payslip by ID
       tags:

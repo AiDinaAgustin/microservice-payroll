@@ -11,6 +11,6 @@ const router = Router()
 
 router.post('/add', validateRequestHandler(PayslipSchema), createPayslipController)
 router.get('/list', findAllPayslipController)
-router.get('/:id', findPayslipByIdController)
+router.get('/detail/:id', findPayslipByIdController)
 
 export default router

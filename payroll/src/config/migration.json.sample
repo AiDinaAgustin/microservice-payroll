@@ -1,24 +1,24 @@
 {
-   "development": {
-      "username": "root",
-      "password": "4P89G57qHVsuMoQXxaK32h1eOUm6iC0I",
-      "database": "hr_payroll_prod",
-      "host": "43.133.145.125",
-      "dialect": "postgres",
-      "port": "32468"
-   },
-   "test": {
-      "username": "xxxxxx",
-      "password": "xxxxxx",
-      "database": "xxxxxx",
-      "host": "xxxxxx",
-      "dialect": "xxxxxx"
-   },
-   "production": {
-      "username": "xxxxxx",
-      "password": "xxxxxx",
-      "database": "xxxxxx",
-      "host": "xxxxxx",
-      "dialect": "xxxxxx"
-   }
+  "development": {
+    "username": "postgres",
+    "password": "12345",
+    "database": "hr_payroll_local",
+    "host": "localhost",
+    "dialect": "postgres",
+    "port": "5432"
+  },
+  "test": {
+    "username": "xxxxxx",
+    "password": "xxxxxx",
+    "database": "xxxxxx",
+    "host": "xxxxxx",
+    "dialect": "xxxxxx"
+  },
+  "production": {
+    "username": "xxxxxx",
+    "password": "xxxxxx",
+    "database": "xxxxxx",
+    "host": "xxxxxx",
+    "dialect": "xxxxxx"
+  }
 }

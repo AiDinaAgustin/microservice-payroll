@@ -14,7 +14,7 @@ const router = Router()
 // Use the new endpoint structure
 router.post('/add', validateRequestHandler(SalarySchema), createSalaryController)
 router.get('/list', findAllSalaryController)
-router.get('/:id', findSalaryByIdController)
+router.get('/detail/:id', findSalaryByIdController)
 router.put('/edit/:id', validateRequestHandler(SalarySchema), updateSalaryController)
 router.delete('/delete/:id', deleteSalaryController)
 

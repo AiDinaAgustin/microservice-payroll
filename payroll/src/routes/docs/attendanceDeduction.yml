@@ -72,7 +72,7 @@ paths:
                   total:
                     type: integer
 
-  /v1/attendance-deductions/{id}:
+  /v1/attendance-deductions/detail/{id}:
     get:
       summary: Get attendance deduction by ID
       tags:

@@ -1,22 +1,16 @@
 'use strict';
 
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.addColumn('mst_contract_types', 'status', {
+      type: Sequelize.ENUM('active', 'inactive'),
+      allowNull: true,
+      defaultValue: 'active'
+    });
   },
 
-  async down (queryInterface, Sequelize) {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.removeColumn('mst_contract_types', 'status');
+    await queryInterface.sequelize.query('DROP TYPE "enum_mst_contract_types_status";');
   }
 };

@@ -14,7 +14,7 @@ const router = Router()
 // Use the specified endpoint structure
 router.post('/add', validateRequestHandler(AttendanceSchema), createAttendanceController)
 router.get('/list', findAllAttendanceController)
-router.get('/:id', findAttendanceByIdController)
+router.get('/detail/:id', findAttendanceByIdController)
 router.put('/edit/:id', validateRequestHandler(AttendanceSchema), updateAttendanceController)
 router.delete('/delete/:id', deleteAttendanceController)
 

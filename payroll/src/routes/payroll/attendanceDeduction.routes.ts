@@ -12,7 +12,7 @@ const router = Router()
 
 router.post('/calculate', validateRequestHandler(CalculateDeductionSchema), calculateDeductionController)
 router.get('/list', findAllDeductionsController)
-router.get('/:id', findDeductionByIdController)
+router.get('/detail/:id', findDeductionByIdController)
 router.delete('/delete/:id', deleteDeductionController)
 
 export default router

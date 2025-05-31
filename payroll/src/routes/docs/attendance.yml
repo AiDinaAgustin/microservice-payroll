@@ -62,7 +62,7 @@ paths:
                   total:
                     type: integer
 
-  /v1/attendances/{id}:
+  /v1/attendances/detail/{id}:
     get:
       summary: Get attendance by ID
       tags:
