@@ -1,14 +1,14 @@
 import { IPayslip } from '@interfaces/payroll/IPayslip'
 import PayrollPayslip from '@models/Payroll/Payslip'
 import Employee from '@models/Employee'
-// import { Op } from 'sequelize'
+import { Op } from 'sequelize'
 
 interface FindAllParams {
   tenantId: string;
   page?: number;
   limit?: number;
   employeeId?: string;
-  period?: Date;
+  period?: string; // Changed from Date to string
 }
 
 class PayslipRepository {
@@ -35,7 +35,7 @@ class PayslipRepository {
             }],
             limit,
             offset,
-            order: [['period', 'DESC']]
+            order: [['created_at', 'DESC']]
         })
     }
 
@@ -50,19 +50,14 @@ class PayslipRepository {
         })
     }
 
-    async findByEmployeeId(employeeId: string, tenantId: string) {
-        return await PayrollPayslip.findAll({
+    async findByEmployeeIdAndPeriod(employeeId: string, period: string, tenantId: string) {
+        return await PayrollPayslip.findOne({
             where: {
                 employee_id: employeeId,
+                period,
                 tenant_id: tenantId,
                 deleted: false
-            },
-            include: [{
-                model: Employee,
-                as: 'employee',
-                attributes: ['id', 'name', 'employee_id']
-            }],
-            order: [['period', 'DESC']]
+            }
         })
     }
 }

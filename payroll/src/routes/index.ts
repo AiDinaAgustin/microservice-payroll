@@ -33,6 +33,6 @@ router.use('/v1/auth', authController)
 router.use('/v1/attendances', attendanceRouter)
 router.use('/v1/attendance-deductions', attendanceDeductionRouter)
 router.use('/v1/salaries',  salaryRouter)
-router.use('/v1/payslips', AuthorizationCheck, PermissionCheck, payslipRouter)
+router.use('/v1/payslips', payslipRouter)
 
 export default router

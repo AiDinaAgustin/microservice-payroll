@@ -1,5 +1,5 @@
 paths:
-  /v1/payroll/payslip:
+  /v1/payslips/add:
     post:
       summary: Create new payslip
       tags:
@@ -24,7 +24,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PayslipResponse'
 
-  /v1/payroll/payslip/list:
+  /v1/payslips/list:
     get:
       summary: Get payslip list
       tags:
@@ -52,7 +52,7 @@ paths:
           name: period
           schema:
             type: string
-            format: date
+          description: Filter by period (MM-YYYY format, e.g., 05-2025). Defaults to current month.
       responses:
         200:
           description: Success
@@ -61,6 +61,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/PayslipListResponse'
 
+  /v1/payslips/{id}:
+    get:
+      summary: Get payslip by ID
+      tags:
+        - Payroll Payslip
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayslipResponse'
+
 components:
   schemas:
     PayslipInput:
@@ -68,21 +93,24 @@ components:
       required:
         - employee_id
         - period
-        - base_salary
-        - net_salary
       properties:
         employee_id:
           type: string
           format: uuid
         period:
           type: string
-          format: date
-        base_salary:
-          type: number
-        total_deductions:
-          type: number
-        net_salary:
-          type: number
+          description: Period in MM-YYYY format
+          example: "05-2025"
+
+    PayslipResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Payslip'
 
     PayslipListResponse:
       type: object
@@ -112,7 +140,8 @@ components:
           format: uuid
         period:
           type: string
-          format: date
+          description: Period in MM-YYYY format
+          example: "05-2025"
         base_salary:
           type: number
         total_deductions:

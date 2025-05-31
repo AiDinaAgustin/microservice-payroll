@@ -111,6 +111,17 @@ class SalaryRepository {
     
         return await salary.update({ deleted: true });
     }
+
+    async findByEmployeeIdAndPeriod(employeeId: string, period: string, tenantId: string) {
+        return await PayrollSalary.findOne({
+            where: {
+                employee_id: employeeId,
+                period: period,
+                tenant_id: tenantId,
+                deleted: false
+            }
+        });
+    }
 }
 
 

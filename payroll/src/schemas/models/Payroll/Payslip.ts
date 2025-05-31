@@ -1,12 +1,13 @@
 import { Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize'
 import { db } from '@config/database'
 import { v4 as uuidv4 } from 'uuid'
+import Employee from '../Employee'
 
 class PayrollPayslip extends Model<InferAttributes<PayrollPayslip>, InferCreationAttributes<PayrollPayslip>> {
    declare id: CreationOptional<string>
    declare employee_id: string
    declare tenant_id: string
-   declare period: Date
+   declare period: string // Changed from Date to string
    declare base_salary: number
    declare total_deductions: CreationOptional<number>
    declare net_salary: number
@@ -15,13 +16,14 @@ class PayrollPayslip extends Model<InferAttributes<PayrollPayslip>, InferCreatio
    declare updated_by: CreationOptional<string>
    declare created_at: CreationOptional<Date>
    declare updated_at: CreationOptional<Date>
+   declare readonly employee?: Employee
 }
 
 PayrollPayslip.init(
     {
       id: {
         type: DataTypes.UUID,
-      defaultValue: uuidv4,
+        defaultValue: uuidv4,
         primaryKey: true
       },
       employee_id: {
@@ -33,7 +35,7 @@ PayrollPayslip.init(
         allowNull: false
       },
       period: {
-        type: DataTypes.DATE,
+        type: DataTypes.STRING, // Changed from DATE to STRING
         allowNull: false
       },
       base_salary: {
@@ -68,8 +70,15 @@ PayrollPayslip.init(
     {
       sequelize: db,
       tableName: 'payroll_payslips',
-      timestamps: true
+      timestamps: true,
+      underscored: true
     }
   )
+
+// Add association
+PayrollPayslip.belongsTo(Employee, {
+  foreignKey: 'employee_id',
+  as: 'employee'
+})
 
 export default PayrollPayslip

@@ -9,7 +9,7 @@ import { PayslipSchema } from '@validators/payroll/payslip'
 
 const router = Router()
 
-router.post('/', validateRequestHandler(PayslipSchema), createPayslipController)
+router.post('/add', validateRequestHandler(PayslipSchema), createPayslipController)
 router.get('/list', findAllPayslipController)
 router.get('/:id', findPayslipByIdController)
 
