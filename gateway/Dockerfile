@@ -1,7 +1,7 @@
-FROM node:20-alpine
+FROM node:alpine
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Install app dependencies
 COPY package*.json ./
@@ -11,5 +11,8 @@ RUN npm install
 # Bundle app source
 COPY . .
 
+# Expose the required port
 EXPOSE 5000
-CMD [ "npm", "start" ]
+
+# Use npm run dev instead of npm start
+CMD ["npm", "run", "dev"]
