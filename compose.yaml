@@ -92,9 +92,9 @@ services:
       - "5000:5000"
     environment:
       - PORT=5000
-      - AUTH_SERVICE_URL=http://auth:5001
-      - EMPLOYEE_SERVICE_URL=http://employee:5002
-      - PAYROLL_SERVICE_URL=http://payroll:5003
+      - AUTH_SERVICE_URL=http://auth:5000
+      - EMPLOYEE_SERVICE_URL=http://employee:5000
+      - PAYROLL_SERVICE_URL=http://payroll:5000
     volumes:
       - ./gateway:/usr/src/app
       - /usr/src/app/node_modules
