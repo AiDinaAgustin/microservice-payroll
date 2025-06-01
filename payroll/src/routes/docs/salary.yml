@@ -27,6 +27,8 @@ paths:
           schema:
             type: string
           description: Filter by salary period (MM-YYYY format, e.g., 05-2025). Defaults to current month.
+      security:
+        - BearerAuth: []
       responses:
         200:
           description: Success
@@ -63,6 +65,8 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SalaryInput'
+      security:
+        - BearerAuth: []
       responses:
         201:
           description: Created
@@ -94,6 +98,8 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SalaryInput'
+      security:
+        - BearerAuth: []
       responses:
         200:
           description: Success
@@ -118,7 +124,8 @@ paths:
           required: true
           schema:
             type: string
-            format: uuid
+      security:
+        - BearerAuth: []
       responses:
         200:
           description: Success

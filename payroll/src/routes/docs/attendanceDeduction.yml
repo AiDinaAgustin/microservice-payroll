@@ -16,6 +16,8 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CalculateDeductionInput'
+      security:
+        - BearerAuth: []
       responses:
         200:
           description: Success
@@ -53,6 +55,8 @@ paths:
           schema:
             type: string
           description: Filter by period (MM-YYYY format, e.g., 05-2025). Defaults to current month.
+      security:
+        - BearerAuth: []
       responses:
         200:
           description: Success
@@ -89,6 +93,8 @@ paths:
           schema:
             type: string
             format: uuid
+      security:
+        - BearerAuth: []
       responses:
         200:
           description: Success
@@ -114,6 +120,8 @@ paths:
           schema:
             type: string
             format: uuid
+      security:
+        - BearerAuth: []
       responses:
         200:
           description: Success
@@ -141,7 +149,7 @@ components:
         period:
           type: string
           description: Deduction period in MM-YYYY format
-          example: "06-2023"
+          example: "05-2025"
 
     AttendanceDeduction:
       type: object
@@ -158,7 +166,7 @@ components:
         period:
           type: string
           description: Period in MM-YYYY format
-          example: "06-2023"
+          example: "05-2025"
         total_late_minutes:
           type: integer
         deduction_amount:

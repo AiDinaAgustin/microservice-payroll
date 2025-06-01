@@ -39,55 +39,55 @@ module.exports = {
       }
     ], {});
 
-    await queryInterface.bulkInsert('sys_permissions', [
-      {
-        id: '1',
-        name: 'Read',
-        parent_id: null,
-        type: 'aksi',
-        deleted: 0,
-        created_by: 'system',
-        updated_by: 'system',
-        created_at: new Date(),
-        updated_at: new Date()
-      },
-      {
-        id: '2',
-        name: 'Employee Management',
-        parent_id: null,
-        type: 'menu',
-        deleted: 0,
-        created_by: 'system',
-        updated_by: 'system',
-        created_at: new Date(),
-        updated_at: new Date()
-      }
-    ], {});
+    // await queryInterface.bulkInsert('sys_permissions', [
+    //   {
+    //     id: '1',
+    //     name: 'Read',
+    //     parent_id: null,
+    //     type: 'aksi',
+    //     deleted: 0,
+    //     created_by: 'system',
+    //     updated_by: 'system',
+    //     created_at: new Date(),
+    //     updated_at: new Date()
+    //   },
+    //   {
+    //     id: '2',
+    //     name: 'Employee Management',
+    //     parent_id: null,
+    //     type: 'menu',
+    //     deleted: 0,
+    //     created_by: 'system',
+    //     updated_by: 'system',
+    //     created_at: new Date(),
+    //     updated_at: new Date()
+    //   }
+    // ], {});
 
-    await queryInterface.bulkInsert('sys_role_permissions', [
-      {
-        id: '1',
-        tenant_id: '1',
-        role_id: '1',
-        permission_id: '1',
-        deleted: 0,
-        created_by: 'system',
-        updated_by: 'system',
-        created_at: new Date(),
-        updated_at: new Date()
-      },
-      {
-        id: '2',
-        tenant_id: '1',
-        role_id: '2',
-        permission_id: '2',
-        deleted: 0,
-        created_by: 'system',
-        updated_by: 'system',
-        created_at: new Date(),
-        updated_at: new Date()
-      }
-    ], {});
+    // await queryInterface.bulkInsert('sys_role_permissions', [
+    //   {
+    //     id: '1',
+    //     tenant_id: '1',
+    //     role_id: '1',
+    //     permission_id: '1',
+    //     deleted: 0,
+    //     created_by: 'system',
+    //     updated_by: 'system',
+    //     created_at: new Date(),
+    //     updated_at: new Date()
+    //   },
+    //   {
+    //     id: '2',
+    //     tenant_id: '1',
+    //     role_id: '2',
+    //     permission_id: '2',
+    //     deleted: 0,
+    //     created_by: 'system',
+    //     updated_by: 'system',
+    //     created_at: new Date(),
+    //     updated_at: new Date()
+    //   }
+    // ], {});
 
     await queryInterface.bulkInsert('sys_users', [
       {

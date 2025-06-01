@@ -43,6 +43,8 @@ paths:
           schema:
           type: string
           description: Filter by month and year (MM-YYYY format, e.g., 05-2025). Defaults to current month.
+      security:
+        - BearerAuth: []
       responses:
         200:
           description: Success
@@ -79,6 +81,8 @@ paths:
           schema:
             type: string
             format: uuid
+      security:
+        - BearerAuth: []
       responses:
         200:
           description: Success
@@ -110,6 +114,8 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AttendanceInput'
+      security:
+        - BearerAuth: []
       responses:
         201:
           description: Created
@@ -141,6 +147,8 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AttendanceInput'
+      security:
+        - BearerAuth: []
       responses:
         200:
           description: Success
@@ -166,6 +174,8 @@ paths:
           schema:
             type: string
             format: uuid
+      security:
+        - BearerAuth: []
       responses:
         200:
           description: Success
@@ -229,7 +239,7 @@ components:
         date:
           type: string
           description: Attendance date in DD-MM-YYYY format
-          example: "01-06-2023"
+          example: "01-05-2025"
         status:
           type: string
           enum: [present, absent, late, leave]
@@ -237,12 +247,12 @@ components:
         check_in:
           type: string
           description: Check-in time in DD-MM-YYYY HH:mm:ss format
-          example: "01-06-2023 08:00:00"
+          example: "01-05-2025 08:00:00"
           nullable: true
         check_out:
           type: string
           description: Check-out time in DD-MM-YYYY HH:mm:ss format
-          example: "01-06-2023 17:00:00"
+          example: "01-05-2025 16:00:00"
           nullable: true
         late_minutes:
           type: integer

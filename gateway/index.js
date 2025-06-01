@@ -122,7 +122,6 @@ app.put('/v1/contract-types/edit/:id', async (req, res) => {
   }
 });
 
-
 // Add new department
 app.post('/v1/departments/add', async (req, res) => {
   console.log('Add department request received, forwarding to employee service');
@@ -158,7 +157,6 @@ app.put('/v1/departments/edit/:id', async (req, res) => {
     });
   }
 });
-
 
 // Add new position
 app.post('/v1/positions/add', async (req, res) => {
@@ -420,7 +418,276 @@ app.delete('/v1/employees/delete/:id', async (req, res) => {
   }
 });
 
+// Salary routes
+app.post('/v1/salaries/add', async (req, res) => {
+  console.log('Add salary request received, forwarding to payroll service');
+  try {
+    const response = await axios.post(`${PAYROLL_SERVICE_URL}/v1/salaries/add`, req.body, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding salary add request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
 
+app.get('/v1/salaries/list', async (req, res) => {
+  console.log('List salaries request received, forwarding to payroll service');
+  try {
+    const response = await axios.get(`${PAYROLL_SERVICE_URL}/v1/salaries/list`, {
+      params: req.query,
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding salaries list request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.get('/v1/salaries/detail/:id', async (req, res) => {
+  try {
+    const response = await axios.get(`${PAYROLL_SERVICE_URL}/v1/salaries/detail/${req.params.id}`, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.put('/v1/salaries/edit/:id', async (req, res) => {
+  try {
+    const response = await axios.put(
+      `${PAYROLL_SERVICE_URL}/v1/salaries/edit/${req.params.id}`,
+      req.body,
+      { headers: req.headers }
+    );
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.delete('/v1/salaries/delete/:id', async (req, res) => {
+  try {
+    const response = await axios.delete(`${PAYROLL_SERVICE_URL}/v1/salaries/delete/${req.params.id}`, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+// Attendance routes
+app.post('/v1/attendances/add', async (req, res) => {
+  console.log('Add attendance request received, forwarding to payroll service');
+  try {
+    const response = await axios.post(`${PAYROLL_SERVICE_URL}/v1/attendances/add`, req.body, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding attendance add request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.get('/v1/attendances/list', async (req, res) => {
+  console.log('List attendances request received, forwarding to payroll service');
+  try {
+    const response = await axios.get(`${PAYROLL_SERVICE_URL}/v1/attendances/list`, {
+      params: req.query,
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding attendances list request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.get('/v1/attendances/detail/:id', async (req, res) => {
+  try {
+    const response = await axios.get(`${PAYROLL_SERVICE_URL}/v1/attendances/detail/${req.params.id}`, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.put('/v1/attendances/edit/:id', async (req, res) => {
+  try {
+    const response = await axios.put(
+      `${PAYROLL_SERVICE_URL}/v1/attendances/edit/${req.params.id}`,
+      req.body,
+      { headers: req.headers }
+    );
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.delete('/v1/attendances/delete/:id', async (req, res) => {
+  try {
+    const response = await axios.delete(`${PAYROLL_SERVICE_URL}/v1/attendances/delete/${req.params.id}`, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+// Attendance Deduction routes
+app.post('/v1/attendance-deductions/calculate', async (req, res) => {
+  console.log('Calculate deduction request received, forwarding to payroll service');
+  try {
+    const response = await axios.post(`${PAYROLL_SERVICE_URL}/v1/attendance-deductions/calculate`, req.body, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding deduction calculate request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.get('/v1/attendance-deductions/list', async (req, res) => {
+  console.log('List deductions request received, forwarding to payroll service');
+  try {
+    const response = await axios.get(`${PAYROLL_SERVICE_URL}/v1/attendance-deductions/list`, {
+      params: req.query,
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding deductions list request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.get('/v1/attendance-deductions/detail/:id', async (req, res) => {
+  try {
+    const response = await axios.get(`${PAYROLL_SERVICE_URL}/v1/attendance-deductions/detail/${req.params.id}`, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.delete('/v1/attendance-deductions/delete/:id', async (req, res) => {
+  try {
+    const response = await axios.delete(`${PAYROLL_SERVICE_URL}/v1/attendance-deductions/delete/${req.params.id}`, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+// Payslip routes
+app.post('/v1/payslips/add', async (req, res) => {
+  console.log('Add payslip request received, forwarding to payroll service');
+  try {
+    const response = await axios.post(`${PAYROLL_SERVICE_URL}/v1/payslips/add`, req.body, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding payslip add request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.get('/v1/payslips/list', async (req, res) => {
+  console.log('List payslips request received, forwarding to payroll service');
+  try {
+    const response = await axios.get(`${PAYROLL_SERVICE_URL}/v1/payslips/list`, {
+      params: req.query,
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding payslips list request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.get('/v1/payslips/detail/:id', async (req, res) => {
+  try {
+    const response = await axios.get(`${PAYROLL_SERVICE_URL}/v1/payslips/detail/${req.params.id}`, {
+      headers: req.headers
+    });
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.use('/v1/salaries', payrollProxy);
+app.use('/v1/attendances', payrollProxy);
+app.use('/v1/attendance-deductions', payrollProxy);
+app.use('/v1/payslips', payrollProxy);
 
 // Apply proxy to all payroll service routes
 app.use('/v1/payroll', payrollProxy);

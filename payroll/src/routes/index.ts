@@ -20,19 +20,10 @@ import attendanceDeductionRouter from './payroll/attendanceDeduction.routes'
 const router = Router()
 
 
-// router.use('/v1/version', versionRouter)
 router.use('/v1/auth', authController)
-// router.use('/v1/employees', AuthorizationCheck, PermissionCheck, employeeRouter)
-// router.use('/v1/marital-status', AuthorizationCheck, PermissionCheck, maritalStatusController)
-// router.use('/v1/departments', AuthorizationCheck, PermissionCheck, departmentController)
-// router.use('/v1/positions', AuthorizationCheck, PermissionCheck, positionController)
-// router.use('/v1/contract-types', AuthorizationCheck, PermissionCheck, contractTypeController)
-// router.use('/v1/statuses', AuthorizationCheck, PermissionCheck, statusController)
-// router.use('/v1/image', imageRouter)
-// router.use('/v1/dashboards', AuthorizationCheck, PermissionCheck, dashboardRouter)
-router.use('/v1/attendances', AuthorizationCheck, attendanceRouter)
-router.use('/v1/attendance-deductions', AuthorizationCheck, attendanceDeductionRouter)
-router.use('/v1/salaries', salaryRouter)
-router.use('/v1/payslips', AuthorizationCheck, payslipRouter)
+router.use('/v1/attendances', AuthorizationCheck, PermissionCheck, attendanceRouter)
+router.use('/v1/attendance-deductions', AuthorizationCheck, PermissionCheck, attendanceDeductionRouter)
+router.use('/v1/salaries', AuthorizationCheck, PermissionCheck, salaryRouter)
+router.use('/v1/payslips', AuthorizationCheck, PermissionCheck, payslipRouter)
 
 export default router

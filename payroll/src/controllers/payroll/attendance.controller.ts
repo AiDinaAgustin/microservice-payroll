@@ -9,7 +9,30 @@ export const createAttendanceController = async (
 ) => {
   try {
     const tenantId = req.headers['tenant-id'] as string
+    
+    // Parse and fix date formats
     const payload = { ...req.body, tenant_id: tenantId }
+    
+    // Parse the date (DD-MM-YYYY to YYYY-MM-DD)
+    if (payload.date) {
+      const [day, month, year] = payload.date.split('-');
+      payload.date = new Date(`${year}-${month}-${day}`);
+    }
+    
+    // Parse check_in (DD-MM-YYYY HH:MM:SS to Date object)
+    if (payload.check_in) {
+      const [datePart, timePart] = payload.check_in.split(' ');
+      const [day, month, year] = datePart.split('-');
+      payload.check_in = new Date(`${year}-${month}-${day}T${timePart}`);
+    }
+    
+    // Parse check_out (DD-MM-YYYY HH:MM:SS to Date object)
+    if (payload.check_out) {
+      const [datePart, timePart] = payload.check_out.split(' ');
+      const [day, month, year] = datePart.split('-');
+      payload.check_out = new Date(`${year}-${month}-${day}T${timePart}`);
+    }
+    
     const data = await createAttendance(payload)
     
     res.status(StatusCodes.CREATED).json({
@@ -105,7 +128,30 @@ export const updateAttendanceController = async (req: Request, res: Response, ne
   try {
     const tenantId = req.headers['tenant-id'] as string
     const { id } = req.params
+    
+    // Parse and fix date formats
     const payload = { ...req.body, tenant_id: tenantId }
+    
+    // Parse the date (DD-MM-YYYY to YYYY-MM-DD)
+    if (payload.date) {
+      const [day, month, year] = payload.date.split('-');
+      payload.date = new Date(`${year}-${month}-${day}`);
+    }
+    
+    // Parse check_in (DD-MM-YYYY HH:MM:SS to Date object)
+    if (payload.check_in) {
+      const [datePart, timePart] = payload.check_in.split(' ');
+      const [day, month, year] = datePart.split('-');
+      payload.check_in = new Date(`${year}-${month}-${day}T${timePart}`);
+    }
+    
+    // Parse check_out (DD-MM-YYYY HH:MM:SS to Date object)
+    if (payload.check_out) {
+      const [datePart, timePart] = payload.check_out.split(' ');
+      const [day, month, year] = datePart.split('-');
+      payload.check_out = new Date(`${year}-${month}-${day}T${timePart}`);
+    }
+    
     const data = await updateAttendance(id, tenantId, payload)
     
     res.status(StatusCodes.OK).json({
