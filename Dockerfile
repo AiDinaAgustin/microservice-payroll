@@ -2,9 +2,14 @@ FROM alpine:latest
 
 WORKDIR /app
 
-# This is a documentation Dockerfile only
-# To run all services, use: docker-compose up
+# Install required packages
+RUN apk add --no-cache docker docker-compose
 
-COPY compose.yaml .
+# Copy your application files
+COPY . .
 
-CMD ["echo", "Please use 'docker-compose up' to start all services"]
+# Expose the necessary ports
+EXPOSE 80 5000 5001 5002 5003
+
+# Start all services
+CMD ["docker-compose", "up"]
