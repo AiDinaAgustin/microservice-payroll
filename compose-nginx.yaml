@@ -1,0 +1,132 @@
+services:
+  auth:
+    build:
+      context: ./auth
+    environment:
+      - PORT=5001
+      - DB_HOST=${DB_HOST:-43.133.145.125}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-4P89G57qHVsuMoQXxaK32h1eOUm6iC0I}
+      - DB_NAME=${DB_NAME:-hr_payroll_prod}
+      - DB_PORT=${DB_PORT:-32468}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - JWT_TOKEN=${JWT_TOKEN:-private.pem}
+      - JWT_EXPIRATION_TIME=${JWT_EXPIRATION_TIME:-8}
+      - LOG_INFO_FILE_PATH=${LOG_INFO_FILE_PATH:-logs/%DATE%.log}
+      - LOG_INFO_MAX_FILE_SIZE=${LOG_INFO_MAX_FILE_SIZE:-20m}
+      - LOG_INFO_MAX_FILE_DAY=${LOG_INFO_MAX_FILE_DAY:-1d}
+      - LOG_ERROR_FILE_PATH=${LOG_ERROR_FILE_PATH:-logs/app-error-%DATE%.log}
+      - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
+      - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
+    ports:
+      - "5001:5001"
+    networks:
+      - microservice-network
+    restart: unless-stopped
+
+  employee:
+    build:
+      context: ./employee
+    environment:
+      - PORT=5002
+      - DB_HOST=${DB_HOST:-43.133.145.125}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-4P89G57qHVsuMoQXxaK32h1eOUm6iC0I}
+      - DB_NAME=${DB_NAME:-hr_payroll_prod}
+      - DB_PORT=${DB_PORT:-32468}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - JWT_TOKEN=${JWT_TOKEN:-private.pem}
+      - JWT_EXPIRATION_TIME=${JWT_EXPIRATION_TIME:-8}
+      - LOG_INFO_FILE_PATH=${LOG_INFO_FILE_PATH:-logs/%DATE%.log}
+      - LOG_INFO_MAX_FILE_SIZE=${LOG_INFO_MAX_FILE_SIZE:-20m}
+      - LOG_INFO_MAX_FILE_DAY=${LOG_INFO_MAX_FILE_DAY:-1d}
+      - LOG_ERROR_FILE_PATH=${LOG_ERROR_FILE_PATH:-logs/app-error-%DATE%.log}
+      - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
+      - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
+    ports:
+      - "5002:5002"
+    depends_on:
+      - auth
+    networks:
+      - microservice-network
+    restart: unless-stopped
+
+  payroll:
+    build:
+      context: ./payroll
+    environment:
+      - PORT=5003
+      - DB_HOST=${DB_HOST:-43.133.145.125}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-4P89G57qHVsuMoQXxaK32h1eOUm6iC0I}
+      - DB_NAME=${DB_NAME:-hr_payroll_prod}
+      - DB_PORT=${DB_PORT:-32468}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - JWT_TOKEN=${JWT_TOKEN:-private.pem}
+      - JWT_EXPIRATION_TIME=${JWT_EXPIRATION_TIME:-8}
+      - LOG_INFO_FILE_PATH=${LOG_INFO_FILE_PATH:-logs/%DATE%.log}
+      - LOG_INFO_MAX_FILE_SIZE=${LOG_INFO_MAX_FILE_SIZE:-20m}
+      - LOG_INFO_MAX_FILE_DAY=${LOG_INFO_MAX_FILE_DAY:-1d}
+      - LOG_ERROR_FILE_PATH=${LOG_ERROR_FILE_PATH:-logs/app-error-%DATE%.log}
+      - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
+      - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
+    ports:
+      - "5003:5003"
+    networks:
+      - microservice-network
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: ./gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - AUTH_SERVICE_URL=http://auth:5000
+      - EMPLOYEE_SERVICE_URL=http://employee:5000
+      - PAYROLL_SERVICE_URL=http://payroll:5000
+    depends_on:
+      - auth
+      - employee
+      - payroll
+    networks:
+      - microservice-network
+    restart: unless-stopped
+
+  proxy:
+    build:
+      context: ./proxy_prod
+    ports:
+      - "81:80"
+      - "444:443"
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    depends_on:
+      - auth
+      - employee
+      - payroll
+      - certbot
+    networks:
+      - microservice-network
+    restart: unless-stopped
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - microservice-network
+    restart: unless-stopped
+
+volumes:
+  certbot-conf:
+  certbot-www:
+
+networks:
+  microservice-network:
+    driver: bridge
