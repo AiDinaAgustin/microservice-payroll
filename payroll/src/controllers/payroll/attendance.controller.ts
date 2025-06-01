@@ -20,17 +20,37 @@ export const createAttendanceController = async (
     }
     
     // Parse check_in (DD-MM-YYYY HH:MM:SS to Date object)
+    let checkInDate: Date | null = null;
     if (payload.check_in) {
       const [datePart, timePart] = payload.check_in.split(' ');
       const [day, month, year] = datePart.split('-');
-      payload.check_in = new Date(`${year}-${month}-${day}T${timePart}`);
-    }
-    
-    // Parse check_out (DD-MM-YYYY HH:MM:SS to Date object)
-    if (payload.check_out) {
-      const [datePart, timePart] = payload.check_out.split(' ');
-      const [day, month, year] = datePart.split('-');
-      payload.check_out = new Date(`${year}-${month}-${day}T${timePart}`);
+      checkInDate = new Date(`${year}-${month}-${day}T${timePart}`);
+      payload.check_in = checkInDate;
+      
+      // Automatically set status and late_minutes based on check_in time
+      const checkInHour = checkInDate.getHours();
+      const checkInMinute = checkInDate.getMinutes();
+      
+      // Convert to total minutes since 00:00
+      const totalMinutes = (checkInHour * 60) + checkInMinute;
+      const expectedTime = 8 * 60; // 08:00 in minutes
+      
+      if (totalMinutes <= expectedTime) {
+        // On time or early
+        payload.status = 'present';
+        payload.late_minutes = 0;
+      } else {
+        // Late
+        payload.status = 'late';
+        payload.late_minutes = totalMinutes - expectedTime;
+      }
+      
+      // Automatically set check_out to 16:00 on the same day
+      const checkOutDate = new Date(checkInDate);
+      checkOutDate.setHours(16, 0, 0, 0);
+      payload.check_out = checkOutDate;
+      
+      console.log(`[ATTENDANCE] Auto-calculated: Status=${payload.status}, Late minutes=${payload.late_minutes}`);
     }
     
     const data = await createAttendance(payload)
@@ -139,17 +159,37 @@ export const updateAttendanceController = async (req: Request, res: Response, ne
     }
     
     // Parse check_in (DD-MM-YYYY HH:MM:SS to Date object)
+    let checkInDate: Date | null = null;
     if (payload.check_in) {
       const [datePart, timePart] = payload.check_in.split(' ');
       const [day, month, year] = datePart.split('-');
-      payload.check_in = new Date(`${year}-${month}-${day}T${timePart}`);
-    }
-    
-    // Parse check_out (DD-MM-YYYY HH:MM:SS to Date object)
-    if (payload.check_out) {
-      const [datePart, timePart] = payload.check_out.split(' ');
-      const [day, month, year] = datePart.split('-');
-      payload.check_out = new Date(`${year}-${month}-${day}T${timePart}`);
+      checkInDate = new Date(`${year}-${month}-${day}T${timePart}`);
+      payload.check_in = checkInDate;
+      
+      // Automatically set status and late_minutes based on check_in time
+      const checkInHour = checkInDate.getHours();
+      const checkInMinute = checkInDate.getMinutes();
+      
+      // Convert to total minutes since 00:00
+      const totalMinutes = (checkInHour * 60) + checkInMinute;
+      const expectedTime = 8 * 60; // 08:00 in minutes
+      
+      if (totalMinutes <= expectedTime) {
+        // On time or early
+        payload.status = 'present';
+        payload.late_minutes = 0;
+      } else {
+        // Late
+        payload.status = 'late';
+        payload.late_minutes = totalMinutes - expectedTime;
+      }
+      
+      // Automatically set check_out to 16:00 on the same day
+      const checkOutDate = new Date(checkInDate);
+      checkOutDate.setHours(16, 0, 0, 0);
+      payload.check_out = checkOutDate;
+      
+      console.log(`[ATTENDANCE] Auto-calculated: Status=${payload.status}, Late minutes=${payload.late_minutes}`);
     }
     
     const data = await updateAttendance(id, tenantId, payload)
@@ -163,6 +203,7 @@ export const updateAttendanceController = async (req: Request, res: Response, ne
     next(err)
   }
 }
+
 
 export const deleteAttendanceController = async (req: Request, res: Response, next: NextFunction) => {
   try {

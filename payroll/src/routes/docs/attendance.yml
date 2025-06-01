@@ -230,7 +230,7 @@ components:
       required:
         - employee_id
         - date
-        - status
+        - check_in
       properties:
         employee_id:
           type: string
@@ -240,25 +240,10 @@ components:
           type: string
           description: Attendance date in DD-MM-YYYY format
           example: "01-05-2025"
-        status:
-          type: string
-          enum: [present, absent, late, leave]
-          description: Attendance status
         check_in:
           type: string
-          description: Check-in time in DD-MM-YYYY HH:mm:ss format
+          description: Check-in time in DD-MM-YYYY HH:mm:ss format. Status and late_minutes will be calculated automatically based on this time.
           example: "01-05-2025 08:00:00"
-          nullable: true
-        check_out:
-          type: string
-          description: Check-out time in DD-MM-YYYY HH:mm:ss format
-          example: "01-05-2025 16:00:00"
-          nullable: true
-        late_minutes:
-          type: integer
-          description: Minutes late (if status is 'late')
-          minimum: 0
-          nullable: true
 
     AttendanceResponse:
       type: object
