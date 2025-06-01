@@ -17,14 +17,14 @@ services:
       - mode: host
         published: 81
         target: 81
-      - mode: host
-        published: 444
-        target: 444
+      # - mode: host
+      #   published: 444
+      #   target: 444
     networks:
       - microservice-network
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - traefik-certificates:/letsencrypt
+      # - traefik-certificates:/letsencrypt
     command:
       - "--log.level=DEBUG"
       - "--api=true"
@@ -33,22 +33,22 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=microservice-network"
       - "--entrypoints.web.address=:81"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--entrypoints.websecure.address=:444"
-      - "--entrypoints.websecure.http.tls=true"
-      - "--entrypoints.websecure.asDefault=true"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=aidinaagustin2@gmail.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      # - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      # - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      # - "--entrypoints.websecure.address=:444"
+      # - "--entrypoints.websecure.http.tls=true"
+      # - "--entrypoints.websecure.asDefault=true"
+      # - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      # - "--certificatesresolvers.myresolver.acme.email=aidinaagustin2@gmail.com"
+      # - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`dashboard.karsa.site`)"
       - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.entrypoints=websecure"
-      - "traefik.http.routers.traefik.tls=true"
-      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+      - "traefik.http.routers.traefik.entrypoints=web"
+      # - "traefik.http.routers.traefik.tls=true"
+      # - "traefik.http.routers.traefik.tls.certresolver=myresolver"
 
   auth:
     build:
@@ -75,8 +75,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.rule=Host(`api.karsa.site`) && PathPrefix(`/auth`)"
-      - "traefik.http.routers.auth.entrypoints=websecure"
-      - "traefik.http.routers.auth.tls.certresolver=myresolver"
+      - "traefik.http.routers.auth.entrypoints=web"
+      # - "traefik.http.routers.auth.tls.certresolver=myresolver"
       - "traefik.http.services.auth.loadbalancer.server.port=5001"
       - "traefik.http.routers.auth.middlewares=auth-strip"
       - "traefik.http.middlewares.auth-strip.stripprefix.prefixes=/auth"
@@ -109,8 +109,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.employee.rule=Host(`api.karsa.site`) && PathPrefix(`/employee`)"
-      - "traefik.http.routers.employee.entrypoints=websecure"
-      - "traefik.http.routers.employee.tls.certresolver=myresolver"
+      - "traefik.http.routers.employee.entrypoints=web"
+      # - "traefik.http.routers.employee.tls.certresolver=myresolver"
       - "traefik.http.services.employee.loadbalancer.server.port=5002"
       - "traefik.http.routers.employee.middlewares=employee-strip"
       - "traefik.http.middlewares.employee-strip.stripprefix.prefixes=/employee"
@@ -141,8 +141,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.payroll.rule=Host(`api.karsa.site`) && PathPrefix(`/payroll`)"
-      - "traefik.http.routers.payroll.entrypoints=websecure"
-      - "traefik.http.routers.payroll.tls.certresolver=myresolver"
+      - "traefik.http.routers.payroll.entrypoints=web"
+      # - "traefik.http.routers.payroll.tls.certresolver=myresolver"
       - "traefik.http.services.payroll.loadbalancer.server.port=5003"
       - "traefik.http.routers.payroll.middlewares=payroll-strip"
       - "traefik.http.middlewares.payroll-strip.stripprefix.prefixes=/payroll"
@@ -153,9 +153,9 @@ services:
       context: ./gateway
     environment:
       - PORT=5000
-      - AUTH_SERVICE_URL=http://auth:5000
-      - EMPLOYEE_SERVICE_URL=http://employee:5000
-      - PAYROLL_SERVICE_URL=http://payroll:5000
+      - AUTH_SERVICE_URL=http://auth:5001
+      - EMPLOYEE_SERVICE_URL=http://employee:5002
+      - PAYROLL_SERVICE_URL=http://payroll:5003
     depends_on:
       - auth
       - employee
@@ -166,12 +166,12 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.gateway.rule=Host(`api.karsa.site`)"
-      - "traefik.http.routers.gateway.entrypoints=websecure"
-      - "traefik.http.routers.gateway.tls.certresolver=myresolver"
+      - "traefik.http.routers.gateway.entrypoints=web"
+      # - "traefik.http.routers.gateway.tls.certresolver=myresolver"
       - "traefik.http.services.gateway.loadbalancer.server.port=5000"
-      - "traefik.http.routers.gateway-http.rule=Host(`api.karsa.site`)"
-      - "traefik.http.routers.gateway-http.entrypoints=web"
-      - "traefik.http.routers.gateway-http.middlewares=https-redirect"
+      # - "traefik.http.routers.gateway-http.rule=Host(`api.karsa.site`)"
+      # - "traefik.http.routers.gateway-http.entrypoints=web"
+      # - "traefik.http.routers.gateway-http.middlewares=https-redirect"
       - "com.centurylinklabs.watchtower.enable=true"
 
 networks:
