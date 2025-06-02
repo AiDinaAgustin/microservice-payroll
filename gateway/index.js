@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 // Service configurations
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:5001';
 const EMPLOYEE_SERVICE_URL = process.env.EMPLOYEE_SERVICE_URL || 'http://localhost:5002';
-const PAYROLL_SERVICE_URL = process.env.PAYROLL_SERVICE_URL || 'http://localhost:5003]';
+const PAYROLL_SERVICE_URL = process.env.PAYROLL_SERVICE_URL || 'http://localhost:5003';
 
 console.log('Using AUTH_SERVICE_URL:', AUTH_SERVICE_URL);
 console.log('Using EMPLOYEE_SERVICE_URL:', EMPLOYEE_SERVICE_URL);
@@ -421,6 +421,9 @@ app.delete('/v1/employees/delete/:id', async (req, res) => {
 // Salary routes
 app.post('/v1/salaries/add', async (req, res) => {
   console.log('Add salary request received, forwarding to payroll service');
+  console.log('Request body:', JSON.stringify(req.body, null, 2));
+  console.log('Headers:', JSON.stringify(req.headers, null, 2));
+  
   try {
     const response = await axios.post(`${PAYROLL_SERVICE_URL}/v1/salaries/add`, req.body, {
       headers: req.headers
@@ -428,6 +431,15 @@ app.post('/v1/salaries/add', async (req, res) => {
     res.status(response.status).json(response.data);
   } catch (error) {
     console.error('Error forwarding salary add request:', error.message);
+    
+    // Log the detailed error response
+    if (error.response) {
+      console.error('Error response data:', JSON.stringify(error.response.data, null, 2));
+      console.error('Error response status:', error.response.status);
+      // Forward the actual error response instead of a generic 500
+      return res.status(error.response.status).json(error.response.data);
+    }
+    
     res.status(500).json({
       error: 'Error communicating with payroll service',
       details: error.message
@@ -435,16 +447,35 @@ app.post('/v1/salaries/add', async (req, res) => {
   }
 });
 
+// Update the salaries list endpoint to handle 304 responses properly
 app.get('/v1/salaries/list', async (req, res) => {
-  console.log('List salaries request received, forwarding to payroll service');
   try {
     const response = await axios.get(`${PAYROLL_SERVICE_URL}/v1/salaries/list`, {
       params: req.query,
-      headers: req.headers
+      headers: req.headers,
+      // Tell axios not to throw an error for 304 status
+      validateStatus: function (status) {
+        return (status >= 200 && status < 300) || status === 304;
+      }
     });
-    res.status(response.status).json(response.data);
+    
+    // Forward the same status code and response
+    res.status(response.status);
+    
+    // If we have data, send it, otherwise send an empty response for 304
+    if (response.data) {
+      res.json(response.data);
+    } else if (response.status === 304) {
+      res.end(); // Send an empty response for 304
+    }
   } catch (error) {
-    console.error('Error forwarding salaries list request:', error.message);
+    
+    // If the error has a response, return that status and data
+    if (error.response) {
+      return res.status(error.response.status).json(error.response.data);
+    }
+    
+    // Otherwise return a generic 500 error
     res.status(500).json({
       error: 'Error communicating with payroll service',
       details: error.message
@@ -499,6 +530,9 @@ app.delete('/v1/salaries/delete/:id', async (req, res) => {
 // Attendance routes
 app.post('/v1/attendances/add', async (req, res) => {
   console.log('Add attendance request received, forwarding to payroll service');
+  console.log('Request body:', JSON.stringify(req.body, null, 2));
+  console.log('Headers:', JSON.stringify(req.headers, null, 2));
+  
   try {
     const response = await axios.post(`${PAYROLL_SERVICE_URL}/v1/attendances/add`, req.body, {
       headers: req.headers
@@ -506,6 +540,15 @@ app.post('/v1/attendances/add', async (req, res) => {
     res.status(response.status).json(response.data);
   } catch (error) {
     console.error('Error forwarding attendance add request:', error.message);
+    
+    // Log the detailed error response
+    if (error.response) {
+      console.error('Error response data:', JSON.stringify(error.response.data, null, 2));
+      console.error('Error response status:', error.response.status);
+      // Forward the actual error response instead of a generic 500
+      return res.status(error.response.status).json(error.response.data);
+    }
+    
     res.status(500).json({
       error: 'Error communicating with payroll service',
       details: error.message
@@ -514,15 +557,33 @@ app.post('/v1/attendances/add', async (req, res) => {
 });
 
 app.get('/v1/attendances/list', async (req, res) => {
-  console.log('List attendances request received, forwarding to payroll service');
   try {
     const response = await axios.get(`${PAYROLL_SERVICE_URL}/v1/attendances/list`, {
       params: req.query,
-      headers: req.headers
+      headers: req.headers,
+      // Tell axios not to throw an error for 304 status
+      validateStatus: function (status) {
+        return (status >= 200 && status < 300) || status === 304;
+      }
     });
-    res.status(response.status).json(response.data);
+    
+    // Forward the same status code and response
+    res.status(response.status);
+    
+    // If we have data, send it, otherwise send an empty response for 304
+    if (response.data) {
+      res.json(response.data);
+    } else if (response.status === 304) {
+      res.end(); // Send an empty response for 304
+    }
   } catch (error) {
-    console.error('Error forwarding attendances list request:', error.message);
+    
+    // If the error has a response, return that status and data
+    if (error.response) {
+      return res.status(error.response.status).json(error.response.data);
+    }
+    
+    // Otherwise return a generic 500 error
     res.status(500).json({
       error: 'Error communicating with payroll service',
       details: error.message
@@ -584,6 +645,34 @@ app.post('/v1/attendance-deductions/calculate', async (req, res) => {
     res.status(response.status).json(response.data);
   } catch (error) {
     console.error('Error forwarding deduction calculate request:', error.message);
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
+
+app.post('/v1/attendance-deductions/generate', async (req, res) => {
+  console.log('Generate deductions request received, forwarding to payroll service');
+  try {
+    const response = await axios.post(
+      `${PAYROLL_SERVICE_URL}/v1/attendance-deductions/generate`, 
+      req.body, 
+      {
+        headers: req.headers,
+        validateStatus: function (status) {
+          return (status >= 200 && status < 300) || status === 304;
+        }
+      }
+    );
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding generate deductions request:', error.message);
+    
+    if (error.response) {
+      return res.status(error.response.status).json(error.response.data);
+    }
+    
     res.status(500).json({
       error: 'Error communicating with payroll service',
       details: error.message
@@ -653,16 +742,30 @@ app.post('/v1/payslips/add', async (req, res) => {
   }
 });
 
+// Update the payslips list endpoint to handle 304 responses properly
 app.get('/v1/payslips/list', async (req, res) => {
   console.log('List payslips request received, forwarding to payroll service');
   try {
     const response = await axios.get(`${PAYROLL_SERVICE_URL}/v1/payslips/list`, {
       params: req.query,
-      headers: req.headers
+      headers: req.headers,
+      // Tell axios not to throw an error for these status codes
+      validateStatus: function (status) {
+        return (status >= 200 && status < 300) || status === 304;
+      }
     });
+    
+    // Forward the same status code and response
     res.status(response.status).json(response.data);
   } catch (error) {
     console.error('Error forwarding payslips list request:', error.message);
+    
+    // If the error has a response, return that status and data
+    if (error.response) {
+      return res.status(error.response.status).json(error.response.data);
+    }
+    
+    // Otherwise return a generic 500 error
     res.status(500).json({
       error: 'Error communicating with payroll service',
       details: error.message

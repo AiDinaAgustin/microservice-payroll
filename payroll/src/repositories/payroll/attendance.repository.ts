@@ -2,6 +2,8 @@ import { IAttendance } from '@interfaces/payroll/IAttendance'
 import PayrollAttendance from '@models/Payroll/Attendance'
 import Employee from '@models/Employee'
 import { Op } from 'sequelize'
+import { v4 as uuidv4 } from 'uuid'
+import Sequelize from 'sequelize'
 
 interface FindAllParams {
   tenantId: string;
@@ -128,6 +130,25 @@ class AttendanceRepository {
     
         // Soft delete by setting deleted flag to true
         return await attendance.update({ deleted: true })
+    }
+    
+    async findUniqueEmployeesInPeriod(tenantId: string, startDate: Date, endDate: Date) {
+      // Find all unique employees who have attendance records in this period
+      const uniqueEmployees = await PayrollAttendance.findAll({
+        attributes: [
+          [Sequelize.fn('DISTINCT', Sequelize.col('employee_id')), 'employee_id']
+        ],
+        where: {
+          tenant_id: tenantId,
+          date: {
+            [Op.between]: [startDate, endDate]
+          },
+          deleted: false
+        },
+        raw: true
+      });
+      
+      return uniqueEmployees;
     }
 }
 

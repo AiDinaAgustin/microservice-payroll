@@ -3,10 +3,11 @@ import {
   calculateDeductionController, 
   findAllDeductionsController, 
   findDeductionByIdController,
-  deleteDeductionController
+  deleteDeductionController,
+  generateDeductionsController
 } from '@controllers/payroll/attendanceDeduction.controller'
 import validateRequestHandler from '@middlewares/validateRequestHandler'
-import { CalculateDeductionSchema } from '@validators/payroll/attendanceDeduction'
+import { CalculateDeductionSchema, GenerateDeductionsSchema } from '@validators/payroll/attendanceDeduction'
 
 const router = Router()
 
@@ -14,5 +15,6 @@ router.post('/calculate', validateRequestHandler(CalculateDeductionSchema), calc
 router.get('/list', findAllDeductionsController)
 router.get('/detail/:id', findDeductionByIdController)
 router.delete('/delete/:id', deleteDeductionController)
+router.post('/generate', validateRequestHandler(GenerateDeductionsSchema), generateDeductionsController)
 
 export default router

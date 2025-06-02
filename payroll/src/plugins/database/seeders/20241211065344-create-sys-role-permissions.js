@@ -370,6 +370,14 @@ const permissionDummyData = [
             parent_id: '6dc53c4d-3b87-421f-9c7c-8cfb493df6ec',
             type: 'action',
             endpoint: '/salaries/delete/:id'
+          },
+          {
+            id: '029c7883-db44-4743-aa90-bb4ef624cc8b',
+            code: 'salary.detail',
+            name: 'Salary Detail',
+            parent_id: '6dc53c4d-3b87-421f-9c7c-8cfb493df6ec',
+            type: 'action',
+            endpoint: '/salaries/detail/:id'
           }
         ]
       },
@@ -411,6 +419,14 @@ const permissionDummyData = [
             parent_id: '54e7b22f-f210-4a3e-bb93-b0d69d254c59',
             type: 'action',
             endpoint: '/attendances/delete/:id'
+          },
+          {
+            id: 'bcdfa280-0832-4bad-81d4-a0ab56457166',
+            code: 'attendance.detail',
+            name: 'Attendance Detail',
+            parent_id: '54e7b22f-f210-4a3e-bb93-b0d69d254c59',
+            type: 'action',
+            endpoint: '/attendances/detail/:id'
           }
         ]
       },
@@ -421,6 +437,14 @@ const permissionDummyData = [
         parent_id: '83cf04a2-3de1-429c-a0be-8fca4bdbff8f',
         type: 'menu',
         submenus: [
+          {
+            id: '9031e61f-b863-411d-b6f8-e07e892f4b1a',
+            code: 'attendance_deduction.generate',
+            name: 'Attendance Deduction Generate',
+            parent_id: 'a7865534-fb57-45d0-9c8a-41c51e59c2c3',
+            type: 'action',
+            endpoint: '/attendance-deductions/generate'
+          },
           {
             id: '95f6744e-8b4e-4ab9-a4bb-13b90cf8df84',
             code: 'attendance_deduction.calculate',
@@ -469,6 +493,14 @@ const permissionDummyData = [
             parent_id: 'e83ea5dc-1045-49c3-993c-f46b958bfb34',
             type: 'action',
             endpoint: '/payslips/add'
+          },
+          {
+            id: 'b69a2bd3-2105-451a-8584-82d1e787cd6f',
+            code: 'payslip.generate',
+            name: 'Payslip Generate',
+            parent_id: 'e83ea5dc-1045-49c3-993c-f46b958bfb34',
+            type: 'action',
+            endpoint: '/payslips/generate'
           },
           {
             id: 'ea29a8d7-e87f-43a6-baa0-d1c342b3b7eb',

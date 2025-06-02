@@ -152,3 +152,80 @@ export const deleteDeduction = async (id: string, tenantId: string) => {
     throw errorThrower(err);
   }
 }
+
+export const generateDeductionsForPeriod = async (tenantId: string, period: string) => {
+  try {
+    console.log(`[DEDUCTION] Generating deductions for all employees for period ${period}`);
+    
+    // Parse period to get month and year for attendance calculation
+    const [month, year] = period.split('-').map(Number);
+    
+    // Calculate start and end date for the period
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0);
+    console.log(`[DEDUCTION] Period date range: ${startDate.toISOString()} to ${endDate.toISOString()}`);
+    
+    // Get all unique employees who have attendance records in this period
+    const uniqueEmployees = await attendanceRepository.findUniqueEmployeesInPeriod(tenantId, startDate, endDate);
+    console.log(`[DEDUCTION] Found ${uniqueEmployees.length} employees with attendance records in this period`);
+    
+    // Process deductions for each employee
+    const results = [];
+    let successCount = 0;
+    let failureCount = 0;
+    let skipCount = 0;
+    
+    for (const employee of uniqueEmployees) {
+      try {
+        // First check if employee has salary record before processing
+        const employeeId = employee.employee_id;
+        console.log(`[DEDUCTION] Processing employee ${employeeId}`);
+        
+        // Check if employee has salary information
+        const salaries = await salaryRepository.findByEmployeeId(employeeId, tenantId);
+        
+        if (!salaries || salaries.length === 0) {
+          console.log(`[DEDUCTION] Skipping employee ${employeeId} - No salary record found`);
+          results.push({
+            employee_id: employeeId,
+            status: 'skipped',
+            reason: 'No salary information found'
+          });
+          skipCount++;
+          continue; // Skip to next employee
+        }
+        
+        // Continue with deduction calculation for employees with salary
+        const deduction = await createOrUpdateDeduction(employeeId, tenantId, period);
+        results.push({
+          employee_id: employeeId,
+          status: 'success',
+          deduction
+        });
+        successCount++;
+      } catch (err: any) {
+        console.error(`[DEDUCTION ERROR] Failed to process employee ${employee.employee_id}: ${err.message}`);
+        results.push({
+          employee_id: employee.employee_id,
+          status: 'failed',
+          error: err.message
+        });
+        failureCount++;
+      }
+    }
+    
+    console.log(`[DEDUCTION] Completed deduction generation: ${successCount} successful, ${skipCount} skipped, ${failureCount} failed`);
+    
+    return {
+      period,
+      total_employees: uniqueEmployees.length,
+      success_count: successCount,
+      skip_count: skipCount,
+      failure_count: failureCount,
+      results
+    };
+  } catch (err: any) {
+    console.error(`[DEDUCTION ERROR] Error in generateDeductionsForPeriod: ${err.message}`);
+    throw errorThrower(err);
+  }
+}

@@ -3,7 +3,8 @@ import {
   createOrUpdateDeduction, 
   findAllDeductions, 
   findDeductionById, 
-  deleteDeduction 
+  deleteDeduction,
+  generateDeductionsForPeriod
 } from '@services/payroll/attendanceDeduction.service'
 import { StatusCodes } from 'http-status-codes'
 
@@ -106,5 +107,30 @@ export const deleteDeductionController = async (req: Request, res: Response, nex
     })
   } catch (err) {
     next(err)
+  }
+}
+
+export const generateDeductionsController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const tenantId = req.headers['tenant-id'] as string;
+    const { period } = req.body;
+    
+    // Validate period format
+    if (!period || !/^\d{2}-\d{4}$/.test(period)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: StatusCodes.BAD_REQUEST,
+        message: 'Period must be in MM-YYYY format'
+      });
+    }
+    
+    const data = await generateDeductionsForPeriod(tenantId, period);
+    
+    res.status(StatusCodes.OK).json({
+      status: StatusCodes.OK,
+      message: 'Attendance deductions generated successfully',
+      data
+    });
+  } catch (err) {
+    next(err);
   }
 }

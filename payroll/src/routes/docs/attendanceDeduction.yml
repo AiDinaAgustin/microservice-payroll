@@ -1,4 +1,68 @@
 paths:
+  /v1/attendance-deductions/generate:
+    post:
+      summary: Generate attendance deductions for all employees in a period
+      tags:
+        - Payroll Attendance Deduction
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - period
+              properties:
+                period:
+                  type: string
+                  description: Deduction period in MM-YYYY format
+                  example: "05-2025"
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      period:
+                        type: string
+                      total_employees:
+                        type: integer
+                      success_count:
+                        type: integer
+                      failure_count:
+                        type: integer
+                      results:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            employee_id:
+                              type: string
+                            status:
+                              type: string
+                              enum: [success, failed]
+                            deduction:
+                              $ref: '#/components/schemas/AttendanceDeduction'
+                            error:
+                              type: string
+  
   /v1/attendance-deductions/calculate:
     post:
       summary: Calculate attendance deduction
@@ -25,7 +89,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeductionResponse'
-
+  
   /v1/attendance-deductions/list:
     get:
       summary: Get attendance deductions list
