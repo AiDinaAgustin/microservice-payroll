@@ -1,4 +1,71 @@
 paths:
+  /v1/payslips/generate:
+    post:
+      summary: Generate payslips for all employees in a period
+      tags:
+        - Payroll Payslip
+      parameters:
+        - in: header
+          name: TENANT-ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - period
+              properties:
+                period:
+                  type: string
+                  description: Period in MM-YYYY format
+                  example: "05-2025"
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      period:
+                        type: string
+                      total_employees:
+                        type: integer
+                      success_count:
+                        type: integer
+                      skip_count:
+                        type: integer
+                      failure_count:
+                        type: integer
+                      results:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            employee_id:
+                              type: string
+                            status:
+                              type: string
+                              enum: [success, failed, skipped]
+                            payslip:
+                              $ref: '#/components/schemas/Payslip'
+                            error:
+                              type: string
+                            reason:
+                              type: string
   /v1/payslips/add:
     post:
       summary: Create new payslip

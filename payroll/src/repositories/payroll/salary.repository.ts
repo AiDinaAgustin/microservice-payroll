@@ -122,6 +122,16 @@ class SalaryRepository {
             }
         });
     }
+
+    async findAllByPeriod(period: string, tenantId: string) {
+      return await PayrollSalary.findAll({
+        where: {
+          period,
+          tenant_id: tenantId,
+          deleted: false
+        }
+      });
+    }
 }
 
 

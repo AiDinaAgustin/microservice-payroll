@@ -12,3 +12,14 @@ export const PayslipSchema = object().shape({
       .matches(/^\d{2}-\d{4}$/, 'Period must be in MM-YYYY format')
   })
 })
+
+export const GeneratePayslipsSchema = object().shape({
+  headers: object().shape({
+    'tenant-id': string().required('Headers tenant-id is a required field')
+  }),
+  body: object().shape({
+    period: string()
+      .required('Period is required')
+      .matches(/^\d{2}-\d{4}$/, 'Period must be in MM-YYYY format')
+  })
+})
