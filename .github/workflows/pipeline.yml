@@ -26,28 +26,17 @@ jobs:
           target: "/home/${{ secrets.PROD_SSH_USER }}/microservice-payroll"
           strip_components: 0
 
-      - name: Build and Deploy Services
-        uses: appleboy/ssh-action@v1
+      - name: Deploy Stack with Docker Compose
+        uses: cssnr/stack-deploy-action@v1
         with:
+          name: 'microservice-payroll'
+          file: 'compose-traefik.yaml'
           host: ${{ secrets.PROD_SSH_HOST }}
-          username: ${{ secrets.PROD_SSH_USER }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          script: |
-            cd /home/${{ secrets.PROD_SSH_USER }}/microservice-payroll
-            
-            # Build and start services with a unique version tag
-            export BUILD_VERSION=${{ github.sha }}
-            
-            # Build each service with the commit hash as tag
-            docker-compose -f compose-traefik.yaml build --no-cache \
-              --build-arg VERSION=$BUILD_VERSION
-            
-            # Deploy the stack
-            docker-compose -f compose-traefik.yaml up -d
-            
-            # Verify deployment
-            echo "Service status:"
-            docker-compose -f compose-traefik.yaml ps
+          user: ${{ secrets.PROD_SSH_USER }}
+          ssh_key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          mode: compose
+          args: '--build --force-recreate --remove-orphans'
+          summary: true
 
       - name: Verify Services
         uses: appleboy/ssh-action@v1
@@ -58,7 +47,7 @@ jobs:
           script: |
             cd /home/${{ secrets.PROD_SSH_USER }}/microservice-payroll
             
-            # Show container logs
+            # Show container status
             echo "Container status:"
             docker ps --format "{{.Names}}: {{.Status}}"
             
@@ -69,8 +58,3 @@ jobs:
               echo "❌ Gateway service failed to start"
               exit 1
             fi
-            
-            # Check container health
-            echo "Checking service health..."
-            sleep 10
-            docker-compose -f compose-traefik.yaml ps
