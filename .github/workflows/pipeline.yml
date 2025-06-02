@@ -26,6 +26,35 @@ jobs:
           target: "/home/${{ secrets.PROD_SSH_USER }}/microservice-payroll"
           strip_components: 0
 
+      - name: Stop Existing Services
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/${{ secrets.PROD_SSH_USER }}/microservice-payroll
+            # Use docker compose if available, otherwise fall back to docker-compose
+            if command -v docker &> /dev/null && docker compose version &> /dev/null; then
+              docker compose -f compose-traefik.yaml down
+            elif command -v docker-compose &> /dev/null; then
+              docker-compose -f compose-traefik.yaml down
+            else
+              echo "Docker Compose not found, trying to stop containers manually"
+              docker stop $(docker ps -q -f name=microservice-payroll) 2>/dev/null || true
+            fi
+            
+            # Make sure port 81 is free
+            echo "Checking if port 81 is still in use..."
+            PORT_PROCESS=$(lsof -i:81 -t || ss -tulpn | grep ":81" | awk '{print $7}' | cut -d= -f2 | cut -d, -f1 || netstat -tulpn 2>/dev/null | grep ":81" | awk '{print $7}' | cut -d/ -f1)
+            if [ -n "$PORT_PROCESS" ]; then
+              echo "Killing process using port 81..."
+              kill -9 $PORT_PROCESS 2>/dev/null || true
+            fi
+            
+            echo "Waiting for port to be released..."
+            sleep 5
+
       - name: Deploy Stack with Docker Compose
         uses: cssnr/stack-deploy-action@v1
         with:
@@ -51,10 +80,14 @@ jobs:
             echo "Container status:"
             docker ps --format "{{.Names}}: {{.Status}}"
             
-            # Verify gateway service is running
-            if docker ps | grep -q "microservice-payroll_gateway"; then
-              echo "✅ Gateway service is running"
-            else
-              echo "❌ Gateway service failed to start"
-              exit 1
-            fi
+            # Verify all critical services are running
+            for service in traefik gateway auth employee payroll; do
+              if docker ps | grep -q "microservice-payroll[-_]$service"; then
+                echo "✅ $service service is running"
+              else
+                echo "❌ $service service failed to start"
+                exit 1
+              fi
+            done
+            
+            echo "All services started successfully!"
