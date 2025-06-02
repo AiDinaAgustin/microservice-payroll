@@ -26,7 +26,7 @@ jobs:
           target: "/home/${{ secrets.PROD_SSH_USER }}/microservice-payroll"
           strip_components: 0
 
-      - name: Stop Existing Services
+      - name: Stop Existing Services and Free Port 81
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.PROD_SSH_HOST }}
@@ -34,26 +34,39 @@ jobs:
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.PROD_SSH_USER }}/microservice-payroll
-            # Use docker compose if available, otherwise fall back to docker-compose
-            if command -v docker &> /dev/null && docker compose version &> /dev/null; then
-              docker compose -f compose-traefik.yaml down
-            elif command -v docker-compose &> /dev/null; then
-              docker-compose -f compose-traefik.yaml down
+            echo "Stopping Docker services..."
+            
+            # Force remove all containers in the project
+            docker compose -f compose-traefik.yaml down --remove-orphans || true
+            
+            # Find and forcibly remove ANY container using port 81
+            PORT_CONTAINER=$(docker ps -q --filter "publish=81")
+            if [ -n "$PORT_CONTAINER" ]; then
+              echo "Forcing removal of containers using port 81..."
+              docker rm -f $PORT_CONTAINER || true
+            fi
+            
+            # Double-check if port 81 is still in use by any process
+            echo "Checking if port 81 is still in use by other processes..."
+            for CMD in "lsof -i:81 -t" "ss -tlnp | grep ':81 ' | awk '{print \$6}' | cut -d= -f2 | cut -d, -f1" "netstat -tlnp 2>/dev/null | grep ':81 ' | awk '{print \$7}' | cut -d/ -f1"; do
+              PORT_PROCESS=$(eval $CMD 2>/dev/null) || true
+              if [ -n "$PORT_PROCESS" ]; then
+                echo "Found process $PORT_PROCESS using port 81. Attempting to kill..."
+                sudo kill -9 $PORT_PROCESS 2>/dev/null || true
+              fi
+            done
+            
+            echo "Waiting for port 81 to be completely released..."
+            sleep 10
+            
+            # Final verification
+            if lsof -i:81 -t || ss -tlnp | grep ':81 ' > /dev/null || netstat -tlnp 2>/dev/null | grep ':81 ' > /dev/null; then
+              echo "⚠️ WARNING: Port 81 is still in use after cleanup attempts"
+              echo "Checking what is using port 81..."
+              sudo lsof -i:81 || ss -tlnp || netstat -tlnp
             else
-              echo "Docker Compose not found, trying to stop containers manually"
-              docker stop $(docker ps -q -f name=microservice-payroll) 2>/dev/null || true
+              echo "✅ Port 81 is free and ready to use"
             fi
-            
-            # Make sure port 81 is free
-            echo "Checking if port 81 is still in use..."
-            PORT_PROCESS=$(lsof -i:81 -t || ss -tulpn | grep ":81" | awk '{print $7}' | cut -d= -f2 | cut -d, -f1 || netstat -tulpn 2>/dev/null | grep ":81" | awk '{print $7}' | cut -d/ -f1)
-            if [ -n "$PORT_PROCESS" ]; then
-              echo "Killing process using port 81..."
-              kill -9 $PORT_PROCESS 2>/dev/null || true
-            fi
-            
-            echo "Waiting for port to be released..."
-            sleep 5
 
       - name: Deploy Stack with Docker Compose
         uses: cssnr/stack-deploy-action@v1
@@ -76,6 +89,10 @@ jobs:
           script: |
             cd /home/${{ secrets.PROD_SSH_USER }}/microservice-payroll
             
+            # Give services time to start properly
+            echo "Waiting for services to stabilize..."
+            sleep 10
+            
             # Show container status
             echo "Container status:"
             docker ps --format "{{.Names}}: {{.Status}}"
@@ -86,6 +103,7 @@ jobs:
                 echo "✅ $service service is running"
               else
                 echo "❌ $service service failed to start"
+                docker logs microservice-payroll-$service-1 2>&1 || true
                 exit 1
               fi
             done
