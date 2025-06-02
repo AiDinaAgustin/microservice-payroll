@@ -1,0 +1,76 @@
+name: Production CI Pipeline
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Copy Project Files to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          source: "auth/,employee/,payroll/,gateway/,compose-traefik.yaml"
+          target: "/home/${{ secrets.PROD_SSH_USER }}/microservice-payroll"
+          strip_components: 0
+
+      - name: Build and Deploy Services
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/${{ secrets.PROD_SSH_USER }}/microservice-payroll
+            
+            # Build and start services with a unique version tag
+            export BUILD_VERSION=${{ github.sha }}
+            
+            # Build each service with the commit hash as tag
+            docker-compose -f compose-traefik.yaml build --no-cache \
+              --build-arg VERSION=$BUILD_VERSION
+            
+            # Deploy the stack
+            docker-compose -f compose-traefik.yaml up -d
+            
+            # Verify deployment
+            echo "Service status:"
+            docker-compose -f compose-traefik.yaml ps
+
+      - name: Verify Services
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/${{ secrets.PROD_SSH_USER }}/microservice-payroll
+            
+            # Show container logs
+            echo "Container status:"
+            docker ps --format "{{.Names}}: {{.Status}}"
+            
+            # Verify gateway service is running
+            if docker ps | grep -q "microservice-payroll_gateway"; then
+              echo "✅ Gateway service is running"
+            else
+              echo "❌ Gateway service failed to start"
+              exit 1
+            fi
+            
+            # Check container health
+            echo "Checking service health..."
+            sleep 10
+            docker-compose -f compose-traefik.yaml ps
