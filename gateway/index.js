@@ -725,6 +725,33 @@ app.delete('/v1/attendance-deductions/delete/:id', async (req, res) => {
   }
 });
 
+app.post('/v1/payslips/generate', async (req, res) => {
+  console.log('Generate payslip request received, forwarding to payroll service');
+  try {
+    const response = await axios.post(
+      `${PAYROLL_SERVICE_URL}/v1/payslips/generate`, 
+      req.body, 
+      {
+        headers: req.headers,
+        validateStatus: function (status) {
+          return (status >= 200 && status < 300) || status === 304;
+        }
+      }
+    );
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error forwarding generate payslip request:', error.message);
+    
+    if (error.response) {
+      return res.status(error.response.status).json(error.response.data);
+    }
+    
+    res.status(500).json({
+      error: 'Error communicating with payroll service',
+      details: error.message
+    });
+  }
+});
 // Payslip routes
 app.post('/v1/payslips/add', async (req, res) => {
   console.log('Add payslip request received, forwarding to payroll service');
