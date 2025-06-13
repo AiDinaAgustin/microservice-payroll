@@ -27,6 +27,11 @@ paths:
           schema:
             type: string
           description: Filter by salary period (MM-YYYY format, e.g., 05-2025). Defaults to current month.
+        - in: query
+          name: keyword
+          schema:
+            type: string
+          description: Search by employee name or employee ID
       security:
         - BearerAuth: []
       responses:
@@ -47,7 +52,6 @@ paths:
                       $ref: '#/components/schemas/Salary'
                   total:
                     type: integer
-
   /v1/salaries/add:
     post:
       summary: Create new salary

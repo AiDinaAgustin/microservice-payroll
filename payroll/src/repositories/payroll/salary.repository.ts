@@ -1,6 +1,7 @@
 import { ISalary } from '@interfaces/payroll/ISalary'
 import PayrollSalary from '@models/Payroll/Salary'
 import Employee from '@models/Employee'
+import { Op } from 'sequelize'
 
 interface FindAllParams {
   tenantId: string;
@@ -8,6 +9,7 @@ interface FindAllParams {
   limit?: number;
   employeeId?: string;
   period?: string
+    keyword?: string;
 }
 
 class SalaryRepository {
@@ -20,7 +22,8 @@ class SalaryRepository {
         page = 1, 
         limit = 10,
         employeeId,
-        period
+        period,
+        keyword = ''
     }: FindAllParams) {
         const offset = (page - 1) * limit
         const whereClause: any = { 
@@ -31,9 +34,26 @@ class SalaryRepository {
         if (employeeId) {
             whereClause.employee_id = employeeId;
         }
-
+    
         if (period) {
             whereClause.period = period;
+        }
+    
+        // Prepare the include options for Employee model
+        const includeOptions: any = {
+            model: Employee,
+            as: 'employee',
+            attributes: ['id', 'name', 'employee_id']
+        };
+    
+        // Add keyword search condition if provided
+        if (keyword && keyword.trim() !== '') {
+            includeOptions.where = {
+                [Op.or]: [
+                    { name: { [Op.iLike]: `%${keyword}%` } },
+                    { employee_id: { [Op.iLike]: `%${keyword}%` } }
+                ]
+            };
         }
     
         return await PayrollSalary.findAndCountAll({
@@ -41,11 +61,7 @@ class SalaryRepository {
             limit,
             offset,
             order: [['created_at', 'DESC']],
-            include: [{
-                model: Employee,
-                as: 'employee',
-                attributes: ['id', 'name', 'employee_id']
-            }]
+            include: [includeOptions] // Use the includeOptions object here
         });
     }
 

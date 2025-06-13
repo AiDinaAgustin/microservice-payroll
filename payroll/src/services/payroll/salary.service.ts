@@ -10,14 +10,15 @@ export const createSalary = async (payload: ISalary) => {
   }
 }
 
-export const findAllSalary = async ({ tenantId, page, limit, employeeId, period }: any) => {
+export const findAllSalary = async ({ tenantId, page, limit, employeeId, period, keyword }: any) => {
   try {
     return await salaryRepository.findAll({
       tenantId,
       page,
       limit,
       employeeId,
-      period
+      period,
+      keyword
     });
   } catch (err: any) {
     throw errorThrower(err);

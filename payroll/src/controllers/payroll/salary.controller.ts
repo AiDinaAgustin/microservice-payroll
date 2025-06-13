@@ -21,7 +21,7 @@ export const createSalaryController = async (req: Request, res: Response, next: 
 export const findAllSalaryController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenantId = req.headers['tenant-id'] as string
-    const { page, limit, employee_id, period } = req.query
+    const { page, limit, employee_id, period, keyword } = req.query
 
     // Set default values and ensure they're valid numbers
     const pageNumber = page ? parseInt(page as string) : 1;
@@ -58,7 +58,8 @@ export const findAllSalaryController = async (req: Request, res: Response, next:
       page: pageNumber,
       limit: limitNumber,
       employeeId: employee_id as string | undefined,
-      period: periodValue
+      period: periodValue,
+      keyword: keyword as string | undefined // Add this parameter
     });
     
     res.status(StatusCodes.OK).json({
