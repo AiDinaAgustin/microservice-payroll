@@ -90,7 +90,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/DeductionResponse'
   
-  /v1/attendance-deductions/list:
+    /v1/attendance-deductions/list:
     get:
       summary: Get attendance deductions list
       tags:
@@ -119,6 +119,11 @@ paths:
           schema:
             type: string
           description: Filter by period (MM-YYYY format, e.g., 05-2025). Defaults to current month.
+        - in: query
+          name: keyword
+          schema:
+            type: string
+          description: Search by employee name or employee ID
       security:
         - BearerAuth: []
       responses:
@@ -139,7 +144,7 @@ paths:
                       $ref: '#/components/schemas/AttendanceDeduction'
                   total:
                     type: integer
-
+  
   /v1/attendance-deductions/detail/{id}:
     get:
       summary: Get attendance deduction by ID

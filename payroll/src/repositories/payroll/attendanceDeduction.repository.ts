@@ -10,6 +10,7 @@ interface FindAllParams {
   limit?: number;
   employeeId?: string;
   period?: string;
+  keyword?: string;
 }
 
 class AttendanceDeductionRepository {
@@ -33,22 +34,52 @@ class AttendanceDeductionRepository {
         page = 1, 
         limit = 10,
         employeeId,
-        period
+        period,
+        keyword
     }: FindAllParams) {
         const offset = (page - 1) * limit
         const whereClause: any = { 
             deleted: false,
             tenant_id: tenantId
         }
-
+    
         if (employeeId) {
             whereClause.employee_id = employeeId
         }
-
+    
         if (period) {
             whereClause.period = period
         }
-
+    
+        // Handle keyword search
+        let employeeIds: string[] = [];
+        
+        if (keyword && keyword.trim() !== '') {
+            // First, find all employees matching the keyword
+            const matchingEmployees = await Employee.findAll({
+                where: {
+                    [Op.or]: [
+                        { name: { [Op.iLike]: `%${keyword}%` } },
+                        { employee_id: { [Op.iLike]: `%${keyword}%` } }
+                    ]
+                },
+                attributes: ['id']
+            });
+            
+            // Extract the IDs
+            employeeIds = matchingEmployees.map(emp => emp.id);
+            
+            // If we found matching employees, add them to the where clause
+            if (employeeIds.length > 0) {
+                whereClause.employee_id = {
+                    [Op.in]: employeeIds
+                };
+            } else if (keyword.trim() !== '') {
+                // If no matching employees but keyword provided, return empty result
+                return { rows: [], count: 0 };
+            }
+        }
+    
         return await PayrollAttendanceDeduction.findAndCountAll({
             where: whereClause,
             include: [{
