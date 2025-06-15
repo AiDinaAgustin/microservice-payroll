@@ -15,7 +15,7 @@ services:
     image: "traefik:v3.4"
     ports:
       - mode: host
-        published: 81
+        published: 8081
         target: 81
       # - mode: host
       #   published: 444
