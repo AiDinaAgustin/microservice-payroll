@@ -21,7 +21,7 @@ export const createPayslipController = async (req: Request, res: Response, next:
 export const findAllPayslipController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenantId = req.headers['tenant-id'] as string;
-    const { page, limit, employee_id, period } = req.query;
+    const { page, limit, employee_id, period, keyword } = req.query;
 
     // Set default values and ensure they're valid numbers
     const pageNumber = page ? parseInt(page as string) : 1;
@@ -42,12 +42,22 @@ export const findAllPayslipController = async (req: Request, res: Response, next
       });
     }
 
+    // Default to current month-year if period not provided
+    let periodValue = period as string;
+    if (!periodValue || !/^\d{2}-\d{4}$/.test(periodValue)) {
+      const now = new Date();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      periodValue = `${month}-${year}`;
+    }
+
     const data = await findAllPayslip({ 
       tenantId,
       page: pageNumber,
       limit: limitNumber,
       employeeId: employee_id as string | undefined,
-      period: period as string | undefined
+      period: periodValue,
+      keyword: keyword as string | undefined // Add keyword parameter
     });
     
     res.status(StatusCodes.OK).json({

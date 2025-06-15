@@ -122,6 +122,11 @@ paths:
           schema:
             type: string
           description: Filter by period (MM-YYYY format, e.g., 05-2025). Defaults to current month.
+        - in: query
+          name: keyword
+          schema:
+            type: string
+          description: Search by employee name or employee ID
       security:
         - BearerAuth: []
       responses:
@@ -131,7 +136,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PayslipListResponse'
-
+  
   /v1/payslips/detail/{id}:
     get:
       summary: Get payslip by ID
