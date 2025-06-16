@@ -1,3 +1,4 @@
+// GREEN
 // const express = require('express');
 // const { createProxyMiddleware } = require('http-proxy-middleware');
 // const multer = require('multer');
@@ -124,6 +125,7 @@
 //   return router;
 // };
 
+// REFACTOR
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const multer = require('multer');
