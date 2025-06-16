@@ -16,7 +16,7 @@ services:
     ports:
       - mode: host
         published: 8081
-        target: 81
+        target: 8081
       # - mode: host
       #   published: 444
       #   target: 444
