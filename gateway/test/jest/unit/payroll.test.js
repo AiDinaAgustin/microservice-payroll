@@ -9,7 +9,7 @@ jest.mock('http-proxy-middleware', () => ({
 }));
 
 // Update the mock implementation in your test file:
-jest.mock('../../utils/requestHandler', () => ({
+jest.mock('../../../utils/requestHandler', () => ({
   forwardRequest: jest.fn((serviceUrl, path, req, res) => {
     // Mock implementation based on the path
     if (path.includes('/v1/salaries/list')) {
@@ -58,10 +58,10 @@ jest.mock('../../utils/requestHandler', () => ({
 
 // Import the mocks so we can access them in tests
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const { forwardRequest } = require('../../utils/requestHandler');
+const { forwardRequest } = require('../../../utils/requestHandler');
 
 // Import the module under test
-const createPayrollRouter = require('../../routes/payroll');
+const createPayrollRouter = require('../../../routes/payroll');
 
 describe('Payroll Routes', () => {
   let app;

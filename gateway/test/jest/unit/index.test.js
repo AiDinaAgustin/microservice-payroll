@@ -1,7 +1,7 @@
 const request = require('supertest');
 
 // Mock the route modules before importing the app
-jest.mock('../../routes/auth', () => {
+jest.mock('../../../routes/auth', () => {
   return jest.fn(() => {
     const express = require('express');
     const router = express.Router();
@@ -10,7 +10,7 @@ jest.mock('../../routes/auth', () => {
   });
 });
 
-jest.mock('../../routes/employee', () => {
+jest.mock('../../../routes/employee', () => {
   return jest.fn(() => {
     const express = require('express');
     const router = express.Router();
@@ -19,7 +19,7 @@ jest.mock('../../routes/employee', () => {
   });
 });
 
-jest.mock('../../routes/payroll', () => {
+jest.mock('../../../routes/payroll', () => {
   return jest.fn(() => {
     const express = require('express');
     const router = express.Router();
@@ -29,7 +29,7 @@ jest.mock('../../routes/payroll', () => {
 });
 
 // Import the app factory after mocking dependencies
-const { createApp, setupErrorHandlers } = require('../../index');
+const { createApp, setupErrorHandlers } = require('../../../index');
 
 describe('API Gateway Integration Tests', () => {
   let app;
@@ -131,9 +131,9 @@ describe('API Gateway Integration Tests', () => {
 //   });
 
   test('menginisialisasi dengan URL service yang benar', () => {
-    const authRoutes = require('../../routes/auth');
-    const employeeRoutes = require('../../routes/employee');
-    const payrollRoutes = require('../../routes/payroll');
+    const authRoutes = require('../../../routes/auth');
+    const employeeRoutes = require('../../../routes/employee');
+    const payrollRoutes = require('../../../routes/payroll');
     
     // Check that route modules were called with correct URLs
     expect(authRoutes).toHaveBeenCalledWith(expect.stringContaining('localhost:5001'));
@@ -157,9 +157,9 @@ describe('API Gateway Integration Tests', () => {
     createApp();
     
     // Get the mocked route modules
-    const authRoutes = require('../../routes/auth');
-    const employeeRoutes = require('../../routes/employee');
-    const payrollRoutes = require('../../routes/payroll');
+    const authRoutes = require('../../../routes/auth');
+    const employeeRoutes = require('../../../routes/employee');
+    const payrollRoutes = require('../../../routes/payroll');
     
     // Check that route modules were called with correct URLs from env
     expect(authRoutes).toHaveBeenCalledWith('http://auth-service:8001');

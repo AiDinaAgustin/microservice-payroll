@@ -1,4 +1,4 @@
-const { forwardRequest } = require('../../utils/requestHandler');
+const { forwardRequest } = require('../../../utils/requestHandler');
 const axios = require('axios');
 const MockAdapter = require('axios-mock-adapter');
 

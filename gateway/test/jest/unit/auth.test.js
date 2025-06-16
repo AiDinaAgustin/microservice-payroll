@@ -8,7 +8,7 @@ jest.mock('http-proxy-middleware', () => ({
   })
 }));
 
-jest.mock('../../utils/requestHandler', () => ({
+jest.mock('../../../utils/requestHandler', () => ({
   forwardRequest: jest.fn((serviceUrl, path, req, res) => {
     if (path === '/v1/auth/login') {
       res.status(200).json({ token: 'mock-token', user: { id: '1', name: 'Test User' } });
@@ -20,10 +20,10 @@ jest.mock('../../utils/requestHandler', () => ({
 
 // Import the mocks so we can access them in tests
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const { forwardRequest } = require('../../utils/requestHandler');
+const { forwardRequest } = require('../../../utils/requestHandler');
 
 // Import the module under test
-const createAuthRouter = require('../../routes/auth');
+const createAuthRouter = require('../../../routes/auth');
 
 describe('Auth Routes', () => {
   let app;
