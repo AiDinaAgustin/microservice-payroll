@@ -1,38 +1,45 @@
+const chai = require('chai');
+const { expect } = chai;
 const express = require('express');
 const request = require('supertest');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+const proxyquire = require('proxyquire');
 
-// Mock the entire modules
-jest.mock('http-proxy-middleware', () => ({
-  createProxyMiddleware: jest.fn(() => (req, res, next) => {
-    res.status(200).json({ proxied: true });
-  })
-}));
+// Use sinon-chai for spy assertions
+chai.use(sinonChai);
 
-jest.mock('../../../utils/requestHandler', () => ({
-  forwardRequest: jest.fn((serviceUrl, path, req, res) => {
-    if (path === '/v1/auth/login') {
-      res.status(200).json({ token: 'mock-token', user: { id: '1', name: 'Test User' } });
-    } else {
-      res.status(404).json({ error: 'Not found' });
-    }
-  })
-}));
-
-// Import the mocks so we can access them in tests
-const { createProxyMiddleware } = require('http-proxy-middleware');
-const { forwardRequest } = require('../../../utils/requestHandler');
-
-// Import the module under test
-const createAuthRouter = require('../../../routes/auth');
-
-describe('Auth Routes', () => {
+describe('Auth Routes (Mocha/Chai)', () => {
   let app;
+  let createProxyMiddlewareMock;
+  let forwardRequestMock;
+  let createAuthRouter;
   const AUTH_SERVICE_URL = 'http://mock-auth-service';
 
   beforeEach(() => {
-    // Reset mocks
-    jest.clearAllMocks();
-    
+    // Create mocks
+    createProxyMiddlewareMock = sinon.stub().returns((req, res, next) => {
+      res.status(200).json({ proxied: true });
+    });
+
+    forwardRequestMock = sinon.stub().callsFake((serviceUrl, path, req, res) => {
+      if (path === '/v1/auth/login') {
+        res.status(200).json({ token: 'mock-token', user: { id: '1', name: 'Test User' } });
+      } else {
+        res.status(404).json({ error: 'Not found' });
+      }
+    });
+
+    // Import auth router with mocked dependencies using proxyquire
+    createAuthRouter = proxyquire('../../../routes/auth', {
+      'http-proxy-middleware': {
+        createProxyMiddleware: createProxyMiddlewareMock
+      },
+      '../utils/requestHandler': {
+        forwardRequest: forwardRequestMock
+      }
+    });
+
     // Create a fresh Express app for each test
     app = express();
     app.use(express.json());
@@ -42,8 +49,13 @@ describe('Auth Routes', () => {
     app.use('/v1/auth', authRouter);
   });
 
-  test('Harus menggunakan createProxyMiddleware dengan opsi yang benar', () => {
-    expect(createProxyMiddleware).toHaveBeenCalledWith({
+  afterEach(() => {
+    // Reset mocks
+    sinon.restore();
+  });
+
+  it('Harus menggunakan createProxyMiddleware dengan opsi yang benar', () => {
+    expect(createProxyMiddlewareMock).to.have.been.calledWith({
       target: AUTH_SERVICE_URL,
       changeOrigin: true,
       pathRewrite: null,
@@ -51,7 +63,7 @@ describe('Auth Routes', () => {
     });
   });
 
-  test('POST /login harus memanggil forwardRequest dengan argumen yang benar', async () => {
+  it('POST /login harus memanggil forwardRequest dengan argumen yang benar', async () => {
     // Arrange
     const loginData = { email: 'test@example.com', password: 'password123' };
     
@@ -61,54 +73,53 @@ describe('Auth Routes', () => {
       .send(loginData);
     
     // Assert
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('token', 'mock-token');
-    expect(forwardRequest).toHaveBeenCalledWith(
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('token', 'mock-token');
+    expect(forwardRequestMock).to.have.been.calledWith(
       AUTH_SERVICE_URL,
       '/v1/auth/login',
-      expect.anything(),
-      expect.anything()
+      sinon.match.any,
+      sinon.match.any
     );
   });
 
-  test('GET /profile harus menggunakan middleware proxy', async () => {
+  it('GET /profile harus menggunakan middleware proxy', async () => {
     // Act
     const response = await request(app)
       .get('/v1/auth/profile')
       .set('Authorization', 'Bearer mock-token');
     
     // Assert
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('proxied', true);
-    expect(forwardRequest).not.toHaveBeenCalled();
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('proxied', true);
+    expect(forwardRequestMock).to.not.have.been.called;
   });
     
-    test('POST /login harus menangani error dari layanan autentikasi', async () => {
-      // Arrange
-      forwardRequest.mockImplementationOnce((serviceUrl, path, req, res) => {
-        res.status(401).json({ error: 'Invalid credentials' });
-      });
-      
-      // Act
-      const response = await request(app)
-        .post('/v1/auth/login')
-        .send({ email: 'test@example.com', password: 'wrong' });
-      
-      // Assert
-      expect(response.status).toBe(401);
-      expect(response.body).toHaveProperty('error', 'Invalid credentials');
+  it('POST /login harus menangani error dari layanan autentikasi', async () => {
+    // Arrange
+    forwardRequestMock.callsFake((serviceUrl, path, req, res) => {
+      res.status(401).json({ error: 'Invalid credentials' });
     });
     
-    test('Harus menangani rute POST lainnya menggunakan proxy middleware', async () => {
-      // Act
-      const response = await request(app)
-        .post('/v1/auth/register')
-        .send({ email: 'new@example.com', password: 'password123' });
-      
-      // Assert
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('proxied', true);
-      expect(forwardRequest).not.toHaveBeenCalled();
-    });
+    // Act
+    const response = await request(app)
+      .post('/v1/auth/login')
+      .send({ email: 'test@example.com', password: 'wrong' });
     
+    // Assert
+    expect(response.status).to.equal(401);
+    expect(response.body).to.have.property('error', 'Invalid credentials');
+  });
+    
+  it('Harus menangani rute POST lainnya menggunakan proxy middleware', async () => {
+    // Act
+    const response = await request(app)
+      .post('/v1/auth/register')
+      .send({ email: 'new@example.com', password: 'password123' });
+    
+    // Assert
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('proxied', true);
+    expect(forwardRequestMock).to.not.have.been.called;
+  });
 });

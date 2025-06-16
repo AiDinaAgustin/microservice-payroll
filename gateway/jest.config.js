@@ -1,6 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
-  testMatch: ['**/tests/**/*.js', '**/?(*.)+(spec|test).js'],
+  testMatch: ['**/test/jest/**/*.test.js'],
   collectCoverageFrom: [
     'utils/**/*.js',
     'routes/**/*.js',
@@ -9,3 +9,11 @@ module.exports = {
   ],
   verbose: true
 };
+
+// module.exports = {
+//   testEnvironment: 'node',
+//   testMatch: ['**/test/jest/**/*.test.js'],
+//   collectCoverage: true,
+//   coverageDirectory: 'coverage/jest',
+//   verbose: true
+// };
