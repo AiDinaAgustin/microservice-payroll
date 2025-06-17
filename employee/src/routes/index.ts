@@ -8,9 +8,11 @@ import positionController from './position/position'
 import contractTypeController from './contract-type/contractType'
 import imageRouter from './image/image'
 import statusController from './status/statusRoutes'
-import AuthorizationCheck from '@middlewares/Auth'
+// @ts-ignore
+import AuthorizationCheck from '../../../gateway/middlewares/authCheck.js'
 import dashboardRouter from './dashboard/dashboard'
-import PermissionCheck from '@middlewares/permissionCheck'
+// @ts-ignore
+import PermissionCheck from '../../../gateway/middlewares/permissionCheck.js'
 import attendanceRouter from './payroll/payroll.routes'
 import salaryRouter from './payroll/salary.routes'
 import payslipRouter from './payroll/payslip.routes'
