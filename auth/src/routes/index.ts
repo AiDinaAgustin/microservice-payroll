@@ -8,14 +8,18 @@ import positionController from './position/position'
 import contractTypeController from './contract-type/contractType'
 import imageRouter from './image/image'
 import statusController from './status/statusRoutes'
-// @ts-ignore
-import AuthorizationCheck from '../../../gateway/middlewares/authCheck.js'
 import dashboardRouter from './dashboard/dashboard'
-// @ts-ignore
-import PermissionCheck from '../../../gateway/middlewares/permissionCheck.js'
 import attendanceRouter from './payroll/payroll.routes'
 import salaryRouter from './payroll/salary.routes'
 import payslipRouter from './payroll/payslip.routes'
+// Opsi 1
+import AuthorizationCheck from '../../../auth/src/middlewares/Auth'
+import PermissionCheck from '../../../auth/src/middlewares/permissionCheck'
+// // Opsi 2
+// // @ts-ignore
+// import AuthorizationCheck from '../../../gateway/middlewares/authCheck.js'
+// // @ts-ignore
+// import PermissionCheck from '../../../gateway/middlewares/permissionCheck.js'
 
 
 const router = Router()
