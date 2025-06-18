@@ -133,14 +133,19 @@ const setupErrorHandlers = (app) => {
 /**
  * Create and configure Express application
  */
-const createApp = () => {
+// Modifikasi fungsi createApp untuk menerima opsi
+const createApp = (options = {}) => {
   const app = express();
   
   // Setup application
   setupMiddleware(app);
   const serviceUrls = getServiceUrls();
   setupRoutes(app, serviceUrls);
-  setupErrorHandlers(app);
+  
+  // Tambahkan error handlers hanya jika diminta (default: true)
+  if (options.withErrorHandlers !== false) {
+    setupErrorHandlers(app);
+  }
 
   return app;
 };

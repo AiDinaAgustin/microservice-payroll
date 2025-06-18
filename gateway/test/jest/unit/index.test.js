@@ -1,4 +1,6 @@
 const request = require('supertest');
+const express = require('express');
+    const http = require('http');
 
 // Mock the route modules before importing the app
 jest.mock('../../../routes/auth', () => {
@@ -29,7 +31,7 @@ jest.mock('../../../routes/payroll', () => {
 });
 
 // Import the app factory after mocking dependencies
-const { createApp, setupErrorHandlers } = require('../../../index');
+const { createApp, setupErrorHandlers, startServer } = require('../../../index');
 
 describe('API Gateway Integration Tests', () => {
   let app;
@@ -75,7 +77,10 @@ describe('API Gateway Integration Tests', () => {
   });
 
   test('mengembalikan 404 untuk rute yang tidak dikenal', async () => {
-    const response = await request(app).get('/unknown-route');
+    // Create a new app WITH error handlers for this specific test
+    const appWithErrorHandlers = createApp({ withErrorHandlers: true });
+    
+    const response = await request(appWithErrorHandlers).get('/unknown-route');
     
     expect(response.status).toBe(404);
     expect(response.body).toHaveProperty('error', 'Not Found');
@@ -93,42 +98,6 @@ describe('API Gateway Integration Tests', () => {
     expect(response.status).toBe(404);
     expect(response.body).toHaveProperty('error', 'Not Found');
   });
-
-  // For these tests, add the error handlers AFTER adding custom routes
-//   test('menangani error dengan benar', async () => {
-//     // Add a route that throws an error
-//     app.get('/error-route', () => {
-//       throw new Error('Test error');
-//     });
-    
-//     // Now add error handlers
-//     setupErrorHandlers(app);
-    
-//     const response = await request(app).get('/error-route');
-    
-//     expect(response.status).toBe(500);
-//     expect(response.body).toHaveProperty('error', 'Internal Server Error');
-//     expect(response.body).toHaveProperty('message', 'Test error');
-//   });
-
-//   test('seharusnya bisa memparsing body JSON', async () => {
-//     // Add a test route that echoes the request body
-//     app.post('/echo', (req, res) => {
-//       res.json(req.body);
-//     });
-    
-//     // Now add error handlers
-//     setupErrorHandlers(app);
-    
-//     const testData = { test: 'data', nested: { value: 123 } };
-//     const response = await request(app)
-//       .post('/echo')
-//       .send(testData)
-//       .set('Content-Type', 'application/json');
-    
-//     expect(response.status).toBe(200);
-//     expect(response.body).toEqual(testData);
-//   });
 
   test('menginisialisasi dengan URL service yang benar', () => {
     const authRoutes = require('../../../routes/auth');
@@ -168,5 +137,127 @@ describe('API Gateway Integration Tests', () => {
     
     // Restore original env vars
     process.env = originalEnv;
+    });
+
+    // Uncomment and update these tests
+    test('menangani error dengan benar', async () => {
+    // Buat app tanpa error handler
+    const testApp = express();
+    testApp.use(express.json());
+    
+    // Tambahkan route yang melempar error
+    testApp.get('/error-route', (req, res, next) => {
+      const error = new Error('Test error');
+      next(error); // Harus menggunakan next(error) untuk menjalankan error handler
+    });
+    
+    // Tambahkan error handler
+    setupErrorHandlers(testApp);
+    
+    // Test
+    const response = await request(testApp).get('/error-route');
+    
+    expect(response.status).toBe(500);
+    expect(response.body).toHaveProperty('error', 'Internal Server Error');
+    expect(response.body).toHaveProperty('message', 'Test error');
+  });
+    
+    test('seharusnya bisa memparsing body JSON', async () => {
+    // Buat app khusus untuk test ini
+    const testApp = express();
+    testApp.use(express.json());
+    
+    // Tambahkan test route SEBELUM 404 handler
+    testApp.post('/echo', (req, res) => {
+      res.json(req.body);
+    });
+    
+    // Test
+    const testData = { test: 'data', nested: { value: 123 } };
+    const response = await request(testApp)
+      .post('/echo')
+      .send(testData)
+      .set('Content-Type', 'application/json');
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(testData);
+  });
+  
+  test('seharusnya bisa memparsing form-urlencoded', async () => {
+    // Buat app khusus untuk test ini
+    const testApp = express();
+    testApp.use(express.urlencoded({ extended: true }));
+    
+    // Tambahkan test route SEBELUM 404 handler
+    testApp.post('/echo-form', (req, res) => {
+      res.json(req.body);
+    });
+    
+    // Test
+    const response = await request(testApp)
+      .post('/echo-form')
+      .send('name=test&value=123')
+      .set('Content-Type', 'application/x-www-form-urlencoded');
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ name: 'test', value: '123' });
+  });
+    
+  test('startServer harus mengembalikan instance server dan menampilkan log', () => {
+    // Mock console.log
+    const originalLog = console.log;
+    console.log = jest.fn();
+    
+    // Mock http server object
+    const mockServer = { on: jest.fn() };
+    
+    // Create a mock app with listen method
+    const mockApp = {
+      listen: jest.fn().mockImplementation((port, callback) => {
+        callback(); // Call the callback
+        return mockServer; // Return mock server
+      })
+    };
+    
+    // Call startServer from the imported module
+    const server = startServer(mockApp, 4000);
+    
+    // Verify
+    expect(server).toBe(mockServer);
+    expect(console.log).toHaveBeenCalledWith('Gateway server running on port 4000');
+    
+    // Restore
+    console.log = originalLog;
+  });
+    
+  test('createApp dengan opsi default harus menyertakan error handlers', () => {
+    // Test secara langsung implementasi createApp
+    // withErrorHandlers is true by default, so setupErrorHandlers should be called
+    
+    // Create an app with default options (no explicit withErrorHandlers)
+    const appWithDefaults = createApp();
+    
+    // Make a request to a non-existent route - should get 404 handler response
+    return request(appWithDefaults)
+      .get('/non-existent-path-for-testing')
+      .then(response => {
+        // If error handlers are set up, we should get the custom 404 format
+        expect(response.status).toBe(404);
+        expect(response.body).toHaveProperty('error', 'Not Found');
+      });
+  });
+    test('404 handler harus mengembalikan respons JSON dengan format yang benar', async () => {
+      // Create a new app with error handlers
+      const appWith404 = createApp({ withErrorHandlers: true });
+      
+      // Make a request to a non-existent route
+      const response = await request(appWith404).get('/non-existent-route');
+      
+      // Verify the response format
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({
+        error: 'Not Found',
+        message: 'Route /non-existent-route not found'
+      });
     });
 });

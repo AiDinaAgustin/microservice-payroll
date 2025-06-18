@@ -192,4 +192,125 @@ describe('API Gateway Integration Tests', () => {
     expect(response.status).to.equal(200);
     expect(response.body).to.deep.equal(testData);
   });
+
+    // Tambahkan di bagian bawah file test, di dalam describe('API Gateway Integration Tests', ...)
+  
+  it('seharusnya bisa memparsing form-urlencoded', async () => {
+    // Create a new app
+    const testApp = express();
+    testApp.use(express.urlencoded({ extended: true }));
+    
+    // Add a test route that echoes the request body
+    testApp.post('/echo-form', (req, res) => {
+      res.json(req.body);
+    });
+    
+    // Now add error handlers
+    setupErrorHandlers(testApp);
+    
+    const response = await request(testApp)
+      .post('/echo-form')
+      .send('name=test&value=123')
+      .set('Content-Type', 'application/x-www-form-urlencoded');
+    
+    expect(response.status).to.equal(200);
+    expect(response.body).to.deep.equal({ name: 'test', value: '123' });
+  });
+  
+  // Import http sehingga kita dapat menggunakan sinon untuk stub listen
+  const http = require('http');
+  
+  it('startServer harus mengembalikan instance server dan menampilkan log', () => {
+    // Mock console.log
+    const originalLog = console.log;
+    console.log = sinon.stub();
+    
+    // Mock http server object
+    const mockServer = { on: sinon.stub() };
+    
+    // Create a mock app with listen method
+    const mockApp = {
+      listen: sinon.stub().callsFake((port, callback) => {
+        callback(); // Call the callback
+        return mockServer; // Return mock server
+      })
+    };
+    
+    // Get startServer function
+    const { startServer } = proxyquire('../../../index', {
+      './routes/auth': authRoutesStub,
+      './routes/employee': employeeRoutesStub,
+      './routes/payroll': payrollRoutesStub
+    });
+    
+    // Call startServer
+    const server = startServer(mockApp, 4000);
+    
+    // Verify
+    expect(server).to.equal(mockServer);
+    expect(console.log).to.have.been.calledWith('Gateway server running on port 4000');
+    
+    // Restore
+    console.log = originalLog;
+  });
+  
+  it('createApp dengan opsi default harus menyertakan error handlers', () => {
+    // Test secara langsung implementasi createApp
+    // withErrorHandlers is true by default, so setupErrorHandlers should be called
+    
+    // Create an app with default options (no explicit withErrorHandlers)
+    const appWithDefaults = createApp();
+    
+    // Make a request to a non-existent route - should get 404 handler response
+    return request(appWithDefaults)
+      .get('/non-existent-path-for-testing')
+      .then(response => {
+        // If error handlers are set up, we should get the custom 404 format
+        expect(response.status).to.equal(404);
+        expect(response.body).to.have.property('error', 'Not Found');
+      });
+  });
+  
+  it('createApp harus memiliki opsi untuk tidak menambahkan error handlers', () => {
+    // Import the real module again to avoid interference from other tests
+    const { createApp: createAppNoErrorHandlers } = proxyquire('../../../index', {
+      './routes/auth': authRoutesStub,
+      './routes/employee': employeeRoutesStub,
+      './routes/payroll': payrollRoutesStub
+    });
+    
+    // Create app with withErrorHandlers: false
+    const appWithoutErrorHandlers = createAppNoErrorHandlers({ withErrorHandlers: false });
+    
+    // Add a test route so we don't hit 404 immediately
+    appWithoutErrorHandlers.get('/test-endpoint', (req, res) => {
+      res.json({ success: true });
+    });
+    
+    // Now make request to a non-existent route
+    return request(appWithoutErrorHandlers)
+      .get('/non-existent-route')
+      .then(response => {
+        // If error handlers are NOT set up, we should get Express's default
+        // behavior, which is NOT a JSON response with error/message fields
+        expect(response.status).to.equal(404);
+        // Express default format isn't JSON with our custom format
+        expect(response.body).to.not.have.property('error', 'Not Found');
+      });
+  });
+  
+  it('404 handler harus mengembalikan respons JSON dengan format yang benar', async () => {
+    // Create a new app with error handlers
+    const appWith404 = createApp({ withErrorHandlers: true });
+    
+    // Make a request to a non-existent route
+    const response = await request(appWith404).get('/non-existent-route');
+    
+    // Verify the response format
+    expect(response.status).to.equal(404);
+    expect(response.body).to.deep.equal({
+      error: 'Not Found',
+      message: 'Route /non-existent-route not found'
+    });
+  });
 });

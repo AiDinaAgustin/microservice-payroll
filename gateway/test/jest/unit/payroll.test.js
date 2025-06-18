@@ -548,6 +548,9 @@ describe('Payroll Routes', () => {
   
   // Aktifkan test ini di dalam describe('Error Handling', ...) dengan membuang komentar
     test('proxy error handler sets correct status and response', () => {
+    // Mock console.error to suppress output
+    const originalConsoleError = console.error;
+    console.error = jest.fn(); 
     // Create mocks
     const err = new Error('Connection refused');
     const req = {};
@@ -575,5 +578,6 @@ describe('Payroll Routes', () => {
       error: 'Error communicating with payroll service',
       details: 'Connection refused'
     });
+    console.error = originalConsoleError;
   });
 });
