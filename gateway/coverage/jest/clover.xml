@@ -1,8 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1750259659477" clover="3.2.0">
-  <project timestamp="1750259659477" name="All files">
-    <metrics statements="187" coveredstatements="174" conditionals="32" coveredconditionals="29" methods="51" coveredmethods="42" elements="270" coveredelements="245" complexity="0" loc="187" ncloc="187" packages="2" files="4" classes="4"/>
-    <package name="routes">
+<coverage generated="1750259956649" clover="3.2.0">
+  <project timestamp="1750259956649" name="All files">
+    <metrics statements="234" coveredstatements="215" conditionals="45" coveredconditionals="33" methods="62" coveredmethods="50" elements="341" coveredelements="298" complexity="0" loc="234" ncloc="234" packages="3" files="5" classes="5"/>
+    <package name="gateway">
+      <metrics statements="47" coveredstatements="41" conditionals="13" coveredconditionals="4" methods="11" coveredmethods="8"/>
+      <file name="index.js" path="D:\projectBackend\microservice-payroll\gateway\index.js">
+        <metrics statements="47" coveredstatements="41" conditionals="13" coveredconditionals="4" methods="11" coveredmethods="8"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="59" count="1" type="stmt"/>
+        <line num="62" count="1" type="stmt"/>
+        <line num="63" count="1" type="stmt"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="70" count="11" type="stmt"/>
+        <line num="71" count="11" type="stmt"/>
+        <line num="72" count="11" type="stmt"/>
+        <line num="78" count="1" type="stmt"/>
+        <line num="79" count="11" type="cond" truecount="1" falsecount="1"/>
+        <line num="80" count="11" type="cond" truecount="1" falsecount="1"/>
+        <line num="81" count="11" type="cond" truecount="1" falsecount="1"/>
+        <line num="83" count="11" type="stmt"/>
+        <line num="84" count="11" type="stmt"/>
+        <line num="85" count="11" type="stmt"/>
+        <line num="87" count="11" type="stmt"/>
+        <line num="97" count="1" type="stmt"/>
+        <line num="99" count="11" type="stmt"/>
+        <line num="100" count="11" type="stmt"/>
+        <line num="101" count="11" type="stmt"/>
+        <line num="104" count="11" type="stmt"/>
+        <line num="105" count="1" type="stmt"/>
+        <line num="109" count="11" type="stmt"/>
+        <line num="110" count="1" type="stmt"/>
+        <line num="117" count="1" type="stmt"/>
+        <line num="119" count="11" type="stmt"/>
+        <line num="120" count="2" type="stmt"/>
+        <line num="124" count="11" type="stmt"/>
+        <line num="125" count="0" type="stmt"/>
+        <line num="126" count="0" type="stmt"/>
+        <line num="136" count="1" type="stmt"/>
+        <line num="137" count="11" type="stmt"/>
+        <line num="140" count="11" type="stmt"/>
+        <line num="141" count="11" type="stmt"/>
+        <line num="142" count="11" type="stmt"/>
+        <line num="143" count="11" type="stmt"/>
+        <line num="145" count="11" type="stmt"/>
+        <line num="151" count="1" type="cond" truecount="0" falsecount="3"/>
+        <line num="152" count="0" type="stmt"/>
+        <line num="153" count="0" type="stmt"/>
+        <line num="158" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="159" count="0" type="stmt"/>
+        <line num="160" count="0" type="stmt"/>
+        <line num="163" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="gateway.routes">
       <metrics statements="149" coveredstatements="136" conditionals="4" coveredconditionals="3" methods="49" coveredmethods="40"/>
       <file name="auth.js" path="D:\projectBackend\microservice-payroll\gateway\routes\auth.js">
         <metrics statements="14" coveredstatements="13" conditionals="4" coveredconditionals="3" methods="3" coveredmethods="3"/>
@@ -163,7 +216,7 @@
         <line num="276" count="15" type="stmt"/>
       </file>
     </package>
-    <package name="utils">
+    <package name="gateway.utils">
       <metrics statements="38" coveredstatements="38" conditionals="28" coveredconditionals="26" methods="2" coveredmethods="2"/>
       <file name="requestHandler.js" path="D:\projectBackend\microservice-payroll\gateway\utils\requestHandler.js">
         <metrics statements="38" coveredstatements="38" conditionals="28" coveredconditionals="26" methods="2" coveredmethods="2"/>

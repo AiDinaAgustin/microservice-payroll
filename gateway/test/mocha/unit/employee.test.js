@@ -372,4 +372,168 @@ describe('Employee Routes', () => {
     expect(response.body).to.have.property('error', 'Validation error');
     expect(response.body).to.have.property('fields');
   });
+  
+  it('PUT /departments/edit/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+    // Arrange - tambahkan handler untuk path ini di forwardRequestStub
+    forwardRequestStub.callsFake((serviceUrl, path, req, res) => {
+      if (path.includes('/v1/departments/edit/')) {
+        return res.status(200).json({ ...req.body, updated: true });
+      }
+      
+      // Fallback ke implementasi default
+      res.status(404).json({ error: 'Not found' });
+    });
+    
+    // Arrange
+    const departmentData = { 
+      name: 'Updated Department', 
+      description: 'Updated department description'
+    };
+    
+    // Act
+    const response = await request(app)
+      .put('/v1/departments/edit/1')
+      .send(departmentData);
+    
+    // Assert
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('updated', true);
+    expect(forwardRequestStub).to.have.been.calledWith(
+      EMPLOYEE_SERVICE_URL,
+      '/v1/departments/edit/1',
+      sinon.match.has('body', departmentData),
+      sinon.match.any
+    );
+  });
+  
+  it('PUT /positions/edit/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+    // Arrange - tambahkan handler untuk path ini di forwardRequestStub
+    forwardRequestStub.callsFake((serviceUrl, path, req, res) => {
+      if (path.includes('/v1/positions/edit/')) {
+        return res.status(200).json({ ...req.body, updated: true });
+      }
+      
+      // Fallback ke implementasi default
+      res.status(404).json({ error: 'Not found' });
+    });
+    
+    // Arrange
+    const positionData = { 
+      name: 'Updated Position', 
+      salary_range: '5000-7500'
+    };
+    
+    // Act
+    const response = await request(app)
+      .put('/v1/positions/edit/1')
+      .send(positionData);
+    
+    // Assert
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('updated', true);
+    expect(forwardRequestStub).to.have.been.calledWith(
+      EMPLOYEE_SERVICE_URL,
+      '/v1/positions/edit/1',
+      sinon.match.has('body', positionData),
+      sinon.match.any
+    );
+  });
+  
+  it('PUT /contract-types/edit/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+    // Arrange - tambahkan handler untuk path ini di forwardRequestStub
+    forwardRequestStub.callsFake((serviceUrl, path, req, res) => {
+      if (path.includes('/v1/contract-types/edit/')) {
+        return res.status(200).json({ ...req.body, updated: true });
+      }
+      
+      // Fallback ke implementasi default
+      res.status(404).json({ error: 'Not found' });
+    });
+    
+    // Arrange
+    const contractTypeData = { 
+      name: 'Updated Contract Type', 
+      duration: '24 months'
+    };
+    
+    // Act
+    const response = await request(app)
+      .put('/v1/contract-types/edit/1')
+      .send(contractTypeData);
+    
+    // Assert
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('updated', true);
+    expect(forwardRequestStub).to.have.been.calledWith(
+      EMPLOYEE_SERVICE_URL,
+      '/v1/contract-types/edit/1',
+      sinon.match.has('body', contractTypeData),
+      sinon.match.any
+    );
+  });
+  
+  it('PATCH /employees/patch/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+    // Arrange - tambahkan handler untuk path ini di forwardRequestStub
+    forwardRequestStub.callsFake((serviceUrl, path, req, res) => {
+      if (path.includes('/v1/employees/patch/')) {
+        return res.status(200).json({ ...req.body, patched: true });
+      }
+      
+      // Fallback ke implementasi default
+      res.status(404).json({ error: 'Not found' });
+    });
+    
+    // Arrange
+    const patchData = { 
+      status: 'active'
+    };
+    
+    // Act
+    const response = await request(app)
+      .patch('/v1/employees/patch/1')
+      .send(patchData);
+    
+    // Assert
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('patched', true);
+    expect(forwardRequestStub).to.have.been.calledWith(
+      EMPLOYEE_SERVICE_URL,
+      '/v1/employees/patch/1',
+      sinon.match.has('body', patchData),
+      sinon.match.any
+    );
+  });
+  
+  it('GET /employees/options harus memanggil forwardRequest dengan argumen yang benar', async () => {
+    // Arrange - tambahkan handler untuk path ini di forwardRequestStub
+    forwardRequestStub.callsFake((serviceUrl, path, req, res) => {
+      if (path === '/v1/employees/options') {
+        return res.status(200).json({ 
+          options: [
+            { id: '1', name: 'Employee 1' },
+            { id: '2', name: 'Employee 2' }
+          ]
+        });
+      }
+      
+      // Fallback ke implementasi default
+      res.status(404).json({ error: 'Not found' });
+    });
+    
+    // Act
+    const response = await request(app)
+      .get('/v1/employees/options');
+    
+    // Assert
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('options');
+    expect(response.body.options).to.be.an('array');
+    expect(response.body.options).to.have.lengthOf(2);
+    expect(forwardRequestStub).to.have.been.calledWith(
+      EMPLOYEE_SERVICE_URL,
+      '/v1/employees/options',
+      sinon.match.any,
+      sinon.match.any
+    );
+  });
 });
