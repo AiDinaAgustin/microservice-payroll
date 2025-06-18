@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1750259956649" clover="3.2.0">
-  <project timestamp="1750259956649" name="All files">
-    <metrics statements="234" coveredstatements="215" conditionals="45" coveredconditionals="33" methods="62" coveredmethods="50" elements="341" coveredelements="298" complexity="0" loc="234" ncloc="234" packages="3" files="5" classes="5"/>
+<coverage generated="1750260248649" clover="3.2.0">
+  <project timestamp="1750260248650" name="All files">
+    <metrics statements="234" coveredstatements="222" conditionals="45" coveredconditionals="33" methods="62" coveredmethods="55" elements="341" coveredelements="310" complexity="0" loc="234" ncloc="234" packages="3" files="5" classes="5"/>
     <package name="gateway">
       <metrics statements="47" coveredstatements="41" conditionals="13" coveredconditionals="4" methods="11" coveredmethods="8"/>
       <file name="index.js" path="D:\projectBackend\microservice-payroll\gateway\index.js">
@@ -56,7 +56,7 @@
       </file>
     </package>
     <package name="gateway.routes">
-      <metrics statements="149" coveredstatements="136" conditionals="4" coveredconditionals="3" methods="49" coveredmethods="40"/>
+      <metrics statements="149" coveredstatements="143" conditionals="4" coveredconditionals="3" methods="49" coveredmethods="45"/>
       <file name="auth.js" path="D:\projectBackend\microservice-payroll\gateway\routes\auth.js">
         <metrics statements="14" coveredstatements="13" conditionals="4" coveredconditionals="3" methods="3" coveredmethods="3"/>
         <line num="1" count="1" type="stmt"/>
@@ -143,77 +143,77 @@
         <line num="274" count="19" type="stmt"/>
       </file>
       <file name="payroll.js" path="D:\projectBackend\microservice-payroll\gateway\routes\payroll.js">
-        <metrics statements="70" coveredstatements="60" conditionals="0" coveredconditionals="0" methods="26" coveredmethods="18"/>
+        <metrics statements="70" coveredstatements="67" conditionals="0" coveredconditionals="0" methods="26" coveredmethods="23"/>
         <line num="127" count="1" type="stmt"/>
         <line num="128" count="1" type="stmt"/>
         <line num="129" count="1" type="stmt"/>
         <line num="131" count="1" type="stmt"/>
         <line num="136" count="1" type="stmt"/>
-        <line num="137" count="15" type="stmt"/>
-        <line num="143" count="0" type="stmt"/>
-        <line num="144" count="0" type="stmt"/>
+        <line num="137" count="21" type="stmt"/>
+        <line num="143" count="1" type="stmt"/>
+        <line num="144" count="1" type="stmt"/>
         <line num="155" count="1" type="stmt"/>
-        <line num="156" count="15" type="stmt"/>
+        <line num="156" count="21" type="stmt"/>
         <line num="157" count="1" type="stmt"/>
         <line num="158" count="1" type="stmt"/>
-        <line num="161" count="15" type="stmt"/>
+        <line num="161" count="21" type="stmt"/>
         <line num="162" count="2" type="stmt"/>
-        <line num="165" count="15" type="stmt"/>
+        <line num="165" count="21" type="stmt"/>
         <line num="166" count="1" type="stmt"/>
-        <line num="169" count="15" type="stmt"/>
+        <line num="169" count="21" type="stmt"/>
         <line num="170" count="1" type="stmt"/>
-        <line num="173" count="15" type="stmt"/>
+        <line num="173" count="21" type="stmt"/>
         <line num="174" count="1" type="stmt"/>
         <line num="181" count="1" type="stmt"/>
-        <line num="182" count="15" type="stmt"/>
+        <line num="182" count="21" type="stmt"/>
         <line num="183" count="1" type="stmt"/>
         <line num="184" count="1" type="stmt"/>
-        <line num="187" count="15" type="stmt"/>
+        <line num="187" count="21" type="stmt"/>
         <line num="188" count="1" type="stmt"/>
-        <line num="191" count="15" type="stmt"/>
+        <line num="191" count="21" type="stmt"/>
         <line num="192" count="0" type="stmt"/>
-        <line num="195" count="15" type="stmt"/>
+        <line num="195" count="21" type="stmt"/>
         <line num="196" count="0" type="stmt"/>
-        <line num="199" count="15" type="stmt"/>
+        <line num="199" count="21" type="stmt"/>
         <line num="200" count="0" type="stmt"/>
         <line num="207" count="1" type="stmt"/>
-        <line num="208" count="15" type="stmt"/>
+        <line num="208" count="21" type="stmt"/>
         <line num="209" count="1" type="stmt"/>
         <line num="210" count="1" type="stmt"/>
-        <line num="213" count="15" type="stmt"/>
+        <line num="213" count="21" type="stmt"/>
         <line num="214" count="1" type="stmt"/>
         <line num="215" count="1" type="stmt"/>
-        <line num="218" count="15" type="stmt"/>
+        <line num="218" count="21" type="stmt"/>
         <line num="219" count="1" type="stmt"/>
         <line num="220" count="1" type="stmt"/>
-        <line num="223" count="15" type="stmt"/>
-        <line num="224" count="0" type="stmt"/>
-        <line num="227" count="15" type="stmt"/>
-        <line num="228" count="0" type="stmt"/>
+        <line num="223" count="21" type="stmt"/>
+        <line num="224" count="1" type="stmt"/>
+        <line num="227" count="21" type="stmt"/>
+        <line num="228" count="1" type="stmt"/>
         <line num="235" count="1" type="stmt"/>
-        <line num="236" count="15" type="stmt"/>
-        <line num="237" count="0" type="stmt"/>
-        <line num="238" count="0" type="stmt"/>
-        <line num="241" count="15" type="stmt"/>
+        <line num="236" count="21" type="stmt"/>
+        <line num="237" count="1" type="stmt"/>
+        <line num="238" count="1" type="stmt"/>
+        <line num="241" count="21" type="stmt"/>
         <line num="242" count="1" type="stmt"/>
         <line num="243" count="1" type="stmt"/>
-        <line num="246" count="15" type="stmt"/>
+        <line num="246" count="21" type="stmt"/>
         <line num="247" count="1" type="stmt"/>
         <line num="248" count="1" type="stmt"/>
-        <line num="251" count="15" type="stmt"/>
-        <line num="252" count="0" type="stmt"/>
+        <line num="251" count="21" type="stmt"/>
+        <line num="252" count="1" type="stmt"/>
         <line num="259" count="1" type="stmt"/>
-        <line num="261" count="15" type="stmt"/>
-        <line num="264" count="15" type="stmt"/>
-        <line num="265" count="15" type="stmt"/>
-        <line num="266" count="15" type="stmt"/>
-        <line num="267" count="15" type="stmt"/>
-        <line num="270" count="15" type="stmt"/>
-        <line num="271" count="15" type="stmt"/>
-        <line num="272" count="15" type="stmt"/>
-        <line num="273" count="15" type="stmt"/>
-        <line num="274" count="15" type="stmt"/>
-        <line num="276" count="15" type="stmt"/>
+        <line num="261" count="21" type="stmt"/>
+        <line num="264" count="21" type="stmt"/>
+        <line num="265" count="21" type="stmt"/>
+        <line num="266" count="21" type="stmt"/>
+        <line num="267" count="21" type="stmt"/>
+        <line num="270" count="21" type="stmt"/>
+        <line num="271" count="21" type="stmt"/>
+        <line num="272" count="21" type="stmt"/>
+        <line num="273" count="21" type="stmt"/>
+        <line num="274" count="21" type="stmt"/>
+        <line num="276" count="21" type="stmt"/>
       </file>
     </package>
     <package name="gateway.utils">
