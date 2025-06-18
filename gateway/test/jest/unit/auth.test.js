@@ -110,5 +110,78 @@ describe('Auth Routes', () => {
       expect(response.body).toHaveProperty('proxied', true);
       expect(forwardRequest).not.toHaveBeenCalled();
     });
+        
+    test('Harus melewati proxy untuk POST /login (menguji next("route"))', async () => {
+      // Update mock implementation to include the expected property
+      forwardRequest.mockImplementation((serviceUrl, path, req, res) => {
+        res.status(200).json({ token: 'mock-token', user: { id: '1', name: 'Test User' }, direct: true });
+      });
+      
+      // Test specific route that should trigger next('route')
+      const response = await request(app)
+        .post('/v1/auth/login')
+        .send({ email: 'test@example.com', password: 'password123' });
+      
+      // Should use direct forwardRequest approach, not proxy
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('direct', true);
+      expect(forwardRequest).toHaveBeenCalled();
+    });
     
+    test('Harus menggunakan proxy untuk GET /login', async () => {
+      // Reset call history
+      jest.clearAllMocks();
+      
+      // Test the same path but different method
+      const response = await request(app)
+        .get('/v1/auth/login');
+      
+      // Should use proxy, not direct approach
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('proxied', true);
+      expect(forwardRequest).not.toHaveBeenCalled();
+    });
+    
+    test('Harus menggunakan proxy untuk POST pada path selain /login', async () => {
+      // Reset call history
+      jest.clearAllMocks();
+      
+      // Test different path with POST method
+      const response = await request(app)
+        .post('/v1/auth/register')
+        .send({ email: 'new@example.com', password: 'password123' });
+      
+      // Should use proxy, not direct approach
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('proxied', true);
+      expect(forwardRequest).not.toHaveBeenCalled();
+    });
+    
+    test('Harus memproses multiple requests dengan routing yang benar', async () => {
+      // Update mock implementation to include the expected property
+      forwardRequest.mockImplementation((serviceUrl, path, req, res) => {
+        res.status(200).json({ token: 'mock-token', user: { id: '1', name: 'Test User' }, direct: true });
+      });
+      
+      // Reset call history
+      jest.clearAllMocks();
+    
+      // First, make a request that should use direct approach
+      await request(app)
+        .post('/v1/auth/login')
+        .send({ email: 'test@example.com', password: 'password123' });
+      
+      // Verify forwardRequest was called
+      expect(forwardRequest).toHaveBeenCalledTimes(1);
+      
+      // Reset call history again
+      jest.clearAllMocks();
+      
+      // Now make a request that should use proxy
+      await request(app)
+        .get('/v1/auth/profile');
+      
+      // Verify forwardRequest was not called (proxy should be used instead)
+      expect(forwardRequest).not.toHaveBeenCalled();
+    });
 });

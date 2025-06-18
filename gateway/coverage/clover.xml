@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1750256906551" clover="3.2.0">
-  <project timestamp="1750256906552" name="All files">
-    <metrics statements="187" coveredstatements="166" conditionals="32" coveredconditionals="28" methods="51" coveredmethods="37" elements="270" coveredelements="231" complexity="0" loc="187" ncloc="187" packages="2" files="4" classes="4"/>
+<coverage generated="1750259294451" clover="3.2.0">
+  <project timestamp="1750259294452" name="All files">
+    <metrics statements="187" coveredstatements="166" conditionals="32" coveredconditionals="29" methods="51" coveredmethods="37" elements="270" coveredelements="232" complexity="0" loc="187" ncloc="187" packages="2" files="4" classes="4"/>
     <package name="routes">
-      <metrics statements="149" coveredstatements="128" conditionals="4" coveredconditionals="2" methods="49" coveredmethods="35"/>
+      <metrics statements="149" coveredstatements="128" conditionals="4" coveredconditionals="3" methods="49" coveredmethods="35"/>
       <file name="auth.js" path="D:\projectBackend\microservice-payroll\gateway\routes\auth.js">
-        <metrics statements="14" coveredstatements="13" conditionals="4" coveredconditionals="2" methods="3" coveredmethods="3"/>
+        <metrics statements="14" coveredstatements="13" conditionals="4" coveredconditionals="3" methods="3" coveredmethods="3"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
         <line num="5" count="1" type="stmt"/>
         <line num="7" count="1" type="stmt"/>
-        <line num="9" count="5" type="stmt"/>
-        <line num="17" count="5" type="stmt"/>
-        <line num="18" count="2" type="stmt"/>
-        <line num="19" count="2" type="stmt"/>
-        <line num="23" count="5" type="stmt"/>
-        <line num="24" count="2" type="cond" truecount="2" falsecount="2"/>
+        <line num="9" count="9" type="stmt"/>
+        <line num="17" count="9" type="stmt"/>
+        <line num="18" count="4" type="stmt"/>
+        <line num="19" count="4" type="stmt"/>
+        <line num="23" count="9" type="stmt"/>
+        <line num="24" count="5" type="cond" truecount="3" falsecount="1"/>
         <line num="25" count="0" type="stmt"/>
-        <line num="27" count="2" type="stmt"/>
-        <line num="30" count="5" type="stmt"/>
+        <line num="27" count="5" type="stmt"/>
+        <line num="30" count="9" type="stmt"/>
       </file>
       <file name="employee.js" path="D:\projectBackend\microservice-payroll\gateway\routes\employee.js">
         <metrics statements="65" coveredstatements="55" conditionals="0" coveredconditionals="0" methods="20" coveredmethods="14"/>
