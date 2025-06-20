@@ -394,4 +394,170 @@ describe('Payroll Routes', () => {
       expect(forwardRequestStub).to.not.have.been.called;
     }
   });
+  
+  it('GET /attendance-deductions/detail/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+    // Arrange - tambahkan handler untuk path ini di forwardRequestStub
+    forwardRequestStub.callsFake((serviceUrl, path, req, res) => {
+      if (path.includes('/v1/attendance-deductions/detail/')) {
+        const id = path.split('/').pop();
+        return res.status(200).json({ 
+          id, 
+          employee_id: '1', 
+          amount: 150, 
+          month: 5, 
+          year: 2023 
+        });
+      }
+      
+      // Fallback ke implementasi default
+      res.status(404).json({ error: 'Not found' });
+    });
+    
+    // Act
+    const response = await request(app)
+      .get('/v1/attendance-deductions/detail/1');
+    
+    // Assert
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('id', '1');
+    expect(forwardRequestStub).to.have.been.calledWith(
+      PAYROLL_SERVICE_URL,
+      '/v1/attendance-deductions/detail/1',
+      sinon.match.any,
+      sinon.match.any
+    );
+  });
+  
+  it('DELETE /attendance-deductions/delete/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+    // Arrange - tambahkan handler untuk path ini di forwardRequestStub
+    forwardRequestStub.callsFake((serviceUrl, path, req, res) => {
+      if (path.includes('/v1/attendance-deductions/delete/')) {
+        return res.status(200).json({ deleted: true });
+      }
+      
+      // Fallback ke implementasi default
+      res.status(404).json({ error: 'Not found' });
+    });
+    
+    // Act
+    const response = await request(app)
+      .delete('/v1/attendance-deductions/delete/1');
+    
+    // Assert
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('deleted', true);
+    expect(forwardRequestStub).to.have.been.calledWith(
+      PAYROLL_SERVICE_URL,
+      '/v1/attendance-deductions/delete/1',
+      sinon.match.any,
+      sinon.match.any
+    );
+  });
+  
+  // Tambahkan test-test berikut ke dalam describe('Payslip Routes', ...)
+  
+  it('GET /payslips/detail/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+    // Arrange - tambahkan handler untuk path ini di forwardRequestStub
+    forwardRequestStub.callsFake((serviceUrl, path, req, res) => {
+      if (path.includes('/v1/payslips/detail/')) {
+        const id = path.split('/').pop();
+        return res.status(200).json({ 
+          id, 
+          employee_id: '1', 
+          month: 5, 
+          year: 2023, 
+          net_salary: 4500 
+        });
+      }
+      
+      // Fallback ke implementasi default
+      res.status(404).json({ error: 'Not found' });
+    });
+    
+    // Act
+    const response = await request(app)
+      .get('/v1/payslips/detail/1');
+    
+    // Assert
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('id', '1');
+    expect(forwardRequestStub).to.have.been.calledWith(
+      PAYROLL_SERVICE_URL,
+      '/v1/payslips/detail/1',
+      sinon.match.any,
+      sinon.match.any
+    );
+  });
+  
+  it('POST /payslips/add harus memanggil forwardRequest dengan argumen yang benar', async () => {
+    // Arrange - tambahkan handler untuk path ini di forwardRequestStub
+    forwardRequestStub.callsFake((serviceUrl, path, req, res) => {
+      if (path === '/v1/payslips/add') {
+        return res.status(201).json({ id: '1', ...req.body, created: true });
+      }
+      
+      // Fallback ke implementasi default
+      res.status(404).json({ error: 'Not found' });
+    });
+    
+    // Arrange
+    const payslipData = { 
+      employee_id: '1',
+      month: 5,
+      year: 2023,
+      base_salary: 5000
+    };
+    
+    // Act
+    const response = await request(app)
+      .post('/v1/payslips/add')
+      .send(payslipData);
+    
+    // Assert
+    expect(response.status).to.equal(201);
+    expect(response.body).to.have.property('created', true);
+    expect(forwardRequestStub).to.have.been.calledWith(
+      PAYROLL_SERVICE_URL,
+      '/v1/payslips/add',
+      sinon.match.has('body', payslipData),
+      sinon.match.any
+    );
+  });
+  
+  // Tambahkan test ini ke describe('Error Handling', ...) untuk menguji proxy error handler langsung
+  
+  it('proxy error handler sets correct status and response', () => {
+    // Create mocks
+    const err = new Error('Connection refused');
+    const req = {};
+    const res = {
+      status: sinon.stub().returnsThis(),
+      json: sinon.stub()
+    };
+    
+    // Extract error handler function
+    let errorHandler;
+    createProxyMiddlewareStub.callsFake(options => {
+      errorHandler = options.onError;
+      return () => {};
+    });
+    
+    // Create router to get the error handler
+    const createPayrollRouter = proxyquire('../../../routes/payroll', {
+      'http-proxy-middleware': { createProxyMiddleware: createProxyMiddlewareStub },
+      '../utils/requestHandler': { forwardRequest: forwardRequestStub }
+    });
+    
+    createPayrollRouter(PAYROLL_SERVICE_URL);
+    
+    // Call error handler directly
+    errorHandler(err, req, res);
+    
+    // Verify behavior
+    expect(res.status).to.have.been.calledWith(500);
+    expect(res.json).to.have.been.calledWith({
+      error: 'Error communicating with payroll service',
+      details: 'Connection refused'
+    });
+  });
 });

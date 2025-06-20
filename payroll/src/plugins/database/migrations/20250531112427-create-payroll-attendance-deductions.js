@@ -10,7 +10,11 @@ module.exports = {
       },
       employee_id: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        references: {
+          model: 'mst_employees',
+          key: 'id'
+        }
       },
       tenant_id: {
         type: Sequelize.STRING,

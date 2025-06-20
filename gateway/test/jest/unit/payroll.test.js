@@ -427,4 +427,157 @@ describe('Payroll Routes', () => {
       expect(forwardRequest).not.toHaveBeenCalled();
     }
   });
+
+  test('GET /attendance-deductions/detail/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+    // Update mock implementation for this specific route
+    forwardRequest.mockImplementationOnce((serviceUrl, path, req, res) => {
+      if (path.includes('/v1/attendance-deductions/detail/')) {
+        const id = path.split('/').pop();
+        res.status(200).json({ 
+          id, 
+          employee_id: '1', 
+          amount: 150, 
+          month: 5, 
+          year: 2023 
+        });
+      }
+    });
+    
+    // Act
+    const response = await request(app)
+      .get('/v1/attendance-deductions/detail/1');
+    
+    // Assert
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('id', '1');
+    expect(forwardRequest).toHaveBeenCalledWith(
+      PAYROLL_SERVICE_URL,
+      '/v1/attendance-deductions/detail/1',
+      expect.anything(),
+      expect.anything()
+    );
+  });
+  
+  test('DELETE /attendance-deductions/delete/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+    // Update mock implementation for this specific route
+    forwardRequest.mockImplementationOnce((serviceUrl, path, req, res) => {
+      if (path.includes('/v1/attendance-deductions/delete/')) {
+        res.status(200).json({ deleted: true });
+      }
+    });
+    
+    // Act
+    const response = await request(app)
+      .delete('/v1/attendance-deductions/delete/1');
+    
+    // Assert
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('deleted', true);
+    expect(forwardRequest).toHaveBeenCalledWith(
+      PAYROLL_SERVICE_URL,
+      '/v1/attendance-deductions/delete/1',
+      expect.anything(),
+      expect.anything()
+    );
+  });
+  
+  // Tambahkan test ini di dalam describe('Payslip Routes', ...)
+  test('GET /payslips/detail/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+    // Update mock implementation for this specific route
+    forwardRequest.mockImplementationOnce((serviceUrl, path, req, res) => {
+      if (path.includes('/v1/payslips/detail/')) {
+        const id = path.split('/').pop();
+        res.status(200).json({ 
+          id, 
+          employee_id: '1', 
+          month: 5, 
+          year: 2023, 
+          net_salary: 4500 
+        });
+      }
+    });
+    
+    // Act
+    const response = await request(app)
+      .get('/v1/payslips/detail/1');
+    
+    // Assert
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('id', '1');
+    expect(forwardRequest).toHaveBeenCalledWith(
+      PAYROLL_SERVICE_URL,
+      '/v1/payslips/detail/1',
+      expect.anything(),
+      expect.anything()
+    );
+  });
+  
+  test('POST /payslips/add harus memanggil forwardRequest dengan argumen yang benar', async () => {
+    // Update mock implementation for this specific route
+    forwardRequest.mockImplementationOnce((serviceUrl, path, req, res) => {
+      if (path === '/v1/payslips/add') {
+        res.status(201).json({ id: '1', ...req.body, created: true });
+      }
+    });
+    
+    // Arrange
+    const payslipData = { 
+      employee_id: '1',
+      month: 5,
+      year: 2023,
+      base_salary: 5000
+    };
+    
+    // Act
+    const response = await request(app)
+      .post('/v1/payslips/add')
+      .send(payslipData);
+    
+    // Assert
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty('created', true);
+    expect(forwardRequest).toHaveBeenCalledWith(
+      PAYROLL_SERVICE_URL,
+      '/v1/payslips/add',
+      expect.objectContaining({
+        body: payslipData
+      }),
+      expect.anything()
+    );
+  });
+  
+  // Aktifkan test ini di dalam describe('Error Handling', ...) dengan membuang komentar
+    test('proxy error handler sets correct status and response', () => {
+    // Mock console.error to suppress output
+    const originalConsoleError = console.error;
+    console.error = jest.fn(); 
+    // Create mocks
+    const err = new Error('Connection refused');
+    const req = {};
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    
+    // Extract error handler function
+    let errorHandler;
+    createProxyMiddleware.mockImplementationOnce(options => {
+      errorHandler = options.onError;
+      return () => {};
+    });
+    
+    // Create router to get the error handler
+    createPayrollRouter(PAYROLL_SERVICE_URL);
+    
+    // Call error handler directly
+    errorHandler(err, req, res);
+    
+    // Verify behavior
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Error communicating with payroll service',
+      details: 'Connection refused'
+    });
+    console.error = originalConsoleError;
+  });
 });

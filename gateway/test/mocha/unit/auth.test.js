@@ -122,4 +122,79 @@ describe('Auth Routes (Mocha/Chai)', () => {
     expect(response.body).to.have.property('proxied', true);
     expect(forwardRequestMock).to.not.have.been.called;
   });
+  
+  it('Harus melewati proxy untuk POST /login (menguji next("route"))', async () => {
+    // Update mock implementation to include the expected property
+    forwardRequestMock.callsFake((serviceUrl, path, req, res) => {
+      res.status(200).json({ token: 'mock-token', user: { id: '1', name: 'Test User' }, direct: true });
+    });
+    
+    // Test specific route that should trigger next('route')
+    const response = await request(app)
+      .post('/v1/auth/login')
+      .send({ email: 'test@example.com', password: 'password123' });
+    
+    // Should use direct forwardRequest approach, not proxy
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('direct', true);
+    expect(forwardRequestMock).to.have.been.called;
+    // We can't directly test that the proxy wasn't called since we don't have a reference to it
+  });
+  
+  it('Harus menggunakan proxy untuk GET /login', async () => {
+    // Reset call history
+    forwardRequestMock.resetHistory();
+    
+    // Test the same path but different method
+    const response = await request(app)
+      .get('/v1/auth/login');
+    
+    // Should use proxy, not direct approach
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('proxied', true);
+    expect(forwardRequestMock).to.not.have.been.called;
+  });
+  
+  it('Harus menggunakan proxy untuk POST pada path selain /login', async () => {
+    // Reset call history
+    forwardRequestMock.resetHistory();
+    
+    // Test different path with POST method
+    const response = await request(app)
+      .post('/v1/auth/register')
+      .send({ email: 'new@example.com', password: 'password123' });
+    
+    // Should use proxy, not direct approach
+    expect(response.status).to.equal(200);
+    expect(response.body).to.have.property('proxied', true);
+    expect(forwardRequestMock).to.not.have.been.called;
+  });
+  
+  it('Harus memproses multiple requests dengan routing yang benar', async () => {
+    // Update mock implementation to include the expected property
+    forwardRequestMock.callsFake((serviceUrl, path, req, res) => {
+      res.status(200).json({ token: 'mock-token', user: { id: '1', name: 'Test User' }, direct: true });
+    });
+    
+    // Reset call history
+    forwardRequestMock.resetHistory();
+  
+    // First, make a request that should use direct approach
+    await request(app)
+      .post('/v1/auth/login')
+      .send({ email: 'test@example.com', password: 'password123' });
+    
+    // Verify forwardRequest was called
+    expect(forwardRequestMock).to.have.been.calledOnce;
+    
+    // Reset call history again
+    forwardRequestMock.resetHistory();
+    
+    // Now make a request that should use proxy
+    await request(app)
+      .get('/v1/auth/profile');
+    
+    // Verify forwardRequest was not called (proxy should be used instead)
+    expect(forwardRequestMock).to.not.have.been.called;
+  });
 });

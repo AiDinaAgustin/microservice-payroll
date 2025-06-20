@@ -3,6 +3,7 @@ const { expect } = chai;
 const axios = require('axios');
 const MockAdapter = require('axios-mock-adapter');
 const { forwardRequest } = require('../../../utils/requestHandler');
+const sinon = require('sinon'); 
 
 // Create a mock for axios
 const mock = new MockAdapter(axios);
@@ -161,15 +162,160 @@ describe('RequestHandler (Mocha/Chai)', () => {
     expect(res.body).to.be.undefined;
   });
 
-  // Test 5: Handling error responses
-  it('Menangani respons error dengan benar', async () => {
+    // Test 6: File upload handling
+  it('Menangani unggahan file dengan benar', async () => {
     // Arrange
-    const errorResponse = { 
-      error: 'Not Found', 
-      message: 'Resource not found' 
+    const mockResponse = { uploaded: true, filename: 'test.csv' };
+    mock.onPost('http://test-service/api/upload').reply(config => {
+      // Verify the Content-Type header was set correctly
+      expect(config.headers['Content-Type']).to.include('multipart/form-data');
+      return [200, mockResponse];
+    });
+    
+    const req = {
+      method: 'POST',
+      headers: {},
+      query: {},
+      file: {
+        buffer: Buffer.from('test,data\n1,2'),
+        originalname: 'test.csv',
+        mimetype: 'text/csv'
+      }
     };
     
-    mock.onGet('http://test-service/api/error').reply(404, errorResponse);
+    const res = {
+      status: function(code) {
+        this.statusCode = code;
+        return this;
+      },
+      json: function(data) {
+        this.body = data;
+        return this;
+      },
+      end: function() {
+        this.ended = true;
+        return this;
+      },
+      setHeader: function(name, value) {
+        this.headers = this.headers || {};
+        this.headers[name] = value;
+      }
+    };
+    
+    // Act
+    await forwardRequest('http://test-service', '/api/upload', req, res);
+    
+    // Assert
+    expect(res.statusCode).to.equal(200);
+    expect(res.body).to.deep.equal(mockResponse);
+  });
+
+  // Test 7: File download handling
+  it('Menangani unduhan file dengan benar', async () => {
+    // Arrange
+    const fileContent = Buffer.from('file content');
+    
+    // Mock the pipe method for the stream
+    const mockPipe = sinon.stub();
+    
+    // Setup the axios mock for a file download
+    mock.onGet('http://test-service/api/download').reply(() => {
+      return [
+        200, 
+        { pipe: mockPipe }, // Mock a readable stream with pipe method
+        { 
+          'content-type': 'application/pdf',
+          'content-disposition': 'attachment; filename="test.pdf"'
+        }
+      ];
+    });
+    
+    const req = {
+      method: 'GET',
+      headers: {},
+      query: { download: 'true' }
+    };
+    
+    const res = {
+      status: function(code) {
+        this.statusCode = code;
+        return this;
+      },
+      json: function(data) {
+        this.body = data;
+        return this;
+      },
+      end: function() {
+        this.ended = true;
+        return this;
+      },
+      setHeader: function(name, value) {
+        this.headers = this.headers || {};
+        this.headers[name] = value;
+      }
+    };
+    
+    // Act
+    await forwardRequest('http://test-service', '/api/download', req, res);
+    
+    // Assert
+    expect(res.headers['Content-Type']).to.equal('application/pdf');
+    expect(res.headers['Content-Disposition']).to.equal('attachment; filename="test.pdf"');
+    expect(mockPipe.calledWith(res)).to.be.true;
+  });
+
+  // Test 8: Error handling with structured error response
+  it('Menangani respons error dari service dengan benar', async () => {
+    // Arrange
+    const errorResponse = { 
+      error: 'Validation Error', 
+      fields: ['name', 'email'] 
+    };
+    
+    // Setup mock to return a 400 error
+    mock.onPost('http://test-service/api/validation-error').reply(400, errorResponse);
+    
+    const req = {
+      method: 'POST',
+      headers: {},
+      body: { /* invalid data */ },
+      query: {}
+    };
+    
+    const res = {
+      status: function(code) {
+        this.statusCode = code;
+        return this;
+      },
+      json: function(data) {
+        this.body = data;
+        return this;
+      },
+      end: function() {
+        this.ended = true;
+        return this;
+      }
+    };
+    
+    // Stub console.error to prevent cluttering test output
+    const consoleErrorStub = sinon.stub(console, 'error');
+    
+    // Act
+    await forwardRequest('http://test-service', '/api/validation-error', req, res);
+    
+    // Restore console.error
+    consoleErrorStub.restore();
+    
+    // Assert
+    expect(res.statusCode).to.equal(400);
+    expect(res.body).to.deep.equal(errorResponse);
+  });
+
+  // Test 9: Error handling without response (network error)
+  it('Menangani error jaringan dengan benar', async () => {
+    // Arrange
+    // Setup mock to simulate a network error
+    mock.onGet('http://test-service/api/network-error').networkError();
     
     const req = {
       method: 'GET',
@@ -192,11 +338,18 @@ describe('RequestHandler (Mocha/Chai)', () => {
       }
     };
     
+    // Stub console.error to prevent cluttering test output
+    const consoleErrorStub = sinon.stub(console, 'error');
+    
     // Act
-    await forwardRequest('http://test-service', '/api/error', req, res);
+    await forwardRequest('http://test-service', '/api/network-error', req, res);
+    
+    // Restore console.error
+    consoleErrorStub.restore();
     
     // Assert
-    expect(res.statusCode).to.equal(404);
-    expect(res.body).to.deep.equal(errorResponse);
+    expect(res.statusCode).to.equal(500);
+    expect(res.body).to.have.property('error', 'Error communicating with service');
+    expect(res.body).to.have.property('details');
   });
 });

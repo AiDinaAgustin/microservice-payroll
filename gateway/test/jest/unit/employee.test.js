@@ -37,10 +37,25 @@ jest.mock('../../../utils/requestHandler', () => ({
       res.end('mock file content');
     } else if (path.includes('/v1/departments/add')) {
       res.status(201).json({ id: '1', ...req.body, created: true });
+    } else if (path.includes('/v1/departments/edit/')) {
+      res.status(200).json({ ...req.body, updated: true });
     } else if (path.includes('/v1/positions/add')) {
       res.status(201).json({ id: '1', ...req.body, created: true });
+    } else if (path.includes('/v1/positions/edit/')) {
+      res.status(200).json({ ...req.body, updated: true });
     } else if (path.includes('/v1/contract-types/add')) {
       res.status(201).json({ id: '1', ...req.body, created: true });
+    } else if (path.includes('/v1/contract-types/edit/')) {
+      res.status(200).json({ ...req.body, updated: true });
+    } else if (path.includes('/v1/employees/patch/')) {
+      res.status(200).json({ ...req.body, patched: true });
+    } else if (path.includes('/v1/employees/options')) {
+      res.status(200).json({ 
+        options: [
+          { id: '1', name: 'Employee 1' },
+          { id: '2', name: 'Employee 2' }
+        ]
+      });
     } else {
       res.status(404).json({ error: 'Not found' });
     }
@@ -397,5 +412,129 @@ describe('Employee Routes', () => {
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error', 'Validation error');
       expect(response.body).toHaveProperty('fields');
+    });
+    
+    test('PUT /departments/edit/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+      // Arrange
+      const departmentData = { 
+        name: 'Updated Department', 
+        description: 'Updated department description'
+      };
+      
+      // Act
+      const response = await request(app)
+        .put('/v1/departments/edit/1')
+        .send(departmentData);
+      
+      // Assert
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('updated', true);
+      expect(forwardRequest).toHaveBeenCalledWith(
+        EMPLOYEE_SERVICE_URL,
+        '/v1/departments/edit/1',
+        expect.objectContaining({
+          body: departmentData
+        }),
+        expect.anything()
+      );
+    });
+    
+    test('PUT /positions/edit/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+      // Arrange
+      const positionData = { 
+        name: 'Updated Position', 
+        salary_range: '5000-7500'
+      };
+      
+      // Act
+      const response = await request(app)
+        .put('/v1/positions/edit/1')
+        .send(positionData);
+      
+      // Assert
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('updated', true);
+      expect(forwardRequest).toHaveBeenCalledWith(
+        EMPLOYEE_SERVICE_URL,
+        '/v1/positions/edit/1',
+        expect.objectContaining({
+          body: positionData
+        }),
+        expect.anything()
+      );
+    });
+    
+    test('PUT /contract-types/edit/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+      // Arrange
+      const contractTypeData = { 
+        name: 'Updated Contract Type', 
+        duration: '24 months'
+      };
+      
+      // Act
+      const response = await request(app)
+        .put('/v1/contract-types/edit/1')
+        .send(contractTypeData);
+      
+      // Assert
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('updated', true);
+      expect(forwardRequest).toHaveBeenCalledWith(
+        EMPLOYEE_SERVICE_URL,
+        '/v1/contract-types/edit/1',
+        expect.objectContaining({
+          body: contractTypeData
+        }),
+        expect.anything()
+      );
+    });
+    
+    test('PATCH /employees/patch/:id harus memanggil forwardRequest dengan argumen yang benar', async () => {
+      // Arrange
+      const patchData = { 
+        status: 'active'
+      };
+      
+      // Act
+      const response = await request(app)
+        .patch('/v1/employees/patch/1')
+        .send(patchData);
+      
+      // Assert
+      expect(response.status).toBe(200);
+      expect(forwardRequest).toHaveBeenCalledWith(
+        EMPLOYEE_SERVICE_URL,
+        '/v1/employees/patch/1',
+        expect.objectContaining({
+          body: patchData
+        }),
+        expect.anything()
+      );
+    });
+    
+    test('GET /employees/options harus memanggil forwardRequest dengan argumen yang benar', async () => {
+      // Update mock implementation for this specific route
+      forwardRequest.mockImplementationOnce((serviceUrl, path, req, res) => {
+        res.status(200).json({ 
+          options: [
+            { id: '1', name: 'Employee 1' },
+            { id: '2', name: 'Employee 2' }
+          ]
+        });
+      });
+      
+      // Act
+      const response = await request(app)
+        .get('/v1/employees/options');
+      
+      // Assert
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('options');
+      expect(forwardRequest).toHaveBeenCalledWith(
+        EMPLOYEE_SERVICE_URL,
+        '/v1/employees/options',
+        expect.anything(),
+        expect.anything()
+      );
     });
 });
