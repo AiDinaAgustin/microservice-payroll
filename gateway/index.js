@@ -114,18 +114,24 @@ const setupRoutes = (app, serviceUrls) => {
 /**
  * Configure error handling middleware
  */
+// Modifikasi error handler untuk lebih testable
 const setupErrorHandlers = (app) => {
   // 404 handler - must be defined after all valid routes
   app.use((req, res) => {
-    res.status(404).json({ error: 'Not Found', message: `Route ${req.url} not found` });
+    res.status(404).json({ 
+      error: 'Not Found', 
+      message: `Route ${req.url} not found` 
+    });
   });
 
   // Error handler
   app.use((err, req, res, next) => {
     console.error('Unhandled error:', err);
+    const errorMessage = err && err.message ? err.message : 'An unexpected error occurred';
+    
     res.status(500).json({
       error: 'Internal Server Error',
-      message: err.message || 'An unexpected error occurred'
+      message: errorMessage
     });
   });
 };

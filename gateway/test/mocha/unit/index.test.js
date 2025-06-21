@@ -313,4 +313,63 @@ describe('API Gateway Integration Tests', () => {
       message: 'Route /non-existent-route not found'
     });
   });
+
+    // Tambahkan test case ini di dalam describe('API Gateway Integration Tests', ...)
+  
+  it('menangani error tanpa pesan dengan benar', async () => {
+    // Stub console.error untuk test ini
+    const originalConsoleError = console.error;
+    console.error = sinon.stub();
+    
+    // Create a new app
+    const testApp = express();
+    
+    // Add a route that throws an error without message
+    testApp.get('/error-without-message', (req, res, next) => {
+      const error = new Error();
+      error.message = null; // Force error message to be null
+      next(error);
+    });
+    
+    // Now add error handlers
+    setupErrorHandlers(testApp);
+    
+    const response = await request(testApp).get('/error-without-message');
+    
+    // Restore console.error
+    console.error = originalConsoleError;
+    
+    expect(response.status).to.equal(500);
+    expect(response.body).to.have.property('error', 'Internal Server Error');
+    expect(response.body).to.have.property('message', 'An unexpected error occurred');
+  });
+  
+  it('createApp dengan withErrorHandlers=false tidak menambahkan error handlers', async () => {
+    // Import the real module again to avoid interference from other tests
+    const { createApp: createAppNoErrorHandlers } = proxyquire('../../../index', {
+      './routes/auth': authRoutesStub,
+      './routes/employee': employeeRoutesStub,
+      './routes/payroll': payrollRoutesStub
+    });
+    
+    // Create app explicitly WITHOUT error handlers
+    const appWithoutErrorHandlers = createAppNoErrorHandlers({ withErrorHandlers: false });
+    
+    // Add a test route
+    appWithoutErrorHandlers.get('/test-no-handlers', (req, res) => {
+      res.json({ test: 'ok' });
+    });
+    
+    // Add our own simple 404 handler for test verification
+    appWithoutErrorHandlers.use((req, res) => {
+      res.status(404).send('Custom 404');
+    });
+    
+    // Test that the custom 404 handler works (confirming our error handlers weren't added)
+    const response = await request(appWithoutErrorHandlers).get('/non-existent-path');
+    
+    expect(response.status).to.equal(404);
+    expect(response.text).to.equal('Custom 404'); // Should be our custom handler, not the JSON format
+    expect(response.body).to.not.have.property('error'); // JSON response would have this property
+  });
 });

@@ -1,0 +1,19 @@
+{
+  "timestamp": "2025-06-21T04:57:32.933Z",
+  "totalLOC": 155,
+  "coverage": {
+    "lines": 96.59,
+    "statements": 96.59,
+    "functions": 93.54,
+    "branches": 77.08
+  },
+  "uncovered": {
+    "lines": 5,
+    "branches": 4,
+    "functions": 1
+  },
+  "testFailures": 0,
+  "potentialDefects": 1,
+  "defectRate": 8.71,
+  "qualityLevel": "Average"
+}

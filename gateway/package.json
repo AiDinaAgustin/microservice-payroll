@@ -12,7 +12,8 @@
     "test:coverage": "jest --coverage",
     "test:mocha": "mocha",
     "test:mocha:watch": "mocha --watch",
-    "test:all": "npm run test && npm run test:mocha"
+    "test:all": "npm run test && npm run test:mocha",
+    "calculate-defect-rate": "node scripts/calculate-jest-defect-rate.js"
   },
   "repository": {
     "type": "git",
