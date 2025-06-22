@@ -106,20 +106,6 @@ services:
       - microservice-network
     restart: unless-stopped
 
-  proxy:
-    build:
-      context: ./proxy
-    ports:
-      - "80:80"
-      - "5000:5000"
-    depends_on:
-      - auth
-      - employee
-      - payroll
-    networks:
-      - microservice-network
-    restart: unless-stopped
-
 networks:
   microservice-network:
     driver: bridge
