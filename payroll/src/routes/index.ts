@@ -14,8 +14,8 @@ import salaryRouter from './payroll/salary.routes'
 import payslipRouter from './payroll/payslip.routes'
 import attendanceDeductionRouter from './payroll/attendanceDeduction.routes'
 // Opsi 1
-import AuthorizationCheck from '../../../auth/src/middlewares/Auth'
-import PermissionCheck from '../../../auth/src/middlewares/permissionCheck'
+import AuthorizationCheck from '../middlewares/Auth'
+import PermissionCheck from '../middlewares/permissionCheck'
 // // Opsi 2
 // // @ts-ignore
 // import AuthorizationCheck from '../../../gateway/middlewares/authCheck.js'
