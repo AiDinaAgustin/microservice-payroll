@@ -22,6 +22,7 @@ const router = Router()
 
 router.use('/v1/auth', authController)
 router.use('/v1/attendances', AuthorizationCheck, PermissionCheck, attendanceRouter)
+router.use('/v1/employees', AuthorizationCheck, PermissionCheck, employeeRouter)
 router.use('/v1/attendance-deductions', AuthorizationCheck, PermissionCheck, attendanceDeductionRouter)
 router.use('/v1/salaries', AuthorizationCheck, PermissionCheck, salaryRouter)
 router.use('/v1/payslips', AuthorizationCheck, PermissionCheck, payslipRouter)

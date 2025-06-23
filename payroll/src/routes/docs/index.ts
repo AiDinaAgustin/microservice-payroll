@@ -2,7 +2,7 @@
 export default [
    'components.yml',
    // 'version.yml',
-   // 'employee.yml',
+   'employee.yml',
    'attendance.yml',
    'salary.yml',
    'payslip.yml',
