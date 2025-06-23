@@ -15,16 +15,29 @@ import { EmployeeCreateParams } from '@interfaces/EmployeeCreateParams'
 import { UpdateEmployeeRequest } from '@interfaces/employee/UpdateEmployeeRequest'
 import { createClient } from "redis";
 
-// Create Redis client with better error handling
+// Improved Redis client configuration with retry logic
 const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://:4oFzHb5Ag7WhN3fPUD2nKket19a06y8T@43.133.145.125:31241'
-})
-  .on('error', (err: Error) => console.error('Redis Client Error:', err))
+  url: process.env.REDIS_URL || 'redis://:4oFzHb5Ag7WhN3fPUD2nKket19a06y8T@43.133.145.125:31241',
+  socket: {
+    reconnectStrategy: (retries) => {
+      // Exponential backoff with max delay of 10 seconds
+      const delay = Math.min(Math.pow(2, retries) * 100, 10000);
+      console.log(`Redis reconnect attempt #${retries} in ${delay}ms`);
+      return delay;
+    },
+    connectTimeout: 15000 // Increase timeout to 15 seconds
+  }
+}).on('error', (err: Error) => console.error('Redis Client Error:', err));
 
-// Connect to Redis only once at startup
-redisClient.connect().catch((err: Error) => {
-  console.error('Redis connection error:', err)
-})
+// Connect with proper error handling
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+let redisConnected = false;
+redisClient.connect().then(() => {
+  redisConnected = true;
+  console.log('Redis connected successfully');
+}).catch((err: Error) => {
+  console.error('Redis connection failed, using memory cache:', err);
+});
 
 /**
  * Helper function to clear all employee related cache for a tenant
