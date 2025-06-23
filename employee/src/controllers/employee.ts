@@ -19,6 +19,7 @@ import { createClient } from "redis";
 const redisClient = createClient({
   url: process.env.REDIS_URL || 'redis://:4oFzHb5Ag7WhN3fPUD2nKket19a06y8T@43.133.145.125:31241',
   socket: {
+     //@ts-ignore
     reconnectStrategy: (retries) => {
       // Exponential backoff with max delay of 10 seconds
       const delay = Math.min(Math.pow(2, retries) * 100, 10000);
