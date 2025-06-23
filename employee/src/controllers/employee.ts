@@ -33,26 +33,28 @@ redisClient.connect().catch((err: Error) => {
 async function clearEmployeeCache(tenantId: string) {
   try {
     const pattern = `employee:*:${tenantId}:*`
-    const keys = []
+    const keys: string[] = []
 
     // Use scanIterator instead of manual cursor handling
     for await (const key of redisClient.scanIterator({ MATCH: pattern, COUNT: 100 })) {
-      keys.push(key)
+      // @ts-ignore
+       keys.push(key)
 
       // Delete in batches of 100 to avoid large commands
       if (keys.length >= 100) {
-        if (keys.length > 0) await redisClient.del(keys)
+        if (keys.length > 0) await redisClient.del(keys) // Pass the array directly
         keys.length = 0
       }
     }
 
     // Delete any remaining keys
-    if (keys.length > 0) await redisClient.del(keys)
+    if (keys.length > 0) await redisClient.del(keys) // Pass the array directly
 
   } catch (error) {
     console.error('Error clearing employee cache:', error)
   }
 }
+
 
 export const EmployeeFindAllController = async (req: Request, res: Response, next: NextFunction) => {
   try {
