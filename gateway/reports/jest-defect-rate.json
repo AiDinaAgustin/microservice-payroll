@@ -1,19 +1,23 @@
 {
-  "timestamp": "2025-06-21T04:57:32.933Z",
-  "totalLOC": 155,
+  "timestamp": "2025-06-23T04:09:58.264Z",
+  "totalLOC": 1264,
   "coverage": {
-    "lines": 96.59,
-    "statements": 96.59,
-    "functions": 93.54,
-    "branches": 77.08
+    "lines": 96.61016949152543,
+    "statements": 96.61016949152543,
+    "functions": 93.54838709677419,
+    "branches": 80,
+    "overallScore": "90.71"
   },
   "uncovered": {
-    "lines": 5,
-    "branches": 4,
-    "functions": 1
+    "lines": 43,
+    "branches": 25,
+    "functions": 4
   },
   "testFailures": 0,
-  "potentialDefects": 1,
-  "defectRate": 8.71,
-  "qualityLevel": "Average"
+  "sizeAdjustmentFactor": 1,
+  "potentialDefects": 8.35,
+  "adjustedDefects": 8.35,
+  "defectRate": 6.61,
+  "qualityLevel": "Average",
+  "coverageQuality": "Very Good"
 }
