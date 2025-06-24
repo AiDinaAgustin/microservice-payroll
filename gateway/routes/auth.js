@@ -20,10 +20,23 @@ module.exports = (AUTH_SERVICE_URL) => {
   });
   
   // Apply proxy to all other auth routes
+    // Apply proxy to all other auth routes
   router.use('/', (req, res, next) => {
-    if (req.path === '/login' && req.method === 'POST') {
+    // Handling edge cases - undefined path or method
+    if (!req.path || !req.method) {
+      return authProxy(req, res, next);
+    }
+    
+    // Pisahkan kondisi untuk meningkatkan testability
+    const isLoginPath = req.path === '/login';
+    const isPostMethod = req.method === 'POST';
+    
+    // Test kondisi secara terpisah
+    if (isLoginPath && isPostMethod) {
       return next('route'); // Skip proxy for login POST
     }
+    
+    // Default case
     return authProxy(req, res, next);
   });
   
