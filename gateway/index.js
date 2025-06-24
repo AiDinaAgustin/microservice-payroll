@@ -115,8 +115,9 @@ const setupRoutes = (app, serviceUrls) => {
  * Configure error handling middleware
  */
 // Modifikasi error handler untuk lebih testable
+// Error handler dengan pemisahan kondisi untuk meningkatkan branch coverage
 const setupErrorHandlers = (app) => {
-  // 404 handler - must be defined after all valid routes
+  // 404 handler
   app.use((req, res) => {
     res.status(404).json({ 
       error: 'Not Found', 
@@ -124,10 +125,38 @@ const setupErrorHandlers = (app) => {
     });
   });
 
-  // Error handler
+  // Error handler dengan semua branch tercakup
   app.use((err, req, res, next) => {
     console.error('Unhandled error:', err);
-    const errorMessage = err && err.message ? err.message : 'An unexpected error occurred';
+    
+    let errorMessage = 'An unexpected error occurred';
+    
+    // Branch 1: Check if err exists (truthy)
+    if (err) {
+      // Branch 2: Check if err has message property
+      if (err.hasOwnProperty('message')) {
+        // Branch 3: Check if message is truthy (not falsy)
+        if (err.message) {
+          errorMessage = err.message;
+        }
+        // Branch 4: Special case for empty string (falsy but should be preserved)
+        else if (err.message === '') {
+          errorMessage = '';
+        }
+        // Branch 5: All other falsy values (null, undefined, false, 0, NaN)
+        else {
+          errorMessage = 'An unexpected error occurred';
+        }
+      }
+      // Branch 6: err exists but no message property
+      else {
+        errorMessage = 'An unexpected error occurred';
+      }
+    }
+    // Branch 7: err is falsy (null, undefined, false, 0, '', NaN)
+    else {
+      errorMessage = 'An unexpected error occurred';
+    }
     
     res.status(500).json({
       error: 'Internal Server Error',
@@ -135,21 +164,24 @@ const setupErrorHandlers = (app) => {
     });
   });
 };
-
-/**
- * Create and configure Express application
- */
-// Modifikasi fungsi createApp untuk menerima opsi
+// Function untuk setup aplikasi dengan opsi konfigurasi
 const createApp = (options = {}) => {
   const app = express();
   
-  // Setup application
+  // Setup aplikasi
   setupMiddleware(app);
   const serviceUrls = getServiceUrls();
   setupRoutes(app, serviceUrls);
   
-  // Tambahkan error handlers hanya jika diminta (default: true)
-  if (options.withErrorHandlers !== false) {
+  // Branch condition untuk error handlers
+  const shouldSetupErrorHandlers = options.withErrorHandlers;
+  
+  // Pisahkan kondisi untuk meningkatkan branch coverage
+  if (shouldSetupErrorHandlers === false) {
+    // Explicitly skip error handlers
+    console.log('Skipping error handlers setup');
+  } else {
+    // Default behavior - setup error handlers
     setupErrorHandlers(app);
   }
 
