@@ -54,6 +54,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const healthChecker = require('./services/healthChecker'); // ➕ Add this
 
 // Load environment variables
 dotenv.config();
@@ -105,9 +106,19 @@ const setupRoutes = (app, serviceUrls) => {
     res.status(200).json({ status: 'Gateway is running' });
   });
 
+  // ➕ Service health status endpoint
+  app.get('/health/services', (req, res) => {
+    const serviceStatus = healthChecker.getServiceStatus();
+    res.status(200).json({
+      gateway: 'healthy',
+      services: serviceStatus,
+      timestamp: new Date().toISOString()
+    });
+  });
+
   // Default route
   app.get('/', (req, res) => {
-    res.send('API Gateway - Microservice Payroll');
+    res.send('API Gateway - Microservice Payroll with Failover Support');
   });
 };
 
@@ -173,20 +184,33 @@ const createApp = (options = {}) => {
   const serviceUrls = getServiceUrls();
   setupRoutes(app, serviceUrls);
   
-  // Branch condition untuk error handlers
+  // ➕ Start health monitoring
+  if (process.env.ENABLE_SERVICE_FAILOVER === 'true') {
+    healthChecker.startMonitoring();
+  }
+  
   const shouldSetupErrorHandlers = options.withErrorHandlers;
   
-  // Pisahkan kondisi untuk meningkatkan branch coverage
   if (shouldSetupErrorHandlers === false) {
-    // Explicitly skip error handlers
     console.log('Skipping error handlers setup');
   } else {
-    // Default behavior - setup error handlers
     setupErrorHandlers(app);
   }
 
   return app;
 };
+
+process.on('SIGTERM', () => {
+  console.log('🛑 Received SIGTERM, shutting down gracefully');
+  healthChecker.stopMonitoring();
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 Received SIGINT, shutting down gracefully');
+  healthChecker.stopMonitoring();
+  process.exit(0);
+});
 
 /**
  * Start the server

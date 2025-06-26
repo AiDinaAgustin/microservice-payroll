@@ -24,6 +24,16 @@ import PermissionCheck from '../middlewares/permissionCheck'
 
 const router = Router()
 
+router.get('/health', (req, res) => {
+    res.status(200).json({
+      status: 'healthy',
+      service: 'employee-service',
+      port: process.env.PORT || 5002,
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    });
+  });
+  
 
 router.use('/v1/version', versionRouter)
 router.use('/v1/auth', authController)
