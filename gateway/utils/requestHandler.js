@@ -53,7 +53,8 @@ const checkServiceHealth = async (serviceUrl) => {
       timeout: 5000,
       validateStatus: (status) => status === 200
     });
-    return true;
+    // ➕ Add check for response data status
+    return response.data && response.data.status === 'healthy';
   } catch (error) {
     console.warn(`Service health check failed for ${serviceUrl}:`, error.message);
     return false;
