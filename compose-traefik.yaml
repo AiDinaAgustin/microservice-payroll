@@ -60,9 +60,9 @@ services:
       - PORT=5001
       - DB_HOST=${DB_HOST:-43.133.145.125}
       - DB_USER=${DB_USER:-root}
-      - DB_PASSWORD=${DB_PASSWORD:-4P89G57qHVsuMoQXxaK32h1eOUm6iC0I}
+      - DB_PASSWORD=${DB_PASSWORD:-l4mCps3yj578Hoq1z9KTQuvgE0rf2I6W}
       - DB_NAME=${DB_NAME:-hr_payroll_prod}
-      - DB_PORT=${DB_PORT:-32468}
+      - DB_PORT=${DB_PORT:-32678}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - JWT_TOKEN=${JWT_TOKEN:-private.pem}
       - JWT_EXPIRATION_TIME=${JWT_EXPIRATION_TIME:-8}
@@ -92,9 +92,9 @@ services:
       - PORT=5002
       - DB_HOST=${DB_HOST:-43.133.145.125}
       - DB_USER=${DB_USER:-root}
-      - DB_PASSWORD=${DB_PASSWORD:-4P89G57qHVsuMoQXxaK32h1eOUm6iC0I}
+      - DB_PASSWORD=${DB_PASSWORD:-l4mCps3yj578Hoq1z9KTQuvgE0rf2I6W}
       - DB_NAME=${DB_NAME:-hr_payroll_prod}
-      - DB_PORT=${DB_PORT:-32468}
+      - DB_PORT=${DB_PORT:-32678}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - JWT_TOKEN=${JWT_TOKEN:-private.pem}
       - JWT_EXPIRATION_TIME=${JWT_EXPIRATION_TIME:-8}
@@ -126,9 +126,9 @@ services:
       - PORT=5003
       - DB_HOST=${DB_HOST:-43.133.145.125}
       - DB_USER=${DB_USER:-root}
-      - DB_PASSWORD=${DB_PASSWORD:-4P89G57qHVsuMoQXxaK32h1eOUm6iC0I}
+      - DB_PASSWORD=${DB_PASSWORD:-l4mCps3yj578Hoq1z9KTQuvgE0rf2I6W}
       - DB_NAME=${DB_NAME:-hr_payroll_prod}
-      - DB_PORT=${DB_PORT:-32468}
+      - DB_PORT=${DB_PORT:-32678}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - JWT_TOKEN=${JWT_TOKEN:-private.pem}
       - JWT_EXPIRATION_TIME=${JWT_EXPIRATION_TIME:-8}
