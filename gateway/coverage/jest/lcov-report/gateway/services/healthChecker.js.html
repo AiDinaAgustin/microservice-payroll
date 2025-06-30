@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>29/29</span>
+                <span class='fraction'>32/32</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>28/28</span>
+                <span class='fraction'>31/31</span>
             </div>
         
             
@@ -133,7 +133,10 @@
 <a name='L68'></a><a href='#L68'>68</a>
 <a name='L69'></a><a href='#L69'>69</a>
 <a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -144,28 +147,30 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">17x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-yes">31x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">31x</span>
-<span class="cline-any cline-yes">30x</span>
+<span class="cline-any cline-yes">31x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">30x</span>
-<span class="cline-any cline-yes">30x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">31x</span>
+<span class="cline-any cline-yes">31x</span>
+<span class="cline-any cline-yes">31x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">30x</span>
-<span class="cline-any cline-yes">30x</span>
-<span class="cline-any cline-yes">30x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -186,10 +191,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-yes">24x</span>
-<span class="cline-any cline-yes">24x</span>
-<span class="cline-any cline-yes">24x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">46x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -212,30 +218,32 @@ class HealthChecker {
     this.isMonitoring = false;
   }
 &nbsp;
-  async checkAllServices() {
+    async checkAllServices() {
     const serviceMapping = getServiceMapping();
-    
     for (const [serviceType, config] of Object.entries(serviceMapping)) {
-      // Check primary service
-      const primaryHealthy = await checkServiceHealth(config.primary);
-      this.serviceStatus.set(`${serviceType}_primary`, {
-        url: config.primary,
-        healthy: primaryHealthy,
-        lastCheck: new Date()
-      });
-&nbsp;
-      // Check fallback service
-      const fallbackHealthy = await checkServiceHealth(config.fallback);
-      this.serviceStatus.set(`${serviceType}_fallback`, {
-        url: config.fallback,
-        healthy: fallbackHealthy,
-        lastCheck: new Date()
-      });
-&nbsp;
-      // Log status
-      console.log(`Health Check - ${serviceType}:`);
-      console.log(`  Primary (${config.primary}): ${primaryHealthy ? '✅ Healthy' : '❌ Unhealthy'}`);
-      console.log(`  Fallback (${config.fallback}): ${fallbackHealthy ? '✅ Healthy' : '❌ Unhealthy'}`);
+      try {
+        // Check primary
+        const primaryHealthy = await checkServiceHealth(config.primary);
+        this.serviceStatus.set(`${serviceType}_primary`, {
+          url: config.primary,
+          healthy: primaryHealthy,
+          lastCheck: new Date()
+        });
+        // Check fallback
+        const fallbackHealthy = await checkServiceHealth(config.fallback);
+        this.serviceStatus.set(`${serviceType}_fallback`, {
+          url: config.fallback,
+          healthy: fallbackHealthy,
+          lastCheck: new Date()
+        });
+        // Log status
+        console.log(`Health Check - ${serviceType}:`);
+        console.log(`  Primary (${config.primary}): ${primaryHealthy ? '✅ Healthy' : '❌ Unhealthy'}`);
+        console.log(`  Fallback (${config.fallback}): ${fallbackHealthy ? '✅ Healthy' : '❌ Unhealthy'}`);
+      } catch (err) {
+        // Jika salah satu gagal, tetap lanjut ke service berikutnya
+        console.error(`Error checking health for ${serviceType}:`, err.message);
+      }
     }
   }
 &nbsp;
@@ -254,12 +262,13 @@ class HealthChecker {
     }, this.checkInterval);
   }
 &nbsp;
-  stopMonitoring() {
+    stopMonitoring() {
     if (this.intervalId) {
       clearInterval(this.intervalId);
-      this.isMonitoring = false;
+      this.intervalId = undefined;
       console.log('🛑 Health monitoring stopped');
     }
+    this.isMonitoring = false; // &lt;-- selalu set ke false
   }
 &nbsp;
   getServiceStatus() {
@@ -280,7 +289,7 @@ module.exports = new HealthChecker();</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-06-26T08:43:49.541Z
+                at 2025-06-30T20:37:45.924Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

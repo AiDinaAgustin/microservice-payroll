@@ -10,17 +10,36 @@ module.exports = (AUTH_SERVICE_URL) => {
     target: AUTH_SERVICE_URL,
     changeOrigin: true,
     pathRewrite: null,
-    logLevel: 'debug'
+    logLevel: 'debug',
+    onError: (err, req, res) => {
+      console.error('Auth proxy error:', err);
+      res.status(500).json({
+        error: 'Error communicating with auth service',
+        details: err.message
+      });
+    }
   });
   
-  // Auth login with direct axios approach
+  // ➕ Auth login with proper error handling
   router.post('/login', async (req, res) => {
     console.log('Login request received, forwarding to auth service');
-    forwardRequest(AUTH_SERVICE_URL, '/v1/auth/login', req, res);
+    
+    try {
+      await forwardRequest(AUTH_SERVICE_URL, '/v1/auth/login', req, res);
+    } catch (error) {
+      console.error('Login forwarding error:', error.message);
+      
+      // ➕ Check if response was already sent
+      if (!res.headersSent) {
+        res.status(500).json({
+          error: 'Error communicating with auth service',
+          details: error.message
+        });
+      }
+    }
   });
   
   // Apply proxy to all other auth routes
-    // Apply proxy to all other auth routes
   router.use('/', (req, res, next) => {
     // Handling edge cases - undefined path or method
     if (!req.path || !req.method) {

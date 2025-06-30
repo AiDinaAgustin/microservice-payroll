@@ -42,13 +42,14 @@ describe('Auth Routes', () => {
     app.use('/v1/auth', authRouter);
   });
 
-  test('Harus menggunakan createProxyMiddleware dengan opsi yang benar', () => {
-    expect(createProxyMiddleware).toHaveBeenCalledWith({
+    test('Harus menggunakan createProxyMiddleware dengan opsi yang benar', () => {
+    expect(createProxyMiddleware).toHaveBeenCalledWith(expect.objectContaining({
       target: AUTH_SERVICE_URL,
       changeOrigin: true,
       pathRewrite: null,
-      logLevel: 'debug'
-    });
+      logLevel: 'debug',
+      onError: expect.any(Function)
+    }));
   });
 
   test('POST /login harus memanggil forwardRequest dengan argumen yang benar', async () => {

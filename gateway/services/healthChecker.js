@@ -7,30 +7,32 @@ class HealthChecker {
     this.isMonitoring = false;
   }
 
-  async checkAllServices() {
+    async checkAllServices() {
     const serviceMapping = getServiceMapping();
-    
     for (const [serviceType, config] of Object.entries(serviceMapping)) {
-      // Check primary service
-      const primaryHealthy = await checkServiceHealth(config.primary);
-      this.serviceStatus.set(`${serviceType}_primary`, {
-        url: config.primary,
-        healthy: primaryHealthy,
-        lastCheck: new Date()
-      });
-
-      // Check fallback service
-      const fallbackHealthy = await checkServiceHealth(config.fallback);
-      this.serviceStatus.set(`${serviceType}_fallback`, {
-        url: config.fallback,
-        healthy: fallbackHealthy,
-        lastCheck: new Date()
-      });
-
-      // Log status
-      console.log(`Health Check - ${serviceType}:`);
-      console.log(`  Primary (${config.primary}): ${primaryHealthy ? '✅ Healthy' : '❌ Unhealthy'}`);
-      console.log(`  Fallback (${config.fallback}): ${fallbackHealthy ? '✅ Healthy' : '❌ Unhealthy'}`);
+      try {
+        // Check primary
+        const primaryHealthy = await checkServiceHealth(config.primary);
+        this.serviceStatus.set(`${serviceType}_primary`, {
+          url: config.primary,
+          healthy: primaryHealthy,
+          lastCheck: new Date()
+        });
+        // Check fallback
+        const fallbackHealthy = await checkServiceHealth(config.fallback);
+        this.serviceStatus.set(`${serviceType}_fallback`, {
+          url: config.fallback,
+          healthy: fallbackHealthy,
+          lastCheck: new Date()
+        });
+        // Log status
+        console.log(`Health Check - ${serviceType}:`);
+        console.log(`  Primary (${config.primary}): ${primaryHealthy ? '✅ Healthy' : '❌ Unhealthy'}`);
+        console.log(`  Fallback (${config.fallback}): ${fallbackHealthy ? '✅ Healthy' : '❌ Unhealthy'}`);
+      } catch (err) {
+        // Jika salah satu gagal, tetap lanjut ke service berikutnya
+        console.error(`Error checking health for ${serviceType}:`, err.message);
+      }
     }
   }
 
@@ -49,12 +51,13 @@ class HealthChecker {
     }, this.checkInterval);
   }
 
-  stopMonitoring() {
+    stopMonitoring() {
     if (this.intervalId) {
       clearInterval(this.intervalId);
-      this.isMonitoring = false;
+      this.intervalId = undefined;
       console.log('🛑 Health monitoring stopped');
     }
+    this.isMonitoring = false; // <-- selalu set ke false
   }
 
   getServiceStatus() {

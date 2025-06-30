@@ -162,7 +162,7 @@ const forwardRequest = async (serviceUrl, path, req, res, options = {}) => {
     if (options.responseType === 'stream') {
       response.data.pipe(res);
     } else {
-      // ➕ Check if response was already sent
+      // Check if response was already sent
       if (!res.headersSent) {
         res.status(response.status).json(response.data);
       }
@@ -171,15 +171,17 @@ const forwardRequest = async (serviceUrl, path, req, res, options = {}) => {
     console.error(`Request forwarding failed to ${serviceUrl}${path}:`, error.message);
     
     if (error.response) {
-      // ➕ Check if response was already sent
+      // API responded with error status
       if (!res.headersSent) {
         res.status(error.response.status).json(error.response.data);
       }
-      // Don't throw error, let caller handle response
+      // ➕ Don't throw error here, just return
       return;
     } else if (error.request) {
+      // ➕ Service not responding - throw error to be caught by caller
       throw new Error(`Service ${serviceUrl} is not responding`);
     } else {
+      // ➕ Configuration error - throw error to be caught by caller
       throw new Error(`Request configuration error: ${error.message}`);
     }
   }
