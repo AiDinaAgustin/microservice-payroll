@@ -151,11 +151,17 @@ const createEmployeeProxy = (serviceUrl) => {
 };
 
 const handleServiceError = (error, res, serviceName = 'employee') => {
-  console.error(`${serviceName} service error:`, error.message);
+  console.error(`${serviceName} service error:`, error && error.message);
   if (!res.headersSent) {
+    let details = 'Service unavailable';
+    if (error?.message) {
+      details = error.message;
+    } else if (typeof error?.toString === 'function') {
+      details = error.toString();
+    }
     res.status(500).json({
       error: `Error communicating with ${serviceName} service`,
-      details: error?.message || error?.toString() || 'Service unavailable'
+      details
     });
   }
 };
@@ -354,3 +360,5 @@ module.exports = (EMPLOYEE_SERVICE_URL) => {
 
   return router;
 };
+
+module.exports.handleServiceError = handleServiceError;
