@@ -264,4 +264,114 @@ describe('Employee Router', () => {
       details: 'Service unavailable'
     });
   });
+
+    // Test error handler for all main organization route groups
+  test('Error handler for /departments/add', async () => {
+    forwardRequestWithFailover.mockImplementationOnce(() => { throw new Error('fail'); });
+    const res = await request(app).post('/v1/departments/add').send({ name: 'fail' });
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/Error communicating with employee service/);
+    expect(res.body.details).toBe('fail');
+  });
+  test('Error handler for /departments/edit/:id', async () => {
+    forwardRequestWithFailover.mockImplementationOnce(() => { throw new Error('fail'); });
+    const res = await request(app).put('/v1/departments/edit/1').send({ name: 'fail' });
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/Error communicating with employee service/);
+    expect(res.body.details).toBe('fail');
+  });
+  test('Error handler for /positions/add', async () => {
+    forwardRequestWithFailover.mockImplementationOnce(() => { throw new Error('fail'); });
+    const res = await request(app).post('/v1/positions/add').send({ name: 'fail' });
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/Error communicating with employee service/);
+    expect(res.body.details).toBe('fail');
+  });
+  test('Error handler for /positions/edit/:id', async () => {
+    forwardRequestWithFailover.mockImplementationOnce(() => { throw new Error('fail'); });
+    const res = await request(app).put('/v1/positions/edit/1').send({ name: 'fail' });
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/Error communicating with employee service/);
+    expect(res.body.details).toBe('fail');
+  });
+  test('Error handler for /contract-types/add', async () => {
+    forwardRequestWithFailover.mockImplementationOnce(() => { throw new Error('fail'); });
+    const res = await request(app).post('/v1/contract-types/add').send({ name: 'fail' });
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/Error communicating with employee service/);
+    expect(res.body.details).toBe('fail');
+  });
+  test('Error handler for /contract-types/edit/:id', async () => {
+    forwardRequestWithFailover.mockImplementationOnce(() => { throw new Error('fail'); });
+    const res = await request(app).put('/v1/contract-types/edit/1').send({ name: 'fail' });
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/Error communicating with employee service/);
+    expect(res.body.details).toBe('fail');
+  });
+  test('Error handler for /positions/list', async () => {
+    forwardRequestWithFailover.mockImplementationOnce(() => { throw new Error('fail'); });
+    const res = await request(app).get('/v1/positions/list');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/Error communicating with employee service/);
+    expect(res.body.details).toBe('fail');
+  });
+  test('Error handler for /contract-types/list', async () => {
+    forwardRequestWithFailover.mockImplementationOnce(() => { throw new Error('fail'); });
+    const res = await request(app).get('/v1/contract-types/list');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/Error communicating with employee service/);
+    expect(res.body.details).toBe('fail');
+  });
+  test('Error handler for /marital-status/list', async () => {
+    forwardRequestWithFailover.mockImplementationOnce(() => { throw new Error('fail'); });
+    const res = await request(app).get('/v1/marital-status/list');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/Error communicating with employee service/);
+    expect(res.body.details).toBe('fail');
+  });
+  
+  // Test error handler for /employees/upload
+  test('Error handler for /employees/upload', async () => {
+    forwardRequestWithFailover.mockImplementationOnce(() => { throw new Error('fail'); });
+    const res = await request(app)
+      .post('/v1/employees/upload')
+      .attach('file', Buffer.from('test'), 'test.txt');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/Error communicating with employee service/);
+    expect(res.body.details).toBe('fail');
+  });
+  
+  // Test error handler for /employees/download
+  test('Error handler for /employees/download', async () => {
+    forwardRequestWithFailover.mockImplementationOnce(() => { throw new Error('fail'); });
+    const res = await request(app).get('/v1/employees/download');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toMatch(/Error communicating with employee service/);
+    expect(res.body.details).toBe('fail');
+  });
+
+    test('handleServiceError uses error.toString() if no message', () => {
+    const res = { headersSent: false, status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const error = { toString: () => 'string error' }; // .message tidak ada, .toString function
+    handleServiceError(error, res, 'employee');
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Error communicating with employee service',
+      details: 'string error'
+    });
+  });
+
+    test('Proxy middleware onError uses err.toString() if no message', () => {
+    const { createProxyMiddleware } = require('http-proxy-middleware');
+    const proxyConfig = createProxyMiddleware.mock.calls[0][0];
+    const onErrorHandler = proxyConfig.onError;
+    const mockRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+    const err = { toString: () => 'string error' }; // .message tidak ada, .toString function
+    onErrorHandler(err, {}, mockRes);
+    expect(mockRes.status).toHaveBeenCalledWith(500);
+    expect(mockRes.json).toHaveBeenCalledWith({
+      error: 'Error communicating with employee service',
+      details: 'string error'
+    });
+  });
 });
