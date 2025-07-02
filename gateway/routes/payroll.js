@@ -239,3 +239,5 @@ module.exports = (PAYROLL_SERVICE_URL) => {
   
   return router;
 };
+
+module.exports.handleServiceError = handleServiceError;

@@ -3,7 +3,13 @@ const request = require('supertest');
 
 // Mock dependencies
 jest.mock('http-proxy-middleware', () => ({
-  createProxyMiddleware: jest.fn(() => (req, res, next) => next())
+  createProxyMiddleware: jest.fn(() => (req, res, next) => {
+    if (res && typeof res.status === 'function') {
+      res.status(200).json({ proxied: true });
+    } else if (typeof next === 'function') {
+      next();
+    }
+  })
 }));
 const { forwardRequest } = require('../../../utils/requestHandler');
 jest.mock('../../../utils/requestHandler', () => ({
@@ -216,5 +222,66 @@ describe('Payroll Router', () => {
       expect(res.status).toBe(500);
       expect(res.body.error).toMatch(/Error communicating with payroll service/);
       expect(res.body.details).toBe('fail');
+    });
+        test('Proxy fallback for /payroll', async () => {
+      const res = await request(app).get('/v1/payroll/anything');
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ proxied: true });
+    });
+    test('Proxy fallback for /attendances', async () => {
+      const res = await request(app).get('/v1/attendances/anything');
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ proxied: true });
+    });
+    test('Proxy fallback for /attendance-deductions', async () => {
+      const res = await request(app).get('/v1/attendance-deductions/anything');
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ proxied: true });
+    });
+    test('Proxy fallback for /payslips', async () => {
+      const res = await request(app).get('/v1/payslips/anything');
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ proxied: true });
+    });
+    
+    // Proxy onError branch
+    test('Proxy middleware onError handles error', () => {
+      const { createProxyMiddleware } = require('http-proxy-middleware');
+      const proxyConfig = createProxyMiddleware.mock.calls[0][0];
+      const onErrorHandler = proxyConfig.onError;
+      const mockRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const mockError = new Error('Proxy failed');
+      onErrorHandler(mockError, {}, mockRes);
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        error: 'Error communicating with payroll service',
+        details: 'Proxy failed'
+      });
+    });
+    
+    // handleServiceError fallback branch (error tanpa .message)
+    test('handleServiceError fallback to "Service unavailable"', () => {
+      // Import handleServiceError dari payroll.js
+      const payrollModule = require('../../../routes/payroll');
+      const handleServiceError = payrollModule.handleServiceError || (() => {});
+      const res = { headersSent: false, status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const error = Object.create(null); // error tanpa .message
+      handleServiceError(error, res, 'payroll');
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Error communicating with payroll service',
+        details: undefined // fallback ke undefined jika error.message tidak ada
+      });
+    });
+    
+    // handleServiceError branch headersSent = true
+    test('handleServiceError does not send response if headersSent', () => {
+      const payrollModule = require('../../../routes/payroll');
+      const handleServiceError = payrollModule.handleServiceError || (() => {});
+      const res = { headersSent: true, status: jest.fn(), json: jest.fn() };
+      const error = new Error('fail');
+      handleServiceError(error, res, 'payroll');
+      expect(res.status).not.toHaveBeenCalled();
+      expect(res.json).not.toHaveBeenCalled();
     });
 });
