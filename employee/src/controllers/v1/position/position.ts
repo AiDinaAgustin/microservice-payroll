@@ -18,7 +18,7 @@ import { createClient } from "redis"
 
 // Improved Redis client configuration with retry logic
 const redisClient = createClient({
-   url: process.env.REDIS_URL || 'redis://:4oFzHb5Ag7WhN3fPUD2nKket19a06y8T@43.133.145.125:31241',
+   url: process.env.REDIS_URL || 'redis://:641Fc2L3N79nJqYXGCawPgSRT8Dd5f0u@43.133.145.125:32624',
    socket: {
       //@ts-ignore
       reconnectStrategy: (retries) => {

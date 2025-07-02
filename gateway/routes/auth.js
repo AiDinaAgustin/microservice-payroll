@@ -11,11 +11,17 @@ module.exports = (AUTH_SERVICE_URL) => {
     changeOrigin: true,
     pathRewrite: null,
     logLevel: 'debug',
-    onError: (err, req, res) => {
+        onError: (err, req, res) => {
       console.error('Auth proxy error:', err);
+      let details = 'Service unavailable';
+      if (err?.message) {
+        details = err.message;
+      } else if (typeof err?.toString === 'function') {
+        details = err.toString();
+      }
       res.status(500).json({
         error: 'Error communicating with auth service',
-        details: err.message
+        details
       });
     }
   });
