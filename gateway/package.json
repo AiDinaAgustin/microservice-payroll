@@ -8,6 +8,7 @@
     "dev": "nodemon index.js",
     "test": "npm run test:jest && npm run test:mocha",
     "test:jest": "jest",
+    "test:jests": "jest --coverage --json --outputFile=reports/jest-results.json",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:mocha": "mocha",
