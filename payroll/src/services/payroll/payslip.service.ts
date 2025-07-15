@@ -3,6 +3,9 @@ import payslipRepository from '../../repositories/payroll/payslip.repository'
 import attendanceDeductionRepository from '../../repositories/payroll/attendanceDeduction.repository'
 import salaryRepository from '../../repositories/payroll/salary.repository'
 import errorThrower from '@utils/errorThrower'
+const { sendPayslipEmail } = require('../../utils/emailPayslip')
+import Employee from '@models/Employee'
+
 
 export const createPayslip = async (payload: Partial<IPayslip>) => {
   try {
@@ -59,7 +62,19 @@ export const createPayslip = async (payload: Partial<IPayslip>) => {
       created_by: payload.created_by
     };
     
-    return await payslipRepository.create(completePayslip);
+    const payslip = await payslipRepository.create(completePayslip);
+
+    const employee = await Employee.findOne({ where: { id: payload.employee_id } })
+    if (employee && employee.email) {
+      await sendPayslipEmail({
+        to: employee.email,
+        subject: `Payslip for period ${payload.period}`,
+        payslip,
+        employee,
+      })
+    }
+
+    return payslip;
   } catch (err: any) {
     console.error(`[PAYSLIP ERROR] Error creating payslip: ${err.message}`);
     throw errorThrower(err);
@@ -158,6 +173,17 @@ export const generatePayslipsForPeriod = async (tenantId: string, period: string
           total_deductions: deductionAmount,
           net_salary: netSalary
         });
+
+         // Ambil data employee dan kirim email
+        const employee = await Employee.findOne({ where: { id: employeeId } });
+        if (employee && employee.email) {
+          await sendPayslipEmail({
+            to: employee.email,
+            subject: `Payslip for period ${period}`,
+            payslip,
+            employee,
+          });
+        }
         
         results.push({
           employee_id: employeeId,
