@@ -49,7 +49,7 @@ jobs:
           script: |
             echo "Stopping and removing existing containers..."
             cd ~/payroll-mic
-            docker stack rm tascrum-web-dummy || true
+            docker stack rm payroll-mic || true
             docker system prune -f
 
       - name: Deploy to VPS
