@@ -9,103 +9,58 @@ on:
       - master
 
 jobs:
-  deploy:
-    name: Deploy to Production
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Copy Project Files to Server
-        uses: appleboy/scp-action@master
+      - name: Build the Docker image
+        run: docker build . --tag ghcr.io/aidinaagustin/payroll-mic:latest -f compose-traefik.yaml
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Push Docker image
+        run: docker push ghcr.io/aidinaagustin/payroll-mic:latest
+
+      - name: Logout from GitHub Container Registry
+        run: docker logout
+
+      - name: Copy compose-dummy.yaml to VPS
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.PROD_SSH_HOST }}
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          source: "auth/,employee/,payroll/,gateway/,compose-traefik.yaml"
-          target: "/home/${{ secrets.PROD_SSH_USER }}/microservice-payroll"
-          strip_components: 0
+          source: "compose-traefik.yaml"
+          target: "/home/${{ secrets.PROD_SSH_USER }}/payroll-mic"
 
-      - name: Stop Existing Services and Free Port 8081
+      - name: Stop and remove existing containers
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.PROD_SSH_HOST }}
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
-            cd /home/${{ secrets.PROD_SSH_USER }}/microservice-payroll
-            echo "Stopping Docker services..."
-            
-            # Force remove all containers in the project
-            docker compose -f compose-traefik.yaml down --remove-orphans || true
-            
-            # Find and forcibly remove ANY container using port 8081
-            PORT_CONTAINER=$(docker ps -q --filter "publish=8081")
-            if [ -n "$PORT_CONTAINER" ]; then
-              echo "Forcing removal of containers using port 8081..."
-              docker rm -f $PORT_CONTAINER || true
-            fi
-            
-            # Double-check if port 8081 is still in use by any process
-            echo "Checking if port 8081 is still in use by other processes..."
-            for CMD in "lsof -i:8081 -t" "ss -tlnp | grep ':8081 ' | awk '{print \$6}' | cut -d= -f2 | cut -d, -f1" "netstat -tlnp 2>/dev/null | grep ':8081 ' | awk '{print \$7}' | cut -d/ -f1"; do
-              PORT_PROCESS=$(eval $CMD 2>/dev/null) || true
-              if [ -n "$PORT_PROCESS" ]; then
-                echo "Found process $PORT_PROCESS using port 8081. Attempting to kill..."
-                sudo kill -9 $PORT_PROCESS 2>/dev/null || true
-              fi
-            done
-            
-            echo "Waiting for port 8081 to be completely released..."
-            sleep 10
-            
-            # Final verification
-            if lsof -i:8081 -t || ss -tlnp | grep ':8081 ' > /dev/null || netstat -tlnp 2>/dev/null | grep ':8081 ' > /dev/null; then
-              echo "⚠️ WARNING: Port 8081 is still in use after cleanup attempts"
-              echo "Checking what is using port 8081..."
-              sudo lsof -i:8081 || ss -tlnp || netstat -tlnp
-            else
-              echo "✅ Port 8081 is free and ready to use"
-            fi
+            echo "Stopping and removing existing containers..."
+            cd ~/payroll-mic
+            docker stack rm tascrum-web-dummy || true
+            docker system prune -f
 
-      - name: Deploy Stack with Docker Compose
+      - name: Deploy to VPS
         uses: cssnr/stack-deploy-action@v1
         with:
-          name: 'microservice-payroll'
-          file: 'compose-traefik.yaml'
+          name: payroll-mic
+          file: compose-traefik.yaml
           host: ${{ secrets.PROD_SSH_HOST }}
           user: ${{ secrets.PROD_SSH_USER }}
           ssh_key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          mode: compose
-          args: '--build --force-recreate --remove-orphans'
+          registry_host: 'ghcr.io'
+          registry_user: ${{ github.actor }}
+          registry_pass: ${{ secrets.GHCR_PAT }}
           summary: true
-
-      - name: Verify Services
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.PROD_SSH_HOST }}
-          username: ${{ secrets.PROD_SSH_USER }}
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          script: |
-            cd /home/${{ secrets.PROD_SSH_USER }}/microservice-payroll
-            
-            # Give services time to start properly
-            echo "Waiting for services to stabilize..."
-            sleep 10
-            
-            # Show container status
-            echo "Container status:"
-            docker ps --format "{{.Names}}: {{.Status}}"
-            
-            # Verify all critical services are running
-            for service in traefik gateway auth employee payroll; do
-              if docker ps | grep -q "microservice-payroll[-_]$service"; then
-                echo "✅ $service service is running"
-              else
-                echo "❌ $service service failed to start"
-                docker logs microservice-payroll-$service-1 2>&1 || true
-                exit 1
-              fi
-            done
-            
-            echo "All services started successfully!"
