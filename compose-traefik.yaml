@@ -11,43 +11,6 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable=false"
 
-  traefik:
-    image: "traefik:v3.4"
-    ports:
-      - mode: host
-        published: 80
-        target: 80
-      - mode: host
-        published: 443
-        target: 443
-    networks:
-      - traefik-public
-    command:
-      - "--log.level=DEBUG"
-      - "--api=true"
-      - "--api.dashboard=true"
-      - "--providers.swarm=true"
-      - "--providers.swarm.exposedbydefault=false"
-      - "--entryPoints.web.address=:80"
-      - "--entryPoints.websecure.address=:443"
-      - "--entrypoints.web.http.redirections.entryPoint.permanent=true"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.myresolver.acme.email=aidinaagustin2@gmail.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.traefik.rule=Host(`dashboard.karsa.site`)"
-        - "traefik.http.routers.traefik.service=api@internal"
-        - "traefik.http.routers.traefik.entrypoints=websecure"
-        - "traefik.http.routers.traefik.tls.certresolver=myresolver"
-        - "traefik.http.services.traefik.loadbalancer.server.port=8081"
-
   auth:
     build:
       context: ./auth
