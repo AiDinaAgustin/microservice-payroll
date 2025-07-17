@@ -22,9 +22,6 @@ services:
         target: 443
     networks:
       - traefik-public
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - traefik-certificates:/letsencrypt
     command:
       - "--log.level=DEBUG"
       - "--api=true"
@@ -190,8 +187,5 @@ services:
 
 networks:
   traefik-public:
-    driver: overlay
-    attachable: true
-
-volumes:
-  traefik-certificates:
+    external: true
+    name: tascrum_traefik-public
