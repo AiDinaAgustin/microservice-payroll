@@ -12,6 +12,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=false"
 
   auth:
+    image: ghcr.io/aidinaagustin/payroll-mic-auth:latest
     build:
       context: ./auth
     environment:
@@ -48,6 +49,7 @@ services:
         - "com.centurylinklabs.watchtower.enable=true"
 
   employee:
+    image: ghcr.io/aidinaagustin/payroll-mic-employee:latest
     build:
       context: ./employee
     environment:
@@ -86,6 +88,7 @@ services:
         - "com.centurylinklabs.watchtower.enable=true"
 
   payroll:
+    image: ghcr.io/aidinaagustin/payroll-mic-payroll:latest
     build:
       context: ./payroll
     environment:
@@ -122,6 +125,7 @@ services:
         - "com.centurylinklabs.watchtower.enable=true"
 
   gateway:
+    image: ghcr.io/aidinaagustin/payroll-mic-gateway:latest
     build:
       context: ./gateway
     environment:
