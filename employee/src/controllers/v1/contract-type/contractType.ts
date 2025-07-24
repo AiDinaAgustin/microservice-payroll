@@ -68,6 +68,60 @@ async function clearContractTypeCache(tenantId: string) {
   }
 }
 
+// Ini Pake redis
+// export const ContractTypeFindAllOptionController = async (req: Request, res: Response, next: NextFunction) => {
+//    try {
+//       const { limit: _limit, keyword } = req.query
+//       const tenantIdHeader = req.headers['tenant-id'] as string
+
+//       if (!tenantIdHeader) {
+//          return res.status(StatusCodes.BAD_REQUEST).json({
+//             status: StatusCodes.BAD_REQUEST,
+//             message: 'Tenant ID is required in the request header'
+//          })
+//       }
+
+//       // Create cache key based on request parameters
+//       const cacheKey = `contract-type:options:${tenantIdHeader}:${_limit || 'all'}:${keyword || 'all'}`
+
+//       // Try to get data from cache
+//       const cachedData = await redisClient.get(cacheKey)
+
+//       if (cachedData) {
+//          // Return cached data if available
+//          return res.status(StatusCodes.OK).json(
+//             new BaseReponse({
+//                status: StatusCodes.OK,
+//                message: 'Contract Type options found (cached)',
+//                data: JSON.parse(cachedData).data
+//             })
+//          )
+//       }
+
+//       const params: ContractTypeOptionParams = {
+//          limit: Number(_limit),
+//          tenantId: String(tenantIdHeader),
+//          keyword: keyword ? String(keyword).toLowerCase() : undefined
+//       }
+
+//       // If not in cache, fetch from service
+//       const data = await findContractTypeOptionService(params)
+
+//       // Cache the result for 5 minutes (300 seconds)
+//       await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
+
+//       res.status(StatusCodes.OK).json(
+//          new BaseReponse({
+//             status: StatusCodes.OK,
+//             message: 'Contract Type options found',
+//             data: data.data
+//          })
+//       )
+//    } catch (err: any) {
+//       next(err)
+//    }
+// }
+
 export const ContractTypeFindAllOptionController = async (req: Request, res: Response, next: NextFunction) => {
    try {
       const { limit: _limit, keyword } = req.query
@@ -78,44 +132,21 @@ export const ContractTypeFindAllOptionController = async (req: Request, res: Res
             status: StatusCodes.BAD_REQUEST,
             message: 'Tenant ID is required in the request header'
          })
-      }
-
-      // Create cache key based on request parameters
-      const cacheKey = `contract-type:options:${tenantIdHeader}:${_limit || 'all'}:${keyword || 'all'}`
-
-      // Try to get data from cache
-      const cachedData = await redisClient.get(cacheKey)
-
-      if (cachedData) {
-         // Return cached data if available
-         return res.status(StatusCodes.OK).json(
+      } else {
+         const params: ContractTypeOptionParams = {
+            limit: Number(_limit),
+            tenantId: String(tenantIdHeader),
+            keyword: keyword ? String(keyword).toLowerCase() : undefined
+         }
+         const data = await findContractTypeOptionService(params)
+         res.status(StatusCodes.OK).json(
             new BaseReponse({
                status: StatusCodes.OK,
-               message: 'Contract Type options found (cached)',
-               data: JSON.parse(cachedData).data
+               message: 'Contract Type options found',
+               data: data.data
             })
          )
       }
-
-      const params: ContractTypeOptionParams = {
-         limit: Number(_limit),
-         tenantId: String(tenantIdHeader),
-         keyword: keyword ? String(keyword).toLowerCase() : undefined
-      }
-
-      // If not in cache, fetch from service
-      const data = await findContractTypeOptionService(params)
-
-      // Cache the result for 5 minutes (300 seconds)
-      await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
-
-      res.status(StatusCodes.OK).json(
-         new BaseReponse({
-            status: StatusCodes.OK,
-            message: 'Contract Type options found',
-            data: data.data
-         })
-      )
    } catch (err: any) {
       next(err)
    }
@@ -149,28 +180,63 @@ export const ContractTypeCreateController = async (req: Request, res: Response, 
    }
 }
 
+// Ini redis
+// export const ContractTypeFindAllController = async (req: Request, res: Response, next: NextFunction) => {
+//    try {
+//       const { limit: _limit, page: _page, keyword, sortOrder, sortBy, status, isPermanent } = req.query
+//       const tenantIdHeader = req.headers['tenant-id'] as string
+
+//       // Create cache key based on request parameters
+//       const cacheKey = `contract-type:list:${tenantIdHeader}:${_limit || 'all'}:${_page || 'all'}:${keyword || 'all'}:${sortOrder || 'asc'}:${sortBy || 'id'}:${status || 'all'}:${isPermanent !== undefined ? isPermanent : 'all'}`
+
+//       // Try to get data from cache
+//       const cachedData = await redisClient.get(cacheKey)
+
+//       if (cachedData) {
+//          // Return cached data if available
+//          const parsedData = JSON.parse(cachedData)
+//          return res.status(StatusCodes.OK).json(
+//             new BaseReponse({
+//                status: StatusCodes.OK,
+//                message: 'Contract Type found (cached)',
+//                data: new DataTable<ContractType>(parsedData, parsedData.length, Number(_page), Number(_limit))
+//             })
+//          )
+//       }
+
+//       const params: ContractTypeFindParams = {
+//          limit: Number(_limit),
+//          page: Number(_page),
+//          tenantId: String(tenantIdHeader),
+//          keyword: keyword ? String(keyword).toLowerCase() : undefined,
+//          sortBy: String(sortBy),
+//          sortOrder: String(sortOrder),
+//          status: status ? String(status) : undefined,
+//          isPermanent: isPermanent !== undefined ? isPermanent === 'true' : undefined
+//       }
+
+//       // If not in cache, fetch from service
+//       const data = await findAllContractTypeService(params)
+
+//       // Cache the result for 5 minutes (300 seconds)
+//       await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
+
+//       res.status(StatusCodes.OK).json(
+//          new BaseReponse({
+//             status: StatusCodes.OK,
+//             message: 'Contract Type found',
+//             data: new DataTable<ContractType>(data, data.length, Number(_page), Number(_limit))
+//          })
+//       )
+//    } catch (err: any) {
+//       next(err)
+//    }
+// }
+
 export const ContractTypeFindAllController = async (req: Request, res: Response, next: NextFunction) => {
    try {
       const { limit: _limit, page: _page, keyword, sortOrder, sortBy, status, isPermanent } = req.query
       const tenantIdHeader = req.headers['tenant-id'] as string
-
-      // Create cache key based on request parameters
-      const cacheKey = `contract-type:list:${tenantIdHeader}:${_limit || 'all'}:${_page || 'all'}:${keyword || 'all'}:${sortOrder || 'asc'}:${sortBy || 'id'}:${status || 'all'}:${isPermanent !== undefined ? isPermanent : 'all'}`
-
-      // Try to get data from cache
-      const cachedData = await redisClient.get(cacheKey)
-
-      if (cachedData) {
-         // Return cached data if available
-         const parsedData = JSON.parse(cachedData)
-         return res.status(StatusCodes.OK).json(
-            new BaseReponse({
-               status: StatusCodes.OK,
-               message: 'Contract Type found (cached)',
-               data: new DataTable<ContractType>(parsedData, parsedData.length, Number(_page), Number(_limit))
-            })
-         )
-      }
 
       const params: ContractTypeFindParams = {
          limit: Number(_limit),
@@ -180,15 +246,10 @@ export const ContractTypeFindAllController = async (req: Request, res: Response,
          sortBy: String(sortBy),
          sortOrder: String(sortOrder),
          status: status ? String(status) : undefined,
-         isPermanent: isPermanent !== undefined ? isPermanent === 'true' : undefined
+         isPermanent: isPermanent !== undefined ? isPermanent === 'true' : undefined // Ubah menjadi boolean
       }
 
-      // If not in cache, fetch from service
       const data = await findAllContractTypeService(params)
-
-      // Cache the result for 5 minutes (300 seconds)
-      await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
-
       res.status(StatusCodes.OK).json(
          new BaseReponse({
             status: StatusCodes.OK,
@@ -200,6 +261,7 @@ export const ContractTypeFindAllController = async (req: Request, res: Response,
       next(err)
    }
 }
+
 
 export const ContractTypeUpdateController = async (req: Request, res: Response, next: NextFunction) => {
    try {
