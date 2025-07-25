@@ -67,98 +67,150 @@ async function clearDepartmentCache(tenantId: string) {
     console.error('Error clearing department cache:', error)
   }
 }
+// Ini Pake redis
+// export const DepartmentFindAllOptionController = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const { limit: _limit, page: _page, keyword } = req.query
+//     const tenantIdHeader = req.headers['tenant-id'] as string
+
+//     // Create cache key based on request parameters
+//     const cacheKey = `department:options:${tenantIdHeader}:${_limit || 'all'}:${keyword || 'all'}`
+
+//     // Try to get data from cache
+//     const cachedData = await redisClient.get(cacheKey)
+
+//     if (cachedData) {
+//       // Return cached data if available
+//       return res.status(StatusCodes.OK).json(
+//         new BaseReponse({
+//           status: StatusCodes.OK,
+//           message: 'Department options found (cached)',
+//           data: JSON.parse(cachedData).data
+//         })
+//       )
+//     }
+
+//     const params: DepartmentOptionParams = {
+//       limit: Number(_limit),
+//       tenantId: String(tenantIdHeader),
+//       keyword: keyword ? String(keyword).toLowerCase() : undefined
+//     }
+//     const data = await findDepartmentOptionService(params)
+
+//     // Cache the result for 5 minutes (300 seconds)
+//     await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
+
+//     res.status(StatusCodes.OK).json(
+//       new BaseReponse({
+//         status: StatusCodes.OK,
+//         message: 'Department options found',
+//         data: data.data
+//       })
+//     )
+//   } catch (err: any) {
+//     next(err)
+//   }
+// }
+
+// export const DepartmentFindAllController = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const { limit: _limit, page: _page, keyword, sortBy, sortOrder, status } = req.query
+//     const tenantIdHeader = req.headers['tenant-id'] as string
+
+//     // Create cache key based on request parameters
+//     const cacheKey = `department:list:${tenantIdHeader}:${_limit || 'all'}:${_page || 'all'}:${keyword || 'all'}:${sortOrder || 'asc'}:${sortBy || 'id'}:${status || 'all'}`
+
+//     // Try to get data from cache
+//     const cachedData = await redisClient.get(cacheKey)
+
+//     if (cachedData) {
+//       // Return cached data if available
+//       const parsedData = JSON.parse(cachedData)
+//       return res.status(StatusCodes.OK).json(
+//         new BaseReponse({
+//           status: StatusCodes.OK,
+//           message: 'Department found (cached)',
+//           data: new DataTable<Department>(parsedData.data, parsedData.data.length, Number(_page), Number(_limit))
+//         })
+//       )
+//     }
+
+//     const params: DepartmentFindParams = {
+//       limit: Number(_limit),
+//       page: Number(_page),
+//       tenantId: String(tenantIdHeader),
+//       keyword: keyword ? String(keyword).toLowerCase() : undefined,
+//       sortBy: String(sortBy),
+//       sortOrder: String(sortOrder),
+//       status: status ? String(status) : undefined
+//     }
+
+//     const data = await findAllDepartment(params)
+
+//     // Cache the result for 5 minutes (300 seconds)
+//     await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
+
+//     res.status(StatusCodes.OK).json(
+//       new BaseReponse({
+//         status: StatusCodes.OK,
+//         message: 'Department found',
+//         data: new DataTable<Department>(data.data, data.data.length, Number(_page), Number(_limit))
+//       })
+//     )
+//   } catch (error) {
+//     next(error)
+//   }
+// }
 
 export const DepartmentFindAllOptionController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { limit: _limit, page: _page, keyword } = req.query
-    const tenantIdHeader = req.headers['tenant-id'] as string
+     const { limit: _limit, page: _page, keyword } = req.query
+     const tenantIdHeader = req.headers['tenant-id'] as string
 
-    // Create cache key based on request parameters
-    const cacheKey = `department:options:${tenantIdHeader}:${_limit || 'all'}:${keyword || 'all'}`
+     const params: DepartmentOptionParams = {
+        limit: Number(_limit),
+        tenantId: String(tenantIdHeader),
+        keyword: keyword ? String(keyword).toLowerCase() : undefined
+     }
+     const data = await findDepartmentOptionService(params)
 
-    // Try to get data from cache
-    const cachedData = await redisClient.get(cacheKey)
-
-    if (cachedData) {
-      // Return cached data if available
-      return res.status(StatusCodes.OK).json(
+     res.status(StatusCodes.OK).json(
         new BaseReponse({
-          status: StatusCodes.OK,
-          message: 'Department options found (cached)',
-          data: JSON.parse(cachedData).data
+           status: StatusCodes.OK,
+           message: 'Department options found',
+           data: data.data
         })
-      )
-    }
-
-    const params: DepartmentOptionParams = {
-      limit: Number(_limit),
-      tenantId: String(tenantIdHeader),
-      keyword: keyword ? String(keyword).toLowerCase() : undefined
-    }
-    const data = await findDepartmentOptionService(params)
-
-    // Cache the result for 5 minutes (300 seconds)
-    await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
-
-    res.status(StatusCodes.OK).json(
-      new BaseReponse({
-        status: StatusCodes.OK,
-        message: 'Department options found',
-        data: data.data
-      })
-    )
+     )
   } catch (err: any) {
-    next(err)
+     next(err)
   }
 }
 
 export const DepartmentFindAllController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { limit: _limit, page: _page, keyword, sortBy, sortOrder, status } = req.query
-    const tenantIdHeader = req.headers['tenant-id'] as string
+     const { limit: _limit, page: _page, keyword, sortBy, sortOrder, status } = req.query
+     const tenantIdHeader = req.headers['tenant-id'] as string
 
-    // Create cache key based on request parameters
-    const cacheKey = `department:list:${tenantIdHeader}:${_limit || 'all'}:${_page || 'all'}:${keyword || 'all'}:${sortOrder || 'asc'}:${sortBy || 'id'}:${status || 'all'}`
+     const params: DepartmentFindParams = {
+        limit: Number(_limit),
+        page: Number(_page),
+        tenantId: String(tenantIdHeader),
+        keyword: keyword ? String(keyword).toLowerCase() : undefined,
+        sortBy: String(sortBy),
+        sortOrder: String(sortOrder),
+        status: status ? String(status) : undefined
+     }
 
-    // Try to get data from cache
-    const cachedData = await redisClient.get(cacheKey)
-
-    if (cachedData) {
-      // Return cached data if available
-      const parsedData = JSON.parse(cachedData)
-      return res.status(StatusCodes.OK).json(
+     const data = await findAllDepartment(params)
+     res.status(StatusCodes.OK).json(
         new BaseReponse({
-          status: StatusCodes.OK,
-          message: 'Department found (cached)',
-          data: new DataTable<Department>(parsedData.data, parsedData.data.length, Number(_page), Number(_limit))
+           status: StatusCodes.OK,
+           message: 'Department found',
+           data: new DataTable<Department>(data.data, data.data.length, Number(_page), Number(_limit))
         })
-      )
-    }
-
-    const params: DepartmentFindParams = {
-      limit: Number(_limit),
-      page: Number(_page),
-      tenantId: String(tenantIdHeader),
-      keyword: keyword ? String(keyword).toLowerCase() : undefined,
-      sortBy: String(sortBy),
-      sortOrder: String(sortOrder),
-      status: status ? String(status) : undefined
-    }
-
-    const data = await findAllDepartment(params)
-
-    // Cache the result for 5 minutes (300 seconds)
-    await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
-
-    res.status(StatusCodes.OK).json(
-      new BaseReponse({
-        status: StatusCodes.OK,
-        message: 'Department found',
-        data: new DataTable<Department>(data.data, data.data.length, Number(_page), Number(_limit))
-      })
-    )
+     )
   } catch (error) {
-    next(error)
+     next(error)
   }
 }
 

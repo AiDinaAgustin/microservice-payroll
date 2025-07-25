@@ -69,74 +69,121 @@ async function clearEmployeeCache(tenantId: string) {
   }
 }
 
+// export const EmployeeFindAllController = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const tenantIdHeader = req.headers['tenant-id'] as string
+//     if (!tenantIdHeader) {
+//       return res.status(StatusCodes.BAD_REQUEST).json({
+//         status: StatusCodes.BAD_REQUEST,
+//         message: 'Tenant ID is required in the request header'
+//       })
+//     }
+
+//     const {
+//       limit: _limit,
+//       page: _page,
+//       keyword,
+//       position,
+//       department,
+//       contractType,
+//       status,
+//       sortBy,
+//       sortOrder
+//     } = req.query
+
+//     // Create cache key based on request parameters
+//     const cacheKey = `employee:list:${tenantIdHeader}:${_limit || 'all'}:${_page || 'all'}:${keyword || 'all'}:${position || 'all'}:${department || 'all'}:${contractType || 'all'}:${status || 'all'}:${sortBy || 'all'}:${sortOrder || 'all'}`
+
+//     // Try to get data from cache
+//     const cachedData = await redisClient.get(cacheKey)
+
+//     if (cachedData) {
+//       // Return cached data if available
+//       const parsedData = JSON.parse(cachedData)
+//       return res.status(StatusCodes.OK).json(
+//         new BaseReponse({
+//           status: StatusCodes.OK,
+//           message: 'Employees found (cached)',
+//           data: new DataTable<Employee>(parsedData.data, parsedData.total, Number(_page), Number(_limit))
+//         })
+//       )
+//     }
+
+//     const params: EmployeeSearchParams = {
+//       tenantId: tenantIdHeader,
+//       limit: Number(_limit),
+//       page: Number(_page),
+//       keyword: keyword ? String(keyword).toLowerCase() : undefined,
+//       position: position ? String(position).split(',') : undefined,
+//       department: department ? String(department).split(',') : undefined,
+//       contractType: contractType ? String(contractType).split(',') : undefined,
+//       status: status ? String(status).split(',') : undefined,
+//       sortBy: sortBy ? (String(sortBy) as 'name' | 'status') : undefined,
+//       sortOrder: sortOrder ? (String(sortOrder) as 'ASC' | 'DESC') : undefined
+//     }
+
+//     const result = await findAllEmployees(params)
+
+//     // Cache the result for 5 minutes (300 seconds)
+//     await redisClient.setEx(cacheKey, 300, JSON.stringify(result))
+
+//     res.status(StatusCodes.OK).json(
+//       new BaseReponse({
+//         status: StatusCodes.OK,
+//         message: 'Employees found',
+//         data: new DataTable<Employee>(result.data, result.total, params.page, params.limit)
+//       })
+//     )
+//   } catch (err: any) {
+//     next(err)
+//   }
+// }
 
 export const EmployeeFindAllController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantIdHeader = req.headers['tenant-id'] as string
-    if (!tenantIdHeader) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        status: StatusCodes.BAD_REQUEST,
-        message: 'Tenant ID is required in the request header'
-      })
-    }
 
-    const {
-      limit: _limit,
-      page: _page,
-      keyword,
-      position,
-      department,
-      contractType,
-      status,
-      sortBy,
-      sortOrder
-    } = req.query
-
-    // Create cache key based on request parameters
-    const cacheKey = `employee:list:${tenantIdHeader}:${_limit || 'all'}:${_page || 'all'}:${keyword || 'all'}:${position || 'all'}:${department || 'all'}:${contractType || 'all'}:${status || 'all'}:${sortBy || 'all'}:${sortOrder || 'all'}`
-
-    // Try to get data from cache
-    const cachedData = await redisClient.get(cacheKey)
-
-    if (cachedData) {
-      // Return cached data if available
-      const parsedData = JSON.parse(cachedData)
-      return res.status(StatusCodes.OK).json(
-        new BaseReponse({
-          status: StatusCodes.OK,
-          message: 'Employees found (cached)',
-          data: new DataTable<Employee>(parsedData.data, parsedData.total, Number(_page), Number(_limit))
+     const tenantIdHeader = req.headers['tenant-id'] as string
+     if (!tenantIdHeader) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+           status: StatusCodes.BAD_REQUEST,
+           message: 'Tenant ID is required in the request header'
         })
-      )
-    }
+     }
+     const {
+        limit: _limit,
+        page: _page,
+        keyword,
+        position,
+        department,
+        contractType,
+        status,
+        sortBy,
+        sortOrder
+     } = req.query
 
-    const params: EmployeeSearchParams = {
-      tenantId: tenantIdHeader,
-      limit: Number(_limit),
-      page: Number(_page),
-      keyword: keyword ? String(keyword).toLowerCase() : undefined,
-      position: position ? String(position).split(',') : undefined,
-      department: department ? String(department).split(',') : undefined,
-      contractType: contractType ? String(contractType).split(',') : undefined,
-      status: status ? String(status).split(',') : undefined,
-      sortBy: sortBy ? (String(sortBy) as 'name' | 'status') : undefined,
-      sortOrder: sortOrder ? (String(sortOrder) as 'ASC' | 'DESC') : undefined
-    }
+     const params: EmployeeSearchParams = {
+        tenantId: tenantIdHeader,
+        limit: Number(_limit),
+        page: Number(_page),
+        keyword: keyword ? String(keyword).toLowerCase() : undefined,
+        position: position ? String(position).split(',') : undefined,
+        department: department ? String(department).split(',') : undefined,
+        contractType: contractType ? String(contractType).split(',') : undefined,
+        status: status ? String(status).split(',') : undefined,
+        sortBy: sortBy ? (String(sortBy) as 'name' | 'status') : undefined,
+        sortOrder: sortOrder ? (String(sortOrder) as 'ASC' | 'DESC') : undefined
+     }
+     const { data, total } = await findAllEmployees(params)
 
-    const result = await findAllEmployees(params)
-
-    // Cache the result for 5 minutes (300 seconds)
-    await redisClient.setEx(cacheKey, 300, JSON.stringify(result))
-
-    res.status(StatusCodes.OK).json(
-      new BaseReponse({
-        status: StatusCodes.OK,
-        message: 'Employees found',
-        data: new DataTable<Employee>(result.data, result.total, params.page, params.limit)
-      })
-    )
+     res.status(StatusCodes.OK).json(
+        new BaseReponse({
+           status: StatusCodes.OK,
+           message: 'Employees found',
+           data: new DataTable<Employee>(data, total, params.page, params.limit)
+        })
+     )
   } catch (err: any) {
-    next(err)
+     next(err)
   }
 }
 
@@ -314,63 +361,103 @@ export const EmployeeDeleteController = async (req: Request, res: Response, next
     next(err)
   }
 }
+// Ini pake redis
+// export const EmployeeFindAllOptionController = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const {
+//       limit: _limit,
+//       page: _page,
+//       keyword,
+//       employeeId: _employeeId,
+//       managerId: _managerId,
+//       supervisorId: _supervisorId,
+//       mentorId: _mentorId,
+//       leadId: _leadId
+//     } = req.query
+
+//     const tenantIdHeader = req.headers['tenant-id'] as string
+
+//     // Create cache key based on request parameters
+//     const cacheKey = `employee:options:${tenantIdHeader}:${_limit || 'all'}:${keyword || 'all'}:${_employeeId || 'all'}:${_managerId || 'all'}:${_supervisorId || 'all'}:${_mentorId || 'all'}:${_leadId || 'all'}`
+
+//     // Try to get data from cache
+//     const cachedData = await redisClient.get(cacheKey)
+
+//     if (cachedData) {
+//       // Return cached data if available
+//       return res.status(StatusCodes.OK).json(
+//         new BaseReponse({
+//           status: StatusCodes.OK,
+//           message: 'Employee options found (cached)',
+//           data: JSON.parse(cachedData).data
+//         })
+//       )
+//     }
+
+//     const params: EmployeeOptionParams = {
+//       tenantId: String(tenantIdHeader),
+//       limit: Number(_limit),
+//       keyword: keyword ? String(keyword).toLowerCase() : undefined,
+//       employeeId: _employeeId ? String(_employeeId) : undefined,
+//       managerId: _managerId ? String(_managerId) : undefined,
+//       supervisorId: _supervisorId ? String(_supervisorId) : undefined,
+//       mentorId: _mentorId ? String(_mentorId) : undefined,
+//       leadId: _leadId ? String(_leadId) : undefined
+//     }
+
+//     const data = await findEmployeeOptionService(params)
+
+//     // Cache the result for 5 minutes (300 seconds)
+//     await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
+
+//     res.status(StatusCodes.OK).json(
+//       new BaseReponse({
+//         status: StatusCodes.OK,
+//         message: 'Employee options found',
+//         data: data.data
+//       })
+//     )
+//   } catch (err: any) {
+//     next(err)
+//   }
+// }
 
 export const EmployeeFindAllOptionController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const {
-      limit: _limit,
-      page: _page,
-      keyword,
-      employeeId: _employeeId,
-      managerId: _managerId,
-      supervisorId: _supervisorId,
-      mentorId: _mentorId,
-      leadId: _leadId
-    } = req.query
+     const {
+        limit: _limit,
+        page: _page,
+        keyword,
+        employeeId: _employeeId,
+        managerId: _managerId,
+        supervisorId: _supervisorId,
+        mentorId: _mentorId,
+        leadId: _leadId
+     } = req.query
 
-    const tenantIdHeader = req.headers['tenant-id'] as string
+     const tenantIdHeader = req.headers['tenant-id'] as string
 
-    // Create cache key based on request parameters
-    const cacheKey = `employee:options:${tenantIdHeader}:${_limit || 'all'}:${keyword || 'all'}:${_employeeId || 'all'}:${_managerId || 'all'}:${_supervisorId || 'all'}:${_mentorId || 'all'}:${_leadId || 'all'}`
+     const params: EmployeeOptionParams = {
+        tenantId: String(tenantIdHeader),
+        limit: Number(_limit),
+        keyword: keyword ? String(keyword).toLowerCase() : undefined,
+        employeeId: _employeeId ? String(_employeeId) : undefined,
+        managerId: _managerId ? String(_managerId) : undefined,
+        supervisorId: _supervisorId ? String(_supervisorId) : undefined,
+        mentorId: _mentorId ? String(_mentorId) : undefined,
+        leadId: _leadId ? String(_leadId) : undefined
+     }
 
-    // Try to get data from cache
-    const cachedData = await redisClient.get(cacheKey)
+     const data = await findEmployeeOptionService(params)
 
-    if (cachedData) {
-      // Return cached data if available
-      return res.status(StatusCodes.OK).json(
+     res.status(StatusCodes.OK).json(
         new BaseReponse({
-          status: StatusCodes.OK,
-          message: 'Employee options found (cached)',
-          data: JSON.parse(cachedData).data
+           status: StatusCodes.OK,
+           message: 'Employee options found',
+           data: data.data
         })
-      )
-    }
-
-    const params: EmployeeOptionParams = {
-      tenantId: String(tenantIdHeader),
-      limit: Number(_limit),
-      keyword: keyword ? String(keyword).toLowerCase() : undefined,
-      employeeId: _employeeId ? String(_employeeId) : undefined,
-      managerId: _managerId ? String(_managerId) : undefined,
-      supervisorId: _supervisorId ? String(_supervisorId) : undefined,
-      mentorId: _mentorId ? String(_mentorId) : undefined,
-      leadId: _leadId ? String(_leadId) : undefined
-    }
-
-    const data = await findEmployeeOptionService(params)
-
-    // Cache the result for 5 minutes (300 seconds)
-    await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
-
-    res.status(StatusCodes.OK).json(
-      new BaseReponse({
-        status: StatusCodes.OK,
-        message: 'Employee options found',
-        data: data.data
-      })
-    )
+     )
   } catch (err: any) {
-    next(err)
+     next(err)
   }
 }

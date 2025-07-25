@@ -70,49 +70,155 @@ async function clearPositionCache(tenantId: string) {
   }
 }
 
+// export const PositionFindAllOptionController = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const { limit: _limit, page: _page, departmentId: _departmentId, keyword } = req.query
+//     const tenantIdHeader = req.headers['tenant-id'] as string
+
+//     // Create cache key based on request parameters
+//     const cacheKey = `position:options:${tenantIdHeader}:${_limit || 'all'}:${_departmentId || 'all'}:${keyword || 'all'}`
+
+//     // Try to get data from cache
+//     const cachedData = await redisClient.get(cacheKey)
+
+//     if (cachedData) {
+//       // Return cached data if available
+//       return res.status(StatusCodes.OK).json(
+//         new BaseReponse({
+//           status: StatusCodes.OK,
+//           message: 'Position options found (cached)',
+//           data: JSON.parse(cachedData).data
+//         })
+//       )
+//     }
+
+//     const params: PositionOptionParams = {
+//       limit: Number(_limit),
+//       tenantId: String(tenantIdHeader),
+//       departmentId: _departmentId ? String(_departmentId) : undefined,
+//       keyword: keyword ? String(keyword).toLowerCase() : undefined
+//     }
+
+//     const data = await findPositionOptionService(params)
+
+//     // Cache the result for 5 minutes (300 seconds)
+//     await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
+
+//     res.status(StatusCodes.OK).json(
+//       new BaseReponse({
+//         status: StatusCodes.OK,
+//         message: 'Position options found',
+//         data: data.data
+//       })
+//     )
+//   } catch (err: any) {
+//     next(err)
+//   }
+// }
+
+// export const findAllPositionController = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const { limit: _limit, page: _page, departmentId: _departementId, keyword, sortBy, sortOrder, status } = req.query
+//     const tenantIdHeader = req.headers['tenant-id'] as string
+
+//     // Create cache key based on request parameters
+//     const cacheKey = `position:list:${tenantIdHeader}:${_limit || 'all'}:${_page || 'all'}:${_departementId || 'all'}:${keyword || 'all'}:${sortOrder || 'asc'}:${sortBy || 'id'}:${status || 'all'}`
+
+//     // Try to get data from cache
+//     const cachedData = await redisClient.get(cacheKey)
+
+//     if (cachedData) {
+//       // Return cached data if available
+//       const parsedData = JSON.parse(cachedData)
+//       return res.status(StatusCodes.OK).json(
+//         new BaseReponse({
+//           status: StatusCodes.OK,
+//           message: 'Position found (cached)',
+//           data: new DataTable<Position>(parsedData.data, parsedData.data.length, Number(_page), Number(_limit))
+//         })
+//       )
+//     }
+
+//     const params: PositionFindParams = {
+//       limit: Number(_limit),
+//       page: Number(_page),
+//       tenantId: String(tenantIdHeader),
+//       departmentId: _departementId ? String(_departementId) : undefined,
+//       keyword: keyword ? String(keyword).toLowerCase() : undefined,
+//       sortBy: String(sortBy),
+//       sortOrder: String(sortOrder),
+//       status: status ? String(status) : undefined
+//     }
+
+//     const data = await findAllPositionService(params)
+
+//     // Cache the result for 5 minutes (300 seconds)
+//     await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
+
+//     res.status(StatusCodes.OK).json(
+//       new BaseReponse({
+//         status: StatusCodes.OK,
+//         message: 'Position found',
+//         data: new DataTable<Position>(data.data, data.data.length, Number(_page), Number(_limit))
+//       })
+//     )
+//   } catch (error) {
+//     next(error)
+//   }
+// }
+
 export const PositionFindAllOptionController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { limit: _limit, page: _page, departmentId: _departmentId, keyword } = req.query
-    const tenantIdHeader = req.headers['tenant-id'] as string
+     const { limit: _limit, page: _page, departmentId: _departmentId, keyword } = req.query
+     const tenantIdHeader = req.headers['tenant-id'] as string
 
-    // Create cache key based on request parameters
-    const cacheKey = `position:options:${tenantIdHeader}:${_limit || 'all'}:${_departmentId || 'all'}:${keyword || 'all'}`
+     const params: PositionOptionParams = {
+        limit: Number(_limit),
+        tenantId: String(tenantIdHeader),
+        departmentId: _departmentId ? String(_departmentId) : undefined,
+        keyword: keyword ? String(keyword).toLowerCase() : undefined
+     }
 
-    // Try to get data from cache
-    const cachedData = await redisClient.get(cacheKey)
+     const data = await findPositionOptionService(params)
 
-    if (cachedData) {
-      // Return cached data if available
-      return res.status(StatusCodes.OK).json(
+     res.status(StatusCodes.OK).json(
         new BaseReponse({
-          status: StatusCodes.OK,
-          message: 'Position options found (cached)',
-          data: JSON.parse(cachedData).data
+           status: StatusCodes.OK,
+           message: 'Position options found',
+           data: data.data
         })
-      )
-    }
-
-    const params: PositionOptionParams = {
-      limit: Number(_limit),
-      tenantId: String(tenantIdHeader),
-      departmentId: _departmentId ? String(_departmentId) : undefined,
-      keyword: keyword ? String(keyword).toLowerCase() : undefined
-    }
-
-    const data = await findPositionOptionService(params)
-
-    // Cache the result for 5 minutes (300 seconds)
-    await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
-
-    res.status(StatusCodes.OK).json(
-      new BaseReponse({
-        status: StatusCodes.OK,
-        message: 'Position options found',
-        data: data.data
-      })
-    )
+     )
   } catch (err: any) {
-    next(err)
+     next(err)
+  }
+}
+
+export const findAllPositionController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+     const { limit: _limit, page: _page, departmentId: _departementId, keyword, sortBy, sortOrder, status } = req.query
+     const tenantIdHeader = req.headers['tenant-id'] as string
+
+     const params: PositionFindParams = {
+        limit: Number(_limit),
+        page: Number(_page),
+        tenantId: String(tenantIdHeader),
+        departmentId: _departementId ? String(_departementId) : undefined,
+        keyword: keyword ? String(keyword).toLowerCase() : undefined,
+        sortBy: String(sortBy),
+        sortOrder: String(sortOrder),
+        status: status ? String(status) : undefined
+     }
+
+     const data = await findAllPositionService(params)
+     res.status(StatusCodes.OK).json(
+        new BaseReponse({
+           status: StatusCodes.OK,
+           message: 'Position found',
+           data: new DataTable<Position>(data.data, data.data.length, Number(_page), Number(_limit))
+        })
+     )
+  } catch (error) {
+     next(error)
   }
 }
 
@@ -141,57 +247,6 @@ export const createPositionController = async (req: Request, res: Response, next
     );
   } catch (err: any) {
     next(err);
-  }
-}
-
-export const findAllPositionController = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { limit: _limit, page: _page, departmentId: _departementId, keyword, sortBy, sortOrder, status } = req.query
-    const tenantIdHeader = req.headers['tenant-id'] as string
-
-    // Create cache key based on request parameters
-    const cacheKey = `position:list:${tenantIdHeader}:${_limit || 'all'}:${_page || 'all'}:${_departementId || 'all'}:${keyword || 'all'}:${sortOrder || 'asc'}:${sortBy || 'id'}:${status || 'all'}`
-
-    // Try to get data from cache
-    const cachedData = await redisClient.get(cacheKey)
-
-    if (cachedData) {
-      // Return cached data if available
-      const parsedData = JSON.parse(cachedData)
-      return res.status(StatusCodes.OK).json(
-        new BaseReponse({
-          status: StatusCodes.OK,
-          message: 'Position found (cached)',
-          data: new DataTable<Position>(parsedData.data, parsedData.data.length, Number(_page), Number(_limit))
-        })
-      )
-    }
-
-    const params: PositionFindParams = {
-      limit: Number(_limit),
-      page: Number(_page),
-      tenantId: String(tenantIdHeader),
-      departmentId: _departementId ? String(_departementId) : undefined,
-      keyword: keyword ? String(keyword).toLowerCase() : undefined,
-      sortBy: String(sortBy),
-      sortOrder: String(sortOrder),
-      status: status ? String(status) : undefined
-    }
-
-    const data = await findAllPositionService(params)
-
-    // Cache the result for 5 minutes (300 seconds)
-    await redisClient.setEx(cacheKey, 300, JSON.stringify(data))
-
-    res.status(StatusCodes.OK).json(
-      new BaseReponse({
-        status: StatusCodes.OK,
-        message: 'Position found',
-        data: new DataTable<Position>(data.data, data.data.length, Number(_page), Number(_limit))
-      })
-    )
-  } catch (error) {
-    next(error)
   }
 }
 

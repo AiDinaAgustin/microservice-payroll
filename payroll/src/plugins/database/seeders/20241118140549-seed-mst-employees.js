@@ -10,7 +10,7 @@ module.exports = {
         id: `${i}`,
         employee_id: `EMP${i.toString().padStart(3, '0')}`,
         name: faker.person.fullName(),
-        status: faker.helpers.arrayElement(['active', 'inactive']),
+        status: faker.helpers.arrayElement(['active', 'on leave']),
         nik: `320${faker.number.int({ min: 1000000000, max: 9999999999 })}`,
         email: faker.internet.email(),
         phone_number: faker.phone.number('0812########'),
