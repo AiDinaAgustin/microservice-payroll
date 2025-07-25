@@ -36,6 +36,7 @@ services:
       - LOG_ERROR_FILE_PATH=${LOG_ERROR_FILE_PATH:-logs/app-error-%DATE%.log}
       - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
       - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
+      - API_GROUP={{.Task.Slot}}
     networks:
       - traefik-public
     deploy:
@@ -46,13 +47,14 @@ services:
         order: start-first
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.auth.rule=Host(`api.karsa.site`) && PathPrefix(`/auth`)"
-        - "traefik.http.routers.auth.entrypoints=websecure"
-        - "traefik.http.routers.auth.tls.certresolver=myresolver"
-        - "traefik.http.services.auth.loadbalancer.server.port=5001"
-        - "traefik.http.routers.auth.middlewares=auth-strip"
-        - "traefik.http.middlewares.auth-strip.stripprefix.prefixes=/auth"
+        - "traefik.http.routers.auth-{{.Task.Slot}}.rule=Host(`api.karsa.site`) && PathPrefix(`/auth-{{.Task.Slot}}`)"
+        - "traefik.http.routers.auth-{{.Task.Slot}}.entrypoints=websecure"
+        - "traefik.http.routers.auth-{{.Task.Slot}}.tls.certresolver=myresolver"
+        - "traefik.http.services.auth-{{.Task.Slot}}.loadbalancer.server.port=5001"
+        - "traefik.http.routers.auth-{{.Task.Slot}}.middlewares=auth-{{.Task.Slot}}-strip"
+        - "traefik.http.middlewares.auth-{{.Task.Slot}}-strip.stripprefix.prefixes=/auth-{{.Task.Slot}}"
         - "com.centurylinklabs.watchtower.enable=true"
+        - "api.group=api-{{.Task.Slot}}"
 
   employee:
     image: ghcr.io/aidinaagustin/payroll-mic-employee:latest
@@ -74,6 +76,7 @@ services:
       - LOG_ERROR_FILE_PATH=${LOG_ERROR_FILE_PATH:-logs/app-error-%DATE%.log}
       - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
       - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
+      - API_GROUP={{.Task.Slot}}
     depends_on:
       - auth
     networks:
@@ -86,13 +89,14 @@ services:
         order: start-first
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.employee.rule=Host(`api.karsa.site`) && PathPrefix(`/employee`)"
-        - "traefik.http.routers.employee.entrypoints=websecure"
-        - "traefik.http.routers.employee.tls.certresolver=myresolver"
-        - "traefik.http.services.employee.loadbalancer.server.port=5002"
-        - "traefik.http.routers.employee.middlewares=employee-strip"
-        - "traefik.http.middlewares.employee-strip.stripprefix.prefixes=/employee"
+        - "traefik.http.routers.employee-{{.Task.Slot}}.rule=Host(`api.karsa.site`) && PathPrefix(`/employee-{{.Task.Slot}}`)"
+        - "traefik.http.routers.employee-{{.Task.Slot}}.entrypoints=websecure"
+        - "traefik.http.routers.employee-{{.Task.Slot}}.tls.certresolver=myresolver"
+        - "traefik.http.services.employee-{{.Task.Slot}}.loadbalancer.server.port=5002"
+        - "traefik.http.routers.employee-{{.Task.Slot}}.middlewares=employee-{{.Task.Slot}}-strip"
+        - "traefik.http.middlewares.employee-{{.Task.Slot}}-strip.stripprefix.prefixes=/employee-{{.Task.Slot}}"
         - "com.centurylinklabs.watchtower.enable=true"
+        - "api.group=api-{{.Task.Slot}}"
 
   payroll:
     image: ghcr.io/aidinaagustin/payroll-mic-payroll:latest
@@ -114,6 +118,7 @@ services:
       - LOG_ERROR_FILE_PATH=${LOG_ERROR_FILE_PATH:-logs/app-error-%DATE%.log}
       - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
       - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
+      - API_GROUP={{.Task.Slot}}
     networks:
       - traefik-public
     deploy:
@@ -124,13 +129,14 @@ services:
         order: start-first
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.payroll.rule=Host(`api.karsa.site`) && PathPrefix(`/payroll`)"
-        - "traefik.http.routers.payroll.entrypoints=websecure"
-        - "traefik.http.routers.payroll.tls.certresolver=myresolver"
-        - "traefik.http.services.payroll.loadbalancer.server.port=5003"
-        - "traefik.http.routers.payroll.middlewares=payroll-strip"
-        - "traefik.http.middlewares.payroll-strip.stripprefix.prefixes=/payroll"
+        - "traefik.http.routers.payroll-{{.Task.Slot}}.rule=Host(`api.karsa.site`) && PathPrefix(`/payroll-{{.Task.Slot}}`)"
+        - "traefik.http.routers.payroll-{{.Task.Slot}}.entrypoints=websecure"
+        - "traefik.http.routers.payroll-{{.Task.Slot}}.tls.certresolver=myresolver"
+        - "traefik.http.services.payroll-{{.Task.Slot}}.loadbalancer.server.port=5003"
+        - "traefik.http.routers.payroll-{{.Task.Slot}}.middlewares=payroll-{{.Task.Slot}}-strip"
+        - "traefik.http.middlewares.payroll-{{.Task.Slot}}-strip.stripprefix.prefixes=/payroll-{{.Task.Slot}}"
         - "com.centurylinklabs.watchtower.enable=true"
+        - "api.group=api-{{.Task.Slot}}"
 
   gateway:
     image: ghcr.io/aidinaagustin/payroll-mic-gateway:latest
@@ -138,9 +144,11 @@ services:
       context: ./gateway
     environment:
       - PORT=5000
-      - AUTH_SERVICE_URL=http://auth:5001
-      - EMPLOYEE_SERVICE_URL=http://employee:5002
-      - PAYROLL_SERVICE_URL=http://payroll:5003
+      # Each gateway will need to use service discovery to find its corresponding group services
+      - AUTH_SERVICE_URL=http://auth.{{.Task.Slot}}:5001
+      - EMPLOYEE_SERVICE_URL=http://employee.{{.Task.Slot}}:5002
+      - PAYROLL_SERVICE_URL=http://payroll.{{.Task.Slot}}:5003
+      - API_GROUP={{.Task.Slot}}
     depends_on:
       - auth
       - employee
@@ -155,11 +163,14 @@ services:
         order: start-first
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.gateway.rule=Host(`api.karsa.site`)"
-        - "traefik.http.routers.gateway.entrypoints=websecure"
-        - "traefik.http.routers.gateway.tls.certresolver=myresolver"
-        - "traefik.http.services.gateway.loadbalancer.server.port=5000"
+        - "traefik.http.routers.gateway-{{.Task.Slot}}.rule=Host(`api.karsa.site`) && PathPrefix(`/api-{{.Task.Slot}}`)"
+        - "traefik.http.routers.gateway-{{.Task.Slot}}.entrypoints=websecure"
+        - "traefik.http.routers.gateway-{{.Task.Slot}}.tls.certresolver=myresolver"
+        - "traefik.http.services.gateway-{{.Task.Slot}}.loadbalancer.server.port=5000"
+        - "traefik.http.routers.gateway-{{.Task.Slot}}.middlewares=gateway-{{.Task.Slot}}-strip"
+        - "traefik.http.middlewares.gateway-{{.Task.Slot}}-strip.stripprefix.prefixes=/api-{{.Task.Slot}}"
         - "com.centurylinklabs.watchtower.enable=true"
+        - "api.group=api-{{.Task.Slot}}"
 
 networks:
   traefik-public:
