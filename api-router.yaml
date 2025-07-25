@@ -12,15 +12,16 @@ services:
         - "traefik.http.routers.api-main.tls.certresolver=myresolver"
         - "traefik.http.routers.api-main.service=api-lb"
 
-        # Add path handling middleware
-        - "traefik.http.middlewares.api-prefix.stripprefix.prefixes=/v1"
-        - "traefik.http.routers.api-main.middlewares=api-prefix"
-
         # Load balancer service that distributes traffic
         - "traefik.http.services.api-lb.loadbalancer.server.scheme=https"
-        - "traefik.http.services.api-lb.loadbalancer.healthcheck.path=/"
+        - "traefik.http.services.api-lb.loadbalancer.healthcheck.path=/health"
         - "traefik.http.services.api-lb.loadbalancer.healthcheck.interval=5s"
         - "traefik.http.services.api-lb.loadbalancer.healthcheck.timeout=3s"
+
+        # Enable pass-through of the original URL paths
+        - "traefik.http.middlewares.preserve-path.forwardauth.address=http://localhost"
+        - "traefik.http.middlewares.preserve-path.forwardauth.authResponseHeaders=X-Forwarded-Uri"
+        - "traefik.http.routers.api-main.middlewares=preserve-path"
 
         # Server pool - primary server with higher weight
         - "traefik.http.services.api-lb.loadbalancer.server.port=443"
