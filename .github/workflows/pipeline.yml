@@ -62,13 +62,17 @@ jobs:
             sed -i 's/context:/# context:/g' prod-traefik-$i-prod.yaml
           done
 
+      - name: Create API router production file
+        run: |
+          cp api-router.yaml api-router-prod.yaml
+
       - name: Copy compose files to VPS
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.PROD_SSH_HOST }}
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          source: "prod-traefik-1-prod.yaml,prod-traefik-2-prod.yaml,prod-traefik-3-prod.yaml"
+          source: "prod-traefik-1-prod.yaml,prod-traefik-2-prod.yaml,prod-traefik-3-prod.yaml,api-router-prod.yaml"
           target: "/home/${{ secrets.PROD_SSH_USER }}/payroll-mic"
 
       - name: Stop and remove existing stacks
@@ -83,6 +87,7 @@ jobs:
             docker stack rm payroll-mic-1 || true
             docker stack rm payroll-mic-2 || true
             docker stack rm payroll-mic-3 || true
+            docker stack rm api-router || true
             docker system prune -f
 
       - name: Deploy Stack 1
@@ -109,6 +114,16 @@ jobs:
           registry_host: 'ghcr.io'
           registry_user: ${{ github.actor }}
           registry_pass: ${{ secrets.GHCR_PAT }}
+          summary: true
+
+      - name: Deploy API Router Stack
+        uses: cssnr/stack-deploy-action@v1
+        with:
+          name: api-router
+          file: api-router-prod.yaml
+          host: ${{ secrets.PROD_SSH_HOST }}
+          user: ${{ secrets.PROD_SSH_USER }}
+          ssh_key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           summary: true
 
 #      - name: Deploy Stack 3
