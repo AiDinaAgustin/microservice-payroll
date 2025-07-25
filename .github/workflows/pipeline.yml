@@ -64,7 +64,7 @@ jobs:
 
       - name: Create API router production file
         run: |
-          cp api-router.yaml api-router.yaml
+          cp api-router.yaml api-router-prod.yaml
 
       - name: Copy compose files to VPS
         uses: appleboy/scp-action@v1
@@ -72,7 +72,7 @@ jobs:
           host: ${{ secrets.PROD_SSH_HOST }}
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          source: "prod-traefik-1-prod.yaml,prod-traefik-2-prod.yaml,prod-traefik-3-prod.yaml,api-router.yaml"
+          source: "prod-traefik-1-prod.yaml,prod-traefik-2-prod.yaml,prod-traefik-3-prod.yaml,api-router-prod.yaml"
           target: "/home/${{ secrets.PROD_SSH_USER }}/payroll-mic"
 
       - name: Stop and remove existing stacks
@@ -120,7 +120,7 @@ jobs:
         uses: cssnr/stack-deploy-action@v1
         with:
           name: api-router
-          file: api-router.yaml
+          file: api-router-prod.yaml
           host: ${{ secrets.PROD_SSH_HOST }}
           user: ${{ secrets.PROD_SSH_USER }}
           ssh_key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
