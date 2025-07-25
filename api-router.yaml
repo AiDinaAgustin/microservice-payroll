@@ -15,7 +15,7 @@ services:
         - "traefik.http.routers.api-main.service=api-lb"
 
         # Define service with servers
-        - "traefik.http.services.api-lb.loadbalancer.passhostheader=true"
+        - "traefik.http.services.api-lb.loadbalancer.passhostheader=false"
 
         # Define servers with proper syntax
         - "traefik.http.services.api-lb.loadbalancer.servers.0.url=https://api-1.karsa.site"
