@@ -54,37 +54,42 @@ jobs:
           push: true
           tags: ghcr.io/aidinaagustin/payroll-mic-gateway:latest
 
-      - name: Create production compose file
+      - name: Create production compose files
         run: |
-          sed -i 's/build:/# build:/g' compose-traefik.yaml
-          sed -i 's/context:/# context:/g' compose-traefik.yaml
+          for i in 1 2 3; do
+            cp prod-traefik-$i.yaml prod-traefik-$i-prod.yaml
+            sed -i 's/build:/# build:/g' prod-traefik-$i-prod.yaml
+            sed -i 's/context:/# context:/g' prod-traefik-$i-prod.yaml
+          done
 
-      - name: Copy compose file to VPS
+      - name: Copy compose files to VPS
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.PROD_SSH_HOST }}
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          source: "compose-traefik.yaml"
+          source: "prod-traefik-1-prod.yaml,prod-traefik-2-prod.yaml,prod-traefik-3-prod.yaml"
           target: "/home/${{ secrets.PROD_SSH_USER }}/payroll-mic"
 
-      - name: Stop and remove existing containers
+      - name: Stop and remove existing stacks
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.PROD_SSH_HOST }}
           username: ${{ secrets.PROD_SSH_USER }}
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
-            echo "Stopping and removing existing containers..."
+            echo "Stopping and removing existing stacks..."
             cd ~/payroll-mic
-            docker stack rm payroll-mic || true
+            docker stack rm payroll-mic-1 || true
+            docker stack rm payroll-mic-2 || true
+            docker stack rm payroll-mic-3 || true
             docker system prune -f
 
-      - name: Deploy to VPS
+      - name: Deploy Stack 1
         uses: cssnr/stack-deploy-action@v1
         with:
-          name: payroll-mic
-          file: compose-traefik.yaml
+          name: payroll-mic-1
+          file: prod-traefik-1-prod.yaml
           host: ${{ secrets.PROD_SSH_HOST }}
           user: ${{ secrets.PROD_SSH_USER }}
           ssh_key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
@@ -92,3 +97,29 @@ jobs:
           registry_user: ${{ github.actor }}
           registry_pass: ${{ secrets.GHCR_PAT }}
           summary: true
+
+      - name: Deploy Stack 2
+        uses: cssnr/stack-deploy-action@v1
+        with:
+          name: payroll-mic-2
+          file: prod-traefik-2-prod.yaml
+          host: ${{ secrets.PROD_SSH_HOST }}
+          user: ${{ secrets.PROD_SSH_USER }}
+          ssh_key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          registry_host: 'ghcr.io'
+          registry_user: ${{ github.actor }}
+          registry_pass: ${{ secrets.GHCR_PAT }}
+          summary: true
+
+#      - name: Deploy Stack 3
+#        uses: cssnr/stack-deploy-action@v1
+#        with:
+#          name: payroll-mic-3
+#          file: prod-traefik-3-prod.yaml
+#          host: ${{ secrets.PROD_SSH_HOST }}
+#          user: ${{ secrets.PROD_SSH_USER }}
+#          ssh_key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+#          registry_host: 'ghcr.io'
+#          registry_user: ${{ github.actor }}
+#          registry_pass: ${{ secrets.GHCR_PAT }}
+#          summary: true

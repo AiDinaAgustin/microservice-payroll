@@ -1,5 +1,5 @@
 services:
-  watchtower:
+  watchtower-2:
     image: containrrr/watchtower
     command:
       - "--label-enable"
@@ -16,10 +16,8 @@ services:
         constraints:
           - node.role == manager
 
-  auth:
+  auth-2:
     image: ghcr.io/aidinaagustin/payroll-mic-auth:latest
-    build:
-      context: ./auth
     environment:
       - PORT=5001
       - DB_HOST=${DB_HOST:-43.133.145.125}
@@ -39,25 +37,18 @@ services:
     networks:
       - traefik-public
     deploy:
-      replicas: 3
-      update_config:
-        parallelism: 1
-        delay: 10s
-        order: start-first
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.auth.rule=Host(`api.karsa.site`) && PathPrefix(`/auth`)"
-        - "traefik.http.routers.auth.entrypoints=websecure"
-        - "traefik.http.routers.auth.tls.certresolver=myresolver"
-        - "traefik.http.services.auth.loadbalancer.server.port=5001"
-        - "traefik.http.routers.auth.middlewares=auth-strip"
-        - "traefik.http.middlewares.auth-strip.stripprefix.prefixes=/auth"
+        - "traefik.http.routers.auth-2.rule=Host(`api-2.karsa.site`) && PathPrefix(`/auth`)"
+        - "traefik.http.routers.auth-2.entrypoints=websecure"
+        - "traefik.http.routers.auth-2.tls.certresolver=myresolver"
+        - "traefik.http.services.auth-2.loadbalancer.server.port=5001"
+        - "traefik.http.routers.auth-2.middlewares=auth-2-strip"
+        - "traefik.http.middlewares.auth-2-strip.stripprefix.prefixes=/auth"
         - "com.centurylinklabs.watchtower.enable=true"
 
-  employee:
+  employee-2:
     image: ghcr.io/aidinaagustin/payroll-mic-employee:latest
-    build:
-      context: ./employee
     environment:
       - PORT=5002
       - DB_HOST=${DB_HOST:-43.133.145.125}
@@ -75,29 +66,22 @@ services:
       - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
       - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
     depends_on:
-      - auth
+      - auth-2
     networks:
       - traefik-public
     deploy:
-      replicas: 3
-      update_config:
-        parallelism: 1
-        delay: 10s
-        order: start-first
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.employee.rule=Host(`api.karsa.site`) && PathPrefix(`/employee`)"
-        - "traefik.http.routers.employee.entrypoints=websecure"
-        - "traefik.http.routers.employee.tls.certresolver=myresolver"
-        - "traefik.http.services.employee.loadbalancer.server.port=5002"
-        - "traefik.http.routers.employee.middlewares=employee-strip"
-        - "traefik.http.middlewares.employee-strip.stripprefix.prefixes=/employee"
+        - "traefik.http.routers.employee-2.rule=Host(`api-2.karsa.site`) && PathPrefix(`/employee`)"
+        - "traefik.http.routers.employee-2.entrypoints=websecure"
+        - "traefik.http.routers.employee-2.tls.certresolver=myresolver"
+        - "traefik.http.services.employee-2.loadbalancer.server.port=5002"
+        - "traefik.http.routers.employee-2.middlewares=employee-2-strip"
+        - "traefik.http.middlewares.employee-2-strip.stripprefix.prefixes=/employee"
         - "com.centurylinklabs.watchtower.enable=true"
 
-  payroll:
+  payroll-2:
     image: ghcr.io/aidinaagustin/payroll-mic-payroll:latest
-    build:
-      context: ./payroll
     environment:
       - PORT=5003
       - DB_HOST=${DB_HOST:-43.133.145.125}
@@ -117,48 +101,36 @@ services:
     networks:
       - traefik-public
     deploy:
-      replicas: 3
-      update_config:
-        parallelism: 1
-        delay: 10s
-        order: start-first
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.payroll.rule=Host(`api.karsa.site`) && PathPrefix(`/payroll`)"
-        - "traefik.http.routers.payroll.entrypoints=websecure"
-        - "traefik.http.routers.payroll.tls.certresolver=myresolver"
-        - "traefik.http.services.payroll.loadbalancer.server.port=5003"
-        - "traefik.http.routers.payroll.middlewares=payroll-strip"
-        - "traefik.http.middlewares.payroll-strip.stripprefix.prefixes=/payroll"
+        - "traefik.http.routers.payroll-2.rule=Host(`api-2.karsa.site`) && PathPrefix(`/payroll`)"
+        - "traefik.http.routers.payroll-2.entrypoints=websecure"
+        - "traefik.http.routers.payroll-2.tls.certresolver=myresolver"
+        - "traefik.http.services.payroll-2.loadbalancer.server.port=5003"
+        - "traefik.http.routers.payroll-2.middlewares=payroll-2-strip"
+        - "traefik.http.middlewares.payroll-2-strip.stripprefix.prefixes=/payroll"
         - "com.centurylinklabs.watchtower.enable=true"
 
-  gateway:
+  gateway-2:
     image: ghcr.io/aidinaagustin/payroll-mic-gateway:latest
-    build:
-      context: ./gateway
     environment:
       - PORT=5000
-      - AUTH_SERVICE_URL=http://auth:5001
-      - EMPLOYEE_SERVICE_URL=http://employee:5002
-      - PAYROLL_SERVICE_URL=http://payroll:5003
+      - AUTH_SERVICE_URL=http://auth-2:5001
+      - EMPLOYEE_SERVICE_URL=http://employee-2:5002
+      - PAYROLL_SERVICE_URL=http://payroll-2:5003
     depends_on:
-      - auth
-      - employee
-      - payroll
+      - auth-2
+      - employee-2
+      - payroll-2
     networks:
       - traefik-public
     deploy:
-      replicas: 3
-      update_config:
-        parallelism: 1
-        delay: 10s
-        order: start-first
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.gateway.rule=Host(`api.karsa.site`)"
-        - "traefik.http.routers.gateway.entrypoints=websecure"
-        - "traefik.http.routers.gateway.tls.certresolver=myresolver"
-        - "traefik.http.services.gateway.loadbalancer.server.port=5000"
+        - "traefik.http.routers.gateway-2.rule=Host(`api-2.karsa.site`)"
+        - "traefik.http.routers.gateway-2.entrypoints=websecure"
+        - "traefik.http.routers.gateway-2.tls.certresolver=myresolver"
+        - "traefik.http.services.gateway-2.loadbalancer.server.port=5000"
         - "com.centurylinklabs.watchtower.enable=true"
 
 networks:

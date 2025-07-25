@@ -1,0 +1,139 @@
+services:
+  watchtower-1:
+    image: containrrr/watchtower
+    command:
+      - "--label-enable"
+      - "--interval"
+      - "30"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+
+  auth-1:
+    image: ghcr.io/aidinaagustin/payroll-mic-auth:latest
+    environment:
+      - PORT=5001
+      - DB_HOST=${DB_HOST:-43.133.145.125}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-l4mCps3yj578Hoq1z9KTQuvgE0rf2I6W}
+      - DB_NAME=${DB_NAME:-hr_payroll_prod}
+      - DB_PORT=${DB_PORT:-32678}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - JWT_TOKEN=${JWT_TOKEN:-private.pem}
+      - JWT_EXPIRATION_TIME=${JWT_EXPIRATION_TIME:-8}
+      - LOG_INFO_FILE_PATH=${LOG_INFO_FILE_PATH:-logs/%DATE%.log}
+      - LOG_INFO_MAX_FILE_SIZE=${LOG_INFO_MAX_FILE_SIZE:-20m}
+      - LOG_INFO_MAX_FILE_DAY=${LOG_INFO_MAX_FILE_DAY:-1d}
+      - LOG_ERROR_FILE_PATH=${LOG_ERROR_FILE_PATH:-logs/app-error-%DATE%.log}
+      - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
+      - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
+    networks:
+      - traefik-public
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.auth-1.rule=Host(`api-1.karsa.site`) && PathPrefix(`/auth`)"
+        - "traefik.http.routers.auth-1.entrypoints=websecure"
+        - "traefik.http.routers.auth-1.tls.certresolver=myresolver"
+        - "traefik.http.services.auth-1.loadbalancer.server.port=5001"
+        - "traefik.http.routers.auth-1.middlewares=auth-1-strip"
+        - "traefik.http.middlewares.auth-1-strip.stripprefix.prefixes=/auth"
+        - "com.centurylinklabs.watchtower.enable=true"
+
+  employee-1:
+    image: ghcr.io/aidinaagustin/payroll-mic-employee:latest
+    environment:
+      - PORT=5002
+      - DB_HOST=${DB_HOST:-43.133.145.125}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-l4mCps3yj578Hoq1z9KTQuvgE0rf2I6W}
+      - DB_NAME=${DB_NAME:-hr_payroll_prod}
+      - DB_PORT=${DB_PORT:-32678}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - JWT_TOKEN=${JWT_TOKEN:-private.pem}
+      - JWT_EXPIRATION_TIME=${JWT_EXPIRATION_TIME:-8}
+      - LOG_INFO_FILE_PATH=${LOG_INFO_FILE_PATH:-logs/%DATE%.log}
+      - LOG_INFO_MAX_FILE_SIZE=${LOG_INFO_MAX_FILE_SIZE:-20m}
+      - LOG_INFO_MAX_FILE_DAY=${LOG_INFO_MAX_FILE_DAY:-1d}
+      - LOG_ERROR_FILE_PATH=${LOG_ERROR_FILE_PATH:-logs/app-error-%DATE%.log}
+      - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
+      - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
+    depends_on:
+      - auth-1
+    networks:
+      - traefik-public
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.employee-1.rule=Host(`api-1.karsa.site`) && PathPrefix(`/employee`)"
+        - "traefik.http.routers.employee-1.entrypoints=websecure"
+        - "traefik.http.routers.employee-1.tls.certresolver=myresolver"
+        - "traefik.http.services.employee-1.loadbalancer.server.port=5002"
+        - "traefik.http.routers.employee-1.middlewares=employee-1-strip"
+        - "traefik.http.middlewares.employee-1-strip.stripprefix.prefixes=/employee"
+        - "com.centurylinklabs.watchtower.enable=true"
+
+  payroll-1:
+    image: ghcr.io/aidinaagustin/payroll-mic-payroll:latest
+    environment:
+      - PORT=5003
+      - DB_HOST=${DB_HOST:-43.133.145.125}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-l4mCps3yj578Hoq1z9KTQuvgE0rf2I6W}
+      - DB_NAME=${DB_NAME:-hr_payroll_prod}
+      - DB_PORT=${DB_PORT:-32678}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - JWT_TOKEN=${JWT_TOKEN:-private.pem}
+      - JWT_EXPIRATION_TIME=${JWT_EXPIRATION_TIME:-8}
+      - LOG_INFO_FILE_PATH=${LOG_INFO_FILE_PATH:-logs/%DATE%.log}
+      - LOG_INFO_MAX_FILE_SIZE=${LOG_INFO_MAX_FILE_SIZE:-20m}
+      - LOG_INFO_MAX_FILE_DAY=${LOG_INFO_MAX_FILE_DAY:-1d}
+      - LOG_ERROR_FILE_PATH=${LOG_ERROR_FILE_PATH:-logs/app-error-%DATE%.log}
+      - LOG_ERROR_MAX_FILE_SIZE=${LOG_ERROR_MAX_FILE_SIZE:-20m}
+      - LOG_ERROR_MAX_FILE_DAY=${LOG_ERROR_MAX_FILE_DAY:-1d}
+    networks:
+      - traefik-public
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.payroll-1.rule=Host(`api-1.karsa.site`) && PathPrefix(`/payroll`)"
+        - "traefik.http.routers.payroll-1.entrypoints=websecure"
+        - "traefik.http.routers.payroll-1.tls.certresolver=myresolver"
+        - "traefik.http.services.payroll-1.loadbalancer.server.port=5003"
+        - "traefik.http.routers.payroll-1.middlewares=payroll-1-strip"
+        - "traefik.http.middlewares.payroll-1-strip.stripprefix.prefixes=/payroll"
+        - "com.centurylinklabs.watchtower.enable=true"
+
+  gateway-1:
+    image: ghcr.io/aidinaagustin/payroll-mic-gateway:latest
+    environment:
+      - PORT=5000
+      - AUTH_SERVICE_URL=http://auth-1:5001
+      - EMPLOYEE_SERVICE_URL=http://employee-1:5002
+      - PAYROLL_SERVICE_URL=http://payroll-1:5003
+    depends_on:
+      - auth-1
+      - employee-1
+      - payroll-1
+    networks:
+      - traefik-public
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.gateway-1.rule=Host(`api-1.karsa.site`)"
+        - "traefik.http.routers.gateway-1.entrypoints=websecure"
+        - "traefik.http.routers.gateway-1.tls.certresolver=myresolver"
+        - "traefik.http.services.gateway-1.loadbalancer.server.port=5000"
+        - "com.centurylinklabs.watchtower.enable=true"
+
+networks:
+  traefik-public:
+    external: true
+    name: tascrum_traefik-public
