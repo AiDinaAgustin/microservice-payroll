@@ -2,6 +2,8 @@ services:
   api-router:
     image: alpine:latest
     command: sh -c "while true; do sleep 3600; done"
+    networks:
+      - traefik-public
     deploy:
       replicas: 1
       labels:
