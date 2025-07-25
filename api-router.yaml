@@ -14,7 +14,7 @@ services:
 
         # Load balancer service that distributes traffic
         - "traefik.http.services.api-lb.loadbalancer.server.scheme=https"
-        - "traefik.http.services.api-lb.loadbalancer.healthcheck.path=/health"
+        - "traefik.http.services.api-lb.loadbalancer.healthcheck.path=/"
         - "traefik.http.services.api-lb.loadbalancer.healthcheck.interval=5s"
         - "traefik.http.services.api-lb.loadbalancer.healthcheck.timeout=3s"
 
