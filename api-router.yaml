@@ -12,6 +12,10 @@ services:
         - "traefik.http.routers.api-main.tls.certresolver=myresolver"
         - "traefik.http.routers.api-main.service=api-lb"
 
+        # Add path handling middleware
+        - "traefik.http.middlewares.api-prefix.stripprefix.prefixes=/v1"
+        - "traefik.http.routers.api-main.middlewares=api-prefix"
+
         # Load balancer service that distributes traffic
         - "traefik.http.services.api-lb.loadbalancer.server.scheme=https"
         - "traefik.http.services.api-lb.loadbalancer.healthcheck.path=/"
